@@ -796,4 +796,8 @@
   if (qp) start(qp); else { $('#ideaInput').focus(); rotatePlaceholder(); }
   window.__storigen = { state: function () { return S; }, sound: Sound };
   var skyT; window.addEventListener('resize', function () { clearTimeout(skyT); skyT = setTimeout(paintSky, 200); });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  }
 })();

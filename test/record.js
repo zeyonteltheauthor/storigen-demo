@@ -1,0 +1,31 @@
+const { chromium } = require('playwright'); const path=require('path'); const fs=require('fs');
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+(async()=>{
+  const b=await chromium.launch();
+  const ctx=await b.newContext({viewport:{width:1280,height:760},recordVideo:{dir:'/tmp/vid',size:{width:1280,height:760}}});
+  const p=await ctx.newPage();
+  await p.goto(process.env.BASE || 'http://127.0.0.1:4173/');
+  await sleep(1500);
+  await p.click('#ideaInput');
+  await p.keyboard.type('A girl finds a locked door in her school.', {delay:45});
+  await sleep(600); await p.keyboard.press('Enter'); await sleep(2600);
+  const typeAns = async (t) => { await p.click('#ansInput'); await p.keyboard.type(t,{delay:70}); await sleep(400); await p.keyboard.press('Enter'); await sleep(2000); };
+  const chip = async (i) => { const c=p.locator('.chip').nth(i); await c.hover(); await sleep(700); await c.click(); await sleep(2000); };
+  await typeAns('Maya');
+  await chip(0);
+  await chip(1);
+  await sleep(1800);
+  await p.locator('[data-act="continue"]').click(); await sleep(1500);
+  await chip(0); await chip(2); await typeAns('no running'); await chip(1);
+  // the payoff: map nodes fly into "Your story, in your words"
+  await p.waitForSelector('#reveal:not([hidden])',{timeout:8000}); await sleep(4200);
+  const rv = async (y) => { await p.evaluate(y=>document.querySelector('#reveal').scrollTo({top:y,behavior:'smooth'}), y); await sleep(1600); };
+  await rv(380); await sleep(1200);
+  await p.evaluate(()=>document.querySelector('.rv-tell').scrollIntoView({block:'start',behavior:'smooth'})); await sleep(3000);
+  const q=p.locator('.rv-q').nth(1); await q.hover(); await sleep(500); await q.click(); await sleep(500);
+  await p.keyboard.type('they could free her best friend',{delay:60}); await sleep(400); await p.keyboard.press('Enter'); await sleep(3200);
+  await rv(0); await sleep(3500);
+  await ctx.close(); await b.close();
+  const f=fs.readdirSync('/tmp/vid').map(x=>'/tmp/vid/'+x).sort((a,b)=>fs.statSync(b).mtimeMs-fs.statSync(a).mtimeMs)[0];
+  fs.copyFileSync(f, path.join(__dirname,'..','screenshots','flow.webm')); console.log('ok',f);
+})();

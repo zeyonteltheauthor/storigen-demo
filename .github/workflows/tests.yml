@@ -1,0 +1,27 @@
+name: tests
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright and Chromium
+        working-directory: test
+        run: npm ci && npx playwright install --with-deps chromium
+      - name: Serve the repo root and run tests
+        env:
+          BASE: http://127.0.0.1:4173/
+        run: |
+          python3 -m http.server 4173 > /tmp/storigen-http.log 2>&1 &
+          for i in $(seq 1 50); do
+            curl -fsS -o /dev/null "$BASE" && break
+            sleep 0.2
+          done
+          node test/run.js
+          node test/pages-smoke.js "$BASE"

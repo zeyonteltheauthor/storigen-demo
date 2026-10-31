@@ -1,0 +1,6 @@
+const { chromium } = require('playwright');
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1280,height:800}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('https://ba00c3d95ec24215.flypod.page/',{waitUntil:'networkidle'});await p.fill('#ideaInput','The idea is about a girl, a locked door and a journal');await p.keyboard.press('Enter');await new Promise(r=>setTimeout(r,2200));
+for(const a of ['Kim','Hey holes very important secrets','It is locked and she does not have the key','She loses her only chance','That the journal May belong to someone else','Everything is watched','She has been the key the whole time']){ if(await p.locator('[data-act="continue"]').count() && !(await p.locator('#ansInput').count())){await p.locator('[data-act="continue"]').click();await new Promise(r=>setTimeout(r,600));} await p.fill('#ansInput',a);await p.keyboard.press('Enter');await new Promise(r=>setTimeout(r,1400));}
+await p.waitForSelector('#reveal:not([hidden])',{timeout:8000});await new Promise(r=>setTimeout(r,2500));
+console.log((await p.locator('#rvLogline').innerText()), '|', (await p.locator('.rv-ins').count()),'insights', errs);await b.close();})();

@@ -1,0 +1,1036 @@
+[
+  {
+    "name": "frames [The idea is about a girl, a locked door and a journal]: main-flow questions have no ellipsis",
+    "ok": true
+  },
+  {
+    "name": "frames [The idea is about a girl, a locked door and a journal]: main-flow questions are all different",
+    "ok": true
+  },
+  {
+    "name": "frames [The idea is about a girl, a locked door and a journal]: Don's Twist view has 7 distinct rows",
+    "ok": true,
+    "info": "Suppose Kim isn’t the first to find the locked door. Who was? | What secret could Kim be keeping, even from herself? | Could the secrets she’s chasing turn out to be about her? | What if the locked door was never meant to keep her out? | Is what Kim fears losing the very thing holding her back? | Was the journal meant for Kim all along? | What has this world been hiding on purpose?"
+  },
+  {
+    "name": "frames [The idea is about a girl, a locked door and a journal]: no shared sentence frame in any of the 7 views",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "frames [The idea is about a girl, a locked door and a journal]: no \"…\" or \"...\" in any reframe",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "frames [A girl finds a locked door in her school.]: main-flow questions have no ellipsis",
+    "ok": true
+  },
+  {
+    "name": "frames [A girl finds a locked door in her school.]: main-flow questions are all different",
+    "ok": true
+  },
+  {
+    "name": "frames [A girl finds a locked door in her school.]: Don's Twist view has 7 distinct rows",
+    "ok": true,
+    "info": "Suppose Kim isn’t the first to find the locked door. Who was? | What secret could Kim be keeping, even from herself? | Could the secrets she’s chasing turn out to be about her? | What if the locked door was never meant to keep her out? | Is what Kim fears losing the very thing holding her back? | Was the journal meant for Kim all along? | What has the school been hiding on purpose?"
+  },
+  {
+    "name": "frames [A girl finds a locked door in her school.]: no shared sentence frame in any of the 7 views",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "frames [A girl finds a locked door in her school.]: no \"…\" or \"...\" in any reframe",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "frames [A lonely robot discovers a flower on Mars]: main-flow questions have no ellipsis",
+    "ok": true
+  },
+  {
+    "name": "frames [A lonely robot discovers a flower on Mars]: main-flow questions are all different",
+    "ok": true
+  },
+  {
+    "name": "frames [A lonely robot discovers a flower on Mars]: no shared sentence frame in any of the 7 views",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "frames [A lonely robot discovers a flower on Mars]: no \"…\" or \"...\" in any reframe",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "frames [Why do volcanoes erupt?]: main-flow questions have no ellipsis",
+    "ok": true
+  },
+  {
+    "name": "frames [Why do volcanoes erupt?]: main-flow questions are all different",
+    "ok": true
+  },
+  {
+    "name": "frames [Why do volcanoes erupt?]: no shared sentence frame in any of the 7 views",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "frames [Why do volcanoes erupt?]: no \"…\" or \"...\" in any reframe",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "frames [Grade 4 — ecosystems]: main-flow questions have no ellipsis",
+    "ok": true
+  },
+  {
+    "name": "frames [Grade 4 — ecosystems]: main-flow questions are all different",
+    "ok": true
+  },
+  {
+    "name": "frames [Grade 4 — ecosystems]: no shared sentence frame in any of the 7 views",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "frames [Grade 4 — ecosystems]: no \"…\" or \"...\" in any reframe",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "frames [I keep putting off my homework]: main-flow questions have no ellipsis",
+    "ok": true
+  },
+  {
+    "name": "frames [I keep putting off my homework]: main-flow questions are all different",
+    "ok": true
+  },
+  {
+    "name": "frames [I keep putting off my homework]: no shared sentence frame in any of the 7 views",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "frames [I keep putting off my homework]: no \"…\" or \"...\" in any reframe",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "frames [a dragon who is afraid of fire]: main-flow questions have no ellipsis",
+    "ok": true
+  },
+  {
+    "name": "frames [a dragon who is afraid of fire]: main-flow questions are all different",
+    "ok": true
+  },
+  {
+    "name": "frames [a dragon who is afraid of fire]: no shared sentence frame in any of the 7 views",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "frames [a dragon who is afraid of fire]: no \"…\" or \"...\" in any reframe",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "tidy: sentence-cases and drops filler/stray caps",
+    "ok": true,
+    "info": "That the journal may belong to someone else"
+  },
+  {
+    "name": "A-story-desktop: opening minimal (1 input, 1 submit)",
+    "ok": true
+  },
+  {
+    "name": "A-story-desktop: no \"Welcome to STORIGEN OS\"",
+    "ok": true
+  },
+  {
+    "name": "A-story-desktop: seven lenses around idea",
+    "ok": true
+  },
+  {
+    "name": "A-story-desktop: one question shown",
+    "ok": true,
+    "info": "Who is she?"
+  },
+  {
+    "name": "A-story-desktop: \"Look what you already know.\" after 3 answers",
+    "ok": true
+  },
+  {
+    "name": "A-story-desktop: story reveal opens after the lenses",
+    "ok": true
+  },
+  {
+    "name": "A-story-desktop: reveal title \"Your story, in your words\"",
+    "ok": true
+  },
+  {
+    "name": "A-story-desktop: every answer (7) appears in full in the spine",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "A-story-desktop: scaffold invents no nouns",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "A-story-desktop: logline built from the learner's words",
+    "ok": true
+  },
+  {
+    "name": "A-story-desktop: closing line credits the learner",
+    "ok": true
+  },
+  {
+    "name": "A-story-desktop: reveal has no sideways scroll",
+    "ok": true,
+    "info": "{\"missing\":[],\"fw\":\" has one goal:  ,  but   stands in the way . the world:  . it begins  when  . meet  . she  has one goal:  . but   stands in the way . if she walks away,  . what she doesn’t realize:  . and the twist:  .\",\"title\":\"Your story, in your words\",\"nAnswers\":7,\"closing\":\"Every underlined word came from you. STORIGEN only asked.\",\"logMarks\":3,\"ow\":0,\"docOw\":0}"
+  },
+  {
+    "name": "A-story-desktop: \"See what you built\" button on the map",
+    "ok": true
+  },
+  {
+    "name": "A-story-desktop: map has answered nodes",
+    "ok": true,
+    "info": "7 nodes"
+  },
+  {
+    "name": "A-story-desktop: map links grew",
+    "ok": true,
+    "info": "7 arcs"
+  },
+  {
+    "name": "A-story-desktop: perspective re-centers map",
+    "ok": true
+  },
+  {
+    "name": "A-story-desktop: nodes reframed in perspective view",
+    "ok": true,
+    "info": "6 reframed"
+  },
+  {
+    "name": "A-story-desktop: perspective node at center",
+    "ok": true
+  },
+  {
+    "name": "A-story-desktop: footer principle visible",
+    "ok": true
+  },
+  {
+    "name": "A-story-desktop: no overlapping/offscreen nodes (perspective view)",
+    "ok": true,
+    "info": "{\"n\":0,\"off\":0}"
+  },
+  {
+    "name": "A-story-desktop: no overlapping nodes (idea view)",
+    "ok": true,
+    "info": "0"
+  },
+  {
+    "name": "A-story-desktop: no JS errors",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "B-question-desktop: opening minimal (1 input, 1 submit)",
+    "ok": true
+  },
+  {
+    "name": "B-question-desktop: no \"Welcome to STORIGEN OS\"",
+    "ok": true
+  },
+  {
+    "name": "B-question-desktop: seven lenses around idea",
+    "ok": true
+  },
+  {
+    "name": "B-question-desktop: one question shown",
+    "ok": true,
+    "info": "Who or what is at the center of volcanoes?"
+  },
+  {
+    "name": "B-question-desktop: \"Look what you already know.\" after 3 answers",
+    "ok": true
+  },
+  {
+    "name": "B-question-desktop: story reveal opens after the lenses",
+    "ok": true
+  },
+  {
+    "name": "B-question-desktop: reveal title \"Your thinking, in your words\"",
+    "ok": true
+  },
+  {
+    "name": "B-question-desktop: every answer (6) appears in full in the spine",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "B-question-desktop: scaffold invents no nouns",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "B-question-desktop: logline built from the learner's words",
+    "ok": true
+  },
+  {
+    "name": "B-question-desktop: closing line credits the learner",
+    "ok": true
+  },
+  {
+    "name": "B-question-desktop: reveal has no sideways scroll",
+    "ok": true,
+    "info": "{\"missing\":[],\"fw\":\"you asked   and found what’s in the way:  . the question:  who’s involved:  what they’re trying to do:  where it happens:  what’s in the way:  another angle:  what could change: \",\"title\":\"Your thinking, in your words\",\"nAnswers\":6,\"closing\":\"Every underlined word came from you. STORIGEN only asked.\",\"logMarks\":2,\"ow\":0,\"docOw\":0}"
+  },
+  {
+    "name": "B-question-desktop: \"See what you built\" button on the map",
+    "ok": true
+  },
+  {
+    "name": "B-question-desktop: map has answered nodes",
+    "ok": true,
+    "info": "6 nodes"
+  },
+  {
+    "name": "B-question-desktop: map links grew",
+    "ok": true,
+    "info": "5 arcs"
+  },
+  {
+    "name": "B-question-desktop: perspective re-centers map",
+    "ok": true
+  },
+  {
+    "name": "B-question-desktop: nodes reframed in perspective view",
+    "ok": true,
+    "info": "5 reframed"
+  },
+  {
+    "name": "B-question-desktop: perspective node at center",
+    "ok": true
+  },
+  {
+    "name": "B-question-desktop: footer principle visible",
+    "ok": true
+  },
+  {
+    "name": "B-question-desktop: no overlapping/offscreen nodes (perspective view)",
+    "ok": true,
+    "info": "{\"n\":0,\"off\":0}"
+  },
+  {
+    "name": "B-question-desktop: no overlapping nodes (idea view)",
+    "ok": true,
+    "info": "0"
+  },
+  {
+    "name": "B-question-desktop: no JS errors",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "C-robot-mobile: opening minimal (1 input, 1 submit)",
+    "ok": true
+  },
+  {
+    "name": "C-robot-mobile: no \"Welcome to STORIGEN OS\"",
+    "ok": true
+  },
+  {
+    "name": "C-robot-mobile: seven lenses around idea",
+    "ok": true
+  },
+  {
+    "name": "C-robot-mobile: one question shown",
+    "ok": true,
+    "info": "Who is the lonely robot?"
+  },
+  {
+    "name": "C-robot-mobile: \"Look what you already know.\" after 3 answers",
+    "ok": true
+  },
+  {
+    "name": "C-robot-mobile: story reveal opens after the lenses",
+    "ok": true
+  },
+  {
+    "name": "C-robot-mobile: reveal title \"Your story, in your words\"",
+    "ok": true
+  },
+  {
+    "name": "C-robot-mobile: every answer (7) appears in full in the spine",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "C-robot-mobile: scaffold invents no nouns",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "C-robot-mobile: logline built from the learner's words",
+    "ok": true
+  },
+  {
+    "name": "C-robot-mobile: closing line credits the learner",
+    "ok": true
+  },
+  {
+    "name": "C-robot-mobile: reveal has no sideways scroll",
+    "ok": true,
+    "info": "{\"missing\":[],\"fw\":\" has one goal:  ,  but  . the world:  . it begins  when  . meet  . they  have one goal:  . but  . if they walk away,  . what they don’t realize:  . and the twist:  .\",\"title\":\"Your story, in your words\",\"nAnswers\":7,\"closing\":\"Every underlined word came from you. STORIGEN only asked.\",\"logMarks\":3,\"ow\":0,\"docOw\":0}"
+  },
+  {
+    "name": "C-robot-mobile: \"See what you built\" button on the map",
+    "ok": true
+  },
+  {
+    "name": "C-robot-mobile: map has answered nodes",
+    "ok": true,
+    "info": "7 nodes"
+  },
+  {
+    "name": "C-robot-mobile: map links grew",
+    "ok": true,
+    "info": "7 arcs"
+  },
+  {
+    "name": "C-robot-mobile: perspective re-centers map",
+    "ok": true
+  },
+  {
+    "name": "C-robot-mobile: nodes reframed in perspective view",
+    "ok": true,
+    "info": "6 reframed"
+  },
+  {
+    "name": "C-robot-mobile: perspective node at center",
+    "ok": true
+  },
+  {
+    "name": "C-robot-mobile: footer principle visible",
+    "ok": true
+  },
+  {
+    "name": "C-robot-mobile: no overlapping/offscreen nodes (perspective view)",
+    "ok": true,
+    "info": "{\"n\":0,\"off\":0}"
+  },
+  {
+    "name": "C-robot-mobile: no overlapping nodes (idea view)",
+    "ok": true,
+    "info": "0"
+  },
+  {
+    "name": "C-robot-mobile: no JS errors",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "D-teacher-desktop: opening minimal (1 input, 1 submit)",
+    "ok": true
+  },
+  {
+    "name": "D-teacher-desktop: no \"Welcome to STORIGEN OS\"",
+    "ok": true
+  },
+  {
+    "name": "D-teacher-desktop: seven lenses around idea",
+    "ok": true
+  },
+  {
+    "name": "D-teacher-desktop: one question shown",
+    "ok": true,
+    "info": "Who are the “characters” in ecosystems?"
+  },
+  {
+    "name": "D-teacher-desktop: \"Look what you already know.\" after 3 answers",
+    "ok": true
+  },
+  {
+    "name": "D-teacher-desktop: story reveal opens after the lenses",
+    "ok": true
+  },
+  {
+    "name": "D-teacher-desktop: reveal title \"Your learning experience\"",
+    "ok": true
+  },
+  {
+    "name": "D-teacher-desktop: every answer (7) appears in full in the spine",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "D-teacher-desktop: scaffold invents no nouns",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "D-teacher-desktop: logline built from the learner's words",
+    "ok": true
+  },
+  {
+    "name": "D-teacher-desktop: closing line credits the learner",
+    "ok": true
+  },
+  {
+    "name": "D-teacher-desktop: reveal has no sideways scroll",
+    "ok": true,
+    "info": "{\"missing\":[],\"fw\":\"grade 4 students investigate   through  , and work out what’s in the way:  . 1. open the world ·  students explore  . ask: “what are the rules here?” 2. meet the characters ·  students identify and sort  . ask: “who lives in this world?” 3. name the goal ·  ask: “what are   trying to do?” students defend their answer. target idea:  . 4. find the obstacle ·  students list what makes it hard:  . ask: “which obstacle matters most? why?” 5. weigh the stakes ·  students predict what happens if   fail:  . 6. switch perspective ·  small groups each take one view ( ) and explain the same event from it. 7. introduce the twist ·  change one thing:  . students revise their map and explain what changed and why. exit ticket: “which lens helped you understand   most, and what evidence shows it?”\",\"title\":\"Your learning experience\",\"nAnswers\":7,\"closing\":\"Every underlined word came from you. STORIGEN only asked.\",\"logMarks\":3,\"ow\":0,\"docOw\":0}"
+  },
+  {
+    "name": "D-teacher-desktop: \"See your learning experience\" button on the map",
+    "ok": true
+  },
+  {
+    "name": "D-teacher-desktop: map has answered nodes",
+    "ok": true,
+    "info": "7 nodes"
+  },
+  {
+    "name": "D-teacher-desktop: map links grew",
+    "ok": true,
+    "info": "7 arcs"
+  },
+  {
+    "name": "D-teacher-desktop: perspective re-centers map",
+    "ok": true
+  },
+  {
+    "name": "D-teacher-desktop: nodes reframed in perspective view",
+    "ok": true,
+    "info": "6 reframed"
+  },
+  {
+    "name": "D-teacher-desktop: perspective node at center",
+    "ok": true
+  },
+  {
+    "name": "D-teacher-desktop: footer principle visible",
+    "ok": true
+  },
+  {
+    "name": "D-teacher-desktop: no overlapping/offscreen nodes (perspective view)",
+    "ok": true,
+    "info": "{\"n\":0,\"off\":0}"
+  },
+  {
+    "name": "D-teacher-desktop: teacher \"Turn this into a learning experience\"",
+    "ok": true
+  },
+  {
+    "name": "D-teacher-desktop: plan has 7 steps",
+    "ok": true
+  },
+  {
+    "name": "D-teacher-desktop: no overlapping nodes (idea view)",
+    "ok": true,
+    "info": "0"
+  },
+  {
+    "name": "D-teacher-desktop: no JS errors",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "E-problem-tablet: opening minimal (1 input, 1 submit)",
+    "ok": true
+  },
+  {
+    "name": "E-problem-tablet: no \"Welcome to STORIGEN OS\"",
+    "ok": true
+  },
+  {
+    "name": "E-problem-tablet: seven lenses around idea",
+    "ok": true
+  },
+  {
+    "name": "E-problem-tablet: one question shown",
+    "ok": true,
+    "info": "Who’s part of this, besides you?"
+  },
+  {
+    "name": "E-problem-tablet: \"Look what you already know.\" after 3 answers",
+    "ok": true
+  },
+  {
+    "name": "E-problem-tablet: story reveal opens after the lenses",
+    "ok": true
+  },
+  {
+    "name": "E-problem-tablet: reveal title \"Your thinking, in your words\"",
+    "ok": true
+  },
+  {
+    "name": "E-problem-tablet: every answer (7) appears in full in the spine",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "E-problem-tablet: scaffold invents no nouns",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "E-problem-tablet: logline built from the learner's words",
+    "ok": true
+  },
+  {
+    "name": "E-problem-tablet: closing line credits the learner",
+    "ok": true
+  },
+  {
+    "name": "E-problem-tablet: reveal has no sideways scroll",
+    "ok": true,
+    "info": "{\"missing\":[],\"fw\":\"you started with   and found what’s in the way:  . the problem:  who’s involved:  what “solved” looks like:  when and where:  what’s in the way:  why it matters:  another angle:  what could change: \",\"title\":\"Your thinking, in your words\",\"nAnswers\":7,\"closing\":\"Every underlined word came from you. STORIGEN only asked.\",\"logMarks\":2,\"ow\":0,\"docOw\":0}"
+  },
+  {
+    "name": "E-problem-tablet: \"See what you built\" button on the map",
+    "ok": true
+  },
+  {
+    "name": "E-problem-tablet: map has answered nodes",
+    "ok": true,
+    "info": "7 nodes"
+  },
+  {
+    "name": "E-problem-tablet: map links grew",
+    "ok": true,
+    "info": "7 arcs"
+  },
+  {
+    "name": "E-problem-tablet: perspective re-centers map",
+    "ok": true
+  },
+  {
+    "name": "E-problem-tablet: nodes reframed in perspective view",
+    "ok": true,
+    "info": "6 reframed"
+  },
+  {
+    "name": "E-problem-tablet: perspective node at center",
+    "ok": true
+  },
+  {
+    "name": "E-problem-tablet: footer principle visible",
+    "ok": true
+  },
+  {
+    "name": "E-problem-tablet: no overlapping/offscreen nodes (perspective view)",
+    "ok": true,
+    "info": "{\"n\":0,\"off\":0}"
+  },
+  {
+    "name": "E-problem-tablet: no overlapping nodes (idea view)",
+    "ok": true,
+    "info": "0"
+  },
+  {
+    "name": "E-problem-tablet: no JS errors",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "don desktop: \"See what you built\" appears after 5 answers",
+    "ok": true
+  },
+  {
+    "name": "G-don-desktop: story reveal opens after the lenses",
+    "ok": true
+  },
+  {
+    "name": "G-don-desktop: reveal title \"Your story, in your words\"",
+    "ok": true
+  },
+  {
+    "name": "G-don-desktop: every answer (7) appears in full in the spine",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "G-don-desktop: scaffold invents no nouns",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "G-don-desktop: logline built from the learner's words",
+    "ok": true
+  },
+  {
+    "name": "G-don-desktop: closing line credits the learner",
+    "ok": true
+  },
+  {
+    "name": "G-don-desktop: reveal has no sideways scroll",
+    "ok": true,
+    "info": "{\"missing\":[],\"fw\":\"in a world where  ,   wants  ,  but  . in a world where  , it begins  with  . meet  . she  wants  . but  . if she walks away,  . what she doesn’t realize:  . and the twist:  .\",\"title\":\"Your story, in your words\",\"nAnswers\":7,\"closing\":\"Every underlined word came from you. STORIGEN only asked.\",\"logMarks\":4,\"ow\":0,\"docOw\":0}"
+  },
+  {
+    "name": "don desktop: logline is Don's words",
+    "ok": true
+  },
+  {
+    "name": "don desktop: spine includes \"Kim\"",
+    "ok": true
+  },
+  {
+    "name": "don desktop: spine includes \"holes very important secrets\"",
+    "ok": true
+  },
+  {
+    "name": "don desktop: spine includes \"it is locked and she does not have the key\"",
+    "ok": true
+  },
+  {
+    "name": "don desktop: spine includes \"she loses her only chance\"",
+    "ok": true
+  },
+  {
+    "name": "don desktop: spine includes \"that the journal may belong to someone else\"",
+    "ok": true
+  },
+  {
+    "name": "don desktop: spine includes \"everything is watched\"",
+    "ok": true
+  },
+  {
+    "name": "don desktop: spine includes \"she has been the key the whole time\"",
+    "ok": true
+  },
+  {
+    "name": "don desktop: three acts BEGINNING / MIDDLE / TURN",
+    "ok": true
+  },
+  {
+    "name": "don desktop: connection links the locked door and the journal (as a question)",
+    "ok": true,
+    "info": "Your obstacle (the locked door) and your perspective (the journal) point at the same secret. Is the locked door hiding the journal’s real owner?"
+  },
+  {
+    "name": "don desktop: connection links obstacle key and twist key",
+    "ok": true
+  },
+  {
+    "name": "don desktop: tension names the big stakes vs the fuzzy goal",
+    "ok": true
+  },
+  {
+    "name": "don desktop: every insight is phrased as a question or a gap",
+    "ok": true,
+    "info": "Your obstacle (the locked door) and your perspective (the journal) point at the same secret. Is the locked door hiding the journal’s real owner? | Your obstacle says she doesn’t have the key. Your twist says she has been the key all along. What does Kim have to see to know it? | In a world where everything is watched, how does Kim keep the secrets hidden? | Your stakes are big (“she loses her only chance”), but Kim’s goal is still fuzzy (“holes very important secrets”). What would make her risk everything for it? | You named Kim, but we don’t know who she is yet. One word about her would make the beginning stronger."
+  },
+  {
+    "name": "don desktop: 2-3 tappable next moves",
+    "ok": true,
+    "info": "3"
+  },
+  {
+    "name": "don desktop: story strength shown per act",
+    "ok": true,
+    "info": "50,82,75"
+  },
+  {
+    "name": "don desktop: live update adds new highlighted phrases",
+    "ok": true,
+    "info": "they could free her brother | when she reads her own name in it"
+  },
+  {
+    "name": "don desktop: new phrase lands in MIDDLE and TURN",
+    "ok": true
+  },
+  {
+    "name": "don desktop: story strength brightens as answers deepen",
+    "ok": true,
+    "info": "50,82,75 -> 50,100,100"
+  },
+  {
+    "name": "don desktop: answered moves are replaced by new ones",
+    "ok": true
+  },
+  {
+    "name": "write first line: seeded by a prompt only",
+    "ok": true,
+    "info": "Start where Kim first sees the locked door."
+  },
+  {
+    "name": "write first line: add disabled until text",
+    "ok": true
+  },
+  {
+    "name": "write first line: learner text appended, highlighted",
+    "ok": true
+  },
+  {
+    "name": "write first line: button becomes \"Edit my first line\"",
+    "ok": true
+  },
+  {
+    "name": "print: button calls window.print()",
+    "ok": true
+  },
+  {
+    "name": "print: map and spine both render, buttons hidden, white page",
+    "ok": true,
+    "info": "{\"map\":8,\"rv\":\"static\",\"btns\":true,\"bg\":\"rgb(255, 255, 255)\"}"
+  },
+  {
+    "name": "\"See it through another lens\" closes reveal into perspective view",
+    "ok": true
+  },
+  {
+    "name": "\"See what you built\" reopens the story, extras kept",
+    "ok": true
+  },
+  {
+    "name": "Escape closes the story",
+    "ok": true
+  },
+  {
+    "name": "\"Start a new idea\" returns to the opening",
+    "ok": true
+  },
+  {
+    "name": "sound: reveal cue played",
+    "ok": true
+  },
+  {
+    "name": "don desktop: no JS errors",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "sound: toggle visible and labelled",
+    "ok": true
+  },
+  {
+    "name": "sound: OFF by default",
+    "ok": true
+  },
+  {
+    "name": "sound: click turns it on (aria-pressed + localStorage)",
+    "ok": true
+  },
+  {
+    "name": "sound: choice remembered after reload",
+    "ok": true
+  },
+  {
+    "name": "mobile: question panel fits without scrolling",
+    "ok": true,
+    "info": "{\"sh\":398,\"ch\":398}"
+  },
+  {
+    "name": "G-don-phone: story reveal opens after the lenses",
+    "ok": true
+  },
+  {
+    "name": "G-don-phone: reveal title \"Your story, in your words\"",
+    "ok": true
+  },
+  {
+    "name": "G-don-phone: every answer (7) appears in full in the spine",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "G-don-phone: scaffold invents no nouns",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "G-don-phone: logline built from the learner's words",
+    "ok": true
+  },
+  {
+    "name": "G-don-phone: closing line credits the learner",
+    "ok": true
+  },
+  {
+    "name": "G-don-phone: reveal has no sideways scroll",
+    "ok": true,
+    "info": "{\"missing\":[],\"fw\":\"in a world where  ,   wants  ,  but  . in a world where  , it begins  with  . meet  . she  wants  . but  . if she walks away,  . what she doesn’t realize:  . and the twist:  .\",\"title\":\"Your story, in your words\",\"nAnswers\":7,\"closing\":\"Every underlined word came from you. STORIGEN only asked.\",\"logMarks\":4,\"ow\":0,\"docOw\":0}"
+  },
+  {
+    "name": "don phone: next-move answer slots into the spine",
+    "ok": true
+  },
+  {
+    "name": "don phone: reveal layout has no overflow",
+    "ok": true,
+    "info": "{\"ow\":0,\"wide\":0}"
+  },
+  {
+    "name": "don phone: \"See what you built\" stays on the map",
+    "ok": true
+  },
+  {
+    "name": "don: map nodes show full answers (no '…')",
+    "ok": true,
+    "info": "YOUR IDEA The idea is about a girl, a locked door and a journal CHARACTER Kim GOAL Holes very important secrets OBSTACLE It is locked and she does not have the "
+  },
+  {
+    "name": "don: no clipped answer text on nodes",
+    "ok": true,
+    "info": "0"
+  },
+  {
+    "name": "don: perspective view - 7 rows, no shared frame",
+    "ok": true,
+    "info": "Whose story is this, if Kim isn’t the one telling it? | How would Kim’s best friend describe her right now? | Who would want Kim to fail, and why? | Who locked the door, and what were they protecting? | Who else gets hurt if Kim fails? | What does this world look like to someone who doesn’t belong there? | Who already knew the truth before Kim did?"
+  },
+  {
+    "name": "don: perspective view - no '…' or '...'",
+    "ok": true
+  },
+  {
+    "name": "don: world view - 7 rows, no shared frame",
+    "ok": true,
+    "info": "Could this story happen anywhere else, or only here? | What does this world expect Kim to be? | What rule in this world makes her goal hard to reach? | Is the obstacle part of this world itself? | Who in this world would notice if things go wrong? | Where in this world would someone see this completely differently? | What would this world have to hide for this twist to work?"
+  },
+  {
+    "name": "don: world view - no '…' or '...'",
+    "ok": true
+  },
+  {
+    "name": "don: twist view - 7 rows, no shared frame",
+    "ok": true,
+    "info": "Suppose Kim isn’t the first to find the locked door. Who was? | What secret could Kim be keeping, even from herself? | Could the secrets she’s chasing turn out to be about her? | What if the locked door was never meant to keep her out? | Is what Kim fears losing the very thing holding her back? | Was the journal meant for Kim all along? | What has this world been hiding on purpose?"
+  },
+  {
+    "name": "don: twist view - no '…' or '...'",
+    "ok": true
+  },
+  {
+    "name": "don: twist view shows Don's full answers",
+    "ok": true,
+    "info": "You said: Kim | You said: Holes very important secrets | You said: It is locked and she does not have the key | You said: She loses her only chance | You said: That the journal may belong to someone else | You said: Everything is watched"
+  },
+  {
+    "name": "don: twist rows do not use the old robotic template",
+    "ok": true
+  },
+  {
+    "name": "don: character view - 7 rows, no shared frame",
+    "ok": true,
+    "info": "Who does this story really belong to? | What does wanting this say about who Kim is? | What does this obstacle reveal about Kim? | Why does Kim care so much? | How does the other side change how Kim sees herself? | How did this world make Kim who she is? | Who is Kim after the twist?"
+  },
+  {
+    "name": "don: character view - no '…' or '...'",
+    "ok": true
+  },
+  {
+    "name": "don: goal view - 7 rows, no shared frame",
+    "ok": true,
+    "info": "What is this story really reaching for? | What does Kim want that she won’t say out loud? | Does the obstacle change what Kim really wants? | Is the goal worth the risk? | Does the other side want the same thing? | What does this world reward people for wanting? | After the twist, does Kim still want the same thing?"
+  },
+  {
+    "name": "don: goal view - no '…' or '...'",
+    "ok": true
+  },
+  {
+    "name": "don: obstacle view - 7 rows, no shared frame",
+    "ok": true,
+    "info": "What’s the hardest part of this story to solve? | How could Kim be her own obstacle? | What will Kim have to give up to get there? | What makes Kim want to give up? | What if the obstacle looks like help from the other side? | What in this world works against Kim? | What new problem does the twist create?"
+  },
+  {
+    "name": "don: obstacle view - no '…' or '...'",
+    "ok": true
+  },
+  {
+    "name": "don: stakes view - 7 rows, no shared frame",
+    "ok": true,
+    "info": "Why does this story need to be told now? | What would Kim never forgive herself for? | What happens to Kim if she never gets the secrets? | What will Kim risk to get past it? | Who pays the price if nobody listens to the other side? | What could this world lose because of this? | When the truth comes out, who has the most to lose?"
+  },
+  {
+    "name": "don: stakes view - no '…' or '...'",
+    "ok": true
+  },
+  {
+    "name": "don: all 7 lens views visited",
+    "ok": true,
+    "info": "perspective,world,twist,character,goal,obstacle,stakes"
+  },
+  {
+    "name": "sound ON: chime, land, swell and whoosh cues all played",
+    "ok": true,
+    "info": "chime,land,swell,reveal,whoosh"
+  },
+  {
+    "name": "sound ON: reveal cue played for the story",
+    "ok": true
+  },
+  {
+    "name": "sound OFF: no cues play once muted",
+    "ok": true
+  },
+  {
+    "name": "sound: muted choice saved",
+    "ok": true
+  },
+  {
+    "name": "links: no arc label sits on top of a node",
+    "ok": true,
+    "info": "0"
+  },
+  {
+    "name": "don + sound: no JS errors (muted and unmuted)",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "offline: service worker controls the page",
+    "ok": true
+  },
+  {
+    "name": "offline: app renders after reload",
+    "ok": true
+  },
+  {
+    "name": "offline: seven lenses around the idea",
+    "ok": true
+  },
+  {
+    "name": "offline: story reveal opens after the lenses",
+    "ok": true
+  },
+  {
+    "name": "offline: reveal title \"Your story, in your words\"",
+    "ok": true
+  },
+  {
+    "name": "offline: every answer (7) appears in full in the spine",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "offline: scaffold invents no nouns",
+    "ok": true,
+    "info": ""
+  },
+  {
+    "name": "offline: logline built from the learner's words",
+    "ok": true
+  },
+  {
+    "name": "offline: closing line credits the learner",
+    "ok": true
+  },
+  {
+    "name": "offline: reveal has no sideways scroll",
+    "ok": true,
+    "info": "{\"missing\":[],\"fw\":\" has one goal:  ,  but   stands in the way . the world:  . it begins  when  . meet  . she  has one goal:  . but   stands in the way . if she walks away,  . what she doesn’t realize:  . and the twist:  .\",\"title\":\"Your story, in your words\",\"nAnswers\":7,\"closing\":\"Every underlined word came from you. STORIGEN only asked.\",\"logMarks\":3,\"ow\":0,\"docOw\":0}"
+  },
+  {
+    "name": "offline: no JS errors",
+    "ok": true,
+    "info": ""
+  }
+]
