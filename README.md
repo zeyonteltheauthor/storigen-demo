@@ -9,6 +9,8 @@ Type an idea, answer the Seven Lenses (Character, Goal, Obstacle, Stakes, Perspe
 - Static HTML/CSS/JS: no build step, no login, no API key, works offline.
 - Run locally: open `index.html`, or `python3 -m http.server` in this folder.
 - Hosted with GitHub Pages (Deploy from branch: `main`, folder `/ (root)`).
+- Grade Along lives at `grade-along/`: fictional practice samples, plus a private **Grade a paper** mode. Teacher scores stay on this device (no uploads, no network calls). Real student papers are not in this repository.
+
 
 ## Works offline
 

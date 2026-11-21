@@ -474,3 +474,17 @@ mark.own.fresh{animation:litup 1.6s var(--ease-out) .1s}
   .rv-dot{border-color:#999;background:#f3f3f3}
   .reveal[hidden]{display:none}
 }
+
+/* Grade Along entry on the opening screen */
+.intro-stack{width:min(720px,100%);display:flex;flex-direction:column;align-items:center}
+.ga-entry{display:block;width:min(520px,100%);margin:34px auto 0;padding:16px 18px 16px 20px;text-align:left;text-decoration:none;color:inherit;
+  background:linear-gradient(180deg,rgba(30,41,66,.66),rgba(15,22,40,.7));border:1px solid rgba(209,169,84,.28);border-radius:18px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 16px 40px rgba(0,0,0,.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  opacity:0;animation:rise 1.1s var(--ease-out) 1.35s forwards;transition:border-color .25s,box-shadow .3s,transform .18s var(--ease)}
+.ga-entry:hover{border-color:rgba(242,221,164,.75);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 0 5px rgba(209,169,84,.12),0 16px 40px rgba(0,0,0,.4);transform:translateY(-1px)}
+.ga-kicker{display:block;font-family:var(--display);font-size:11px;font-weight:650;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.ga-title{display:block;font-family:var(--display);font-size:20px;font-weight:600;letter-spacing:-.02em;color:var(--gold-hi);margin-bottom:4px}
+.ga-desc{display:block;color:var(--text-2);font-size:14.5px;line-height:1.45}
+@media (max-width:560px){.ga-entry{margin-top:24px}}
+@media (prefers-reduced-motion:reduce){.ga-entry{animation:none;opacity:1}}
+@media print{.ga-entry{display:none}}

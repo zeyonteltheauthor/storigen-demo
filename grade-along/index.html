@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0A1020">
+<meta name="color-scheme" content="dark">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'unsafe-inline'; font-src data:; img-src data: blob:; frame-src blob: data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; worker-src 'none'">
+<title>Grade Along | STORIGEN OS</title>
+<meta name="description" content="STORIGEN OS Grade Along: practice samples and a private teacher mode for grading papers on this device. Human first. The teacher decides.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230A1020'/%3E%3Ccircle cx='16' cy='16' r='9' fill='%23D1A954' opacity='.25'/%3E%3Ccircle cx='16' cy='16' r='4.5' fill='%23F2DDA4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="../fonts.css">
+<style>
+
+:root{color-scheme:dark;--ink-brand:#1F2937;--gold:#D1A954;--gold-hi:#F2DDA4;--gold-lo:#9C7A34;--parch:#F7F4EC;--violet-brand:#6D28D9;--violet:#B79CFF;--violet-hi:#B79CFF;--focus-brand:#1D4ED8;--focus:#8FB1FF;--focus-hi:#8FB1FF;--night:#0A1020;--deep:#060913;--surface:#101A2F;--raised:#18233B;--night-0:#060913;--night-1:#0A1020;--night-2:#101A2F;--night-3:#18233B;--ink:#F4EFE3;--text:#F4EFE3;--sub:#C3CBDA;--text-2:#C3CBDA;--muted:#9AA5BA;--text-3:#9AA5BA;--warm:#F2DDA4;--line:#33415c;--display:"Inter",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;--body:"Atkinson Hyperlegible","Inter",system-ui,Arial,sans-serif}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--ink);font:1rem/1.5 var(--body);background:radial-gradient(ellipse at 52% 20%,#16213d,transparent 64%),radial-gradient(ellipse at 86% 100%,#251c45,transparent 53%),linear-gradient(var(--night),var(--deep))}
+.shell{max-width:1280px;margin:auto;padding:0 clamp(14px,4vw,54px)}header{border-bottom:1px solid var(--line);background:#0a1020c9}.mast{min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{display:flex;align-items:center;gap:12px;font-weight:750;letter-spacing:.02em}.lantern{display:block;width:34px;height:34px;border:1px solid #d1a95475;border-radius:50%;background:radial-gradient(circle,#f2dda4 0 11%,#d1a95460 14%,#d1a95415 45%,transparent 72%);box-shadow:0 0 22px #d1a95422}.badge{font-size:.875rem;padding:4px 10px;border:1px solid #d1a95470;border-radius:999px;color:var(--warm);white-space:nowrap}
+.hero{padding:29px 0 22px}.cap{text-transform:uppercase;letter-spacing:.13em;color:var(--gold);font-size:.875rem;font-weight:750}.hero h1{font-size:clamp(2rem,5vw,3rem);line-height:1.1;letter-spacing:-.04em;margin:5px 0 8px}.hero p{margin:0;color:var(--sub)}.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px;align-items:start}
+.panel{background:linear-gradient(145deg,var(--raised),var(--surface) 62%);border:1px solid var(--line);border-radius:18px;padding:clamp(14px,2.3vw,26px);box-shadow:0 16px 38px #06091360}.panel h2{font-size:1.2rem;margin:0}.eyebrow{font-size:.875rem;color:var(--muted)}.titleline{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:16px}.paper{padding:clamp(15px,3vw,28px);background:#0a1020a8;border:1px solid var(--line);border-radius:13px}.paper h3{font-family:Georgia,serif;font-size:1.55rem;line-height:1.18;margin:.2rem 0 1rem;color:var(--warm)}.paper p{font-family:Georgia,serif;font-size:1.09rem;line-height:1.75;margin:0 0 .8rem}.paper p:last-child{margin:0}mark{color:inherit;background:transparent;border-radius:3px}mark.selected{background:#d1a95436;box-shadow:0 0 0 2px #d1a95436;text-decoration:underline;text-decoration-color:var(--gold);text-underline-offset:.2em}
+.sample-picker{margin-bottom:11px;display:flex;align-items:center;gap:9px}.sample-picker label{margin:0}.sample-picker select{max-width:100%;min-width:0}.sample-picker{flex-wrap:wrap}.prompt{font-size:.9rem;color:var(--sub);margin:0 0 14px}.scorebox{color:var(--warm);font-size:1.18rem;line-height:1.3;font-weight:750;white-space:nowrap;text-align:right}.scorebox span{display:block;color:var(--muted);font-size:.875rem;font-weight:500}.criteria{display:grid;gap:6px;margin-bottom:12px}.criterion{border:1px solid var(--line);border-radius:9px;background:var(--night);color:var(--sub);font:inherit;text-align:left;min-height:40px;padding:7px 12px;display:flex;justify-content:space-between;gap:8px;align-items:center}.criterion b{color:var(--ink);white-space:nowrap}.criterion[aria-pressed=true]{border-color:var(--gold);color:var(--warm);background:#d1a95416}.detail{border:1px solid var(--line);border-radius:12px;padding:13px;background:#0a1020a8}.detail h3{font-size:.94rem;margin:0;color:var(--violet)}blockquote{margin:7px 0 11px;padding-left:10px;border-left:2px solid var(--gold);color:var(--sub);font-size:.94rem}label{display:block;font-size:.875rem;color:var(--sub);font-weight:650;margin-top:6px}.assessment{margin:7px 0 10px;font-size:.94rem}.evidence-list{margin:0 0 11px;padding-left:1.2rem;color:var(--sub);font-size:.9rem}.evidence-list li{margin-bottom:5px}.evidence-list a{color:var(--warm);text-underline-offset:.14em}.paper p{scroll-margin-top:14px}.paper p:target{outline:2px solid var(--gold);outline-offset:4px}.input-row{display:flex;align-items:center;gap:8px}select,textarea{font:inherit;color:var(--ink);background:var(--night);border:1px solid var(--line);border-radius:8px;padding:5px 8px}select{min-height:38px}textarea{width:100%;min-height:66px;resize:vertical}.actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:15px}button{cursor:pointer;touch-action:manipulation}.primary,.secondary{font:inherit;font-weight:710;border-radius:9px;padding:8px 13px;min-height:42px}.primary{background:linear-gradient(140deg,var(--warm),var(--gold));border:1px solid var(--gold);color:var(--night)}.secondary{background:transparent;color:var(--sub);border:1px solid var(--line)}button:hover{filter:brightness(1.12)}:focus-visible{outline:3px solid var(--focus);outline-offset:3px}.preview-warning{margin:0 0 18px;padding:12px 14px;border:1px solid var(--gold);border-radius:10px;background:var(--surface);color:var(--warm)}.approval{margin:10px 0 0;padding:10px 12px;border:1px solid #7db69b;border-radius:9px;background:#122d2b;color:#d2f5e3;font-weight:730}.primary:disabled{cursor:default}.primary[data-reviewed=true]{color:#d2f5e3;border-color:#7db69b;background:#122d2b}.status{font-size:.875rem;color:var(--warm);margin:9px 0 0}.note{font-size:.875rem;color:var(--muted);padding:17px 0 26px}.source-note{color:var(--muted);font-size:.875rem;margin:11px 0 0}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.hero{padding-top:22px}}@media(max-width:370px){.badge{white-space:normal}.lantern{display:none}}@media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}.grid{grid-template-columns:1fr 1fr}.shell{padding:0 15px}.actions{display:none}body{background:var(--night)}}
+
+h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
+.skip{position:absolute;left:-999px;top:8px;background:var(--gold);color:var(--night);padding:8px 12px;border-radius:8px;z-index:70;font-weight:700}
+.skip:focus{left:8px}
+[hidden]{display:none!important}
+.topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 22px 12px;min-height:58px;border-bottom:1px solid var(--line);background:#0a1020c9;position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.mark{display:inline-flex;align-items:center;gap:10px;font-weight:600;letter-spacing:.3em;font-size:12.5px;color:var(--text);text-decoration:none}
+.mark::before{content:"";width:9px;height:9px;border-radius:50%;background:radial-gradient(circle,#FFF6D8,#D1A954);box-shadow:0 0 12px 3px rgba(209,169,84,.55)}
+.mark .os{color:var(--gold-hi);letter-spacing:.18em;margin-left:-4px}
+.mark .tm{letter-spacing:0;font-size:9px;vertical-align:super;margin-left:1px;color:var(--text-3)}
+.topbar .badge{margin-left:0}
+.link-btn{margin-left:auto;background:none;border:0;color:var(--text-2);text-decoration:underline;text-decoration-color:rgba(195,203,218,.4);text-underline-offset:4px;cursor:pointer;font-size:14px;padding:8px;font-family:var(--body)}
+.link-btn:hover{color:var(--text);text-decoration-color:var(--gold)}
+.modes{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 8px;padding:4px;background:rgba(10,16,32,.55);border:1px solid var(--line);border-radius:999px;width:fit-content}
+.mode-btn{appearance:none;border:0;background:transparent;color:var(--sub);font:inherit;font-weight:650;font-size:.95rem;padding:8px 16px;min-height:42px;border-radius:999px;cursor:pointer}
+.mode-btn[aria-pressed=true]{background:linear-gradient(140deg,var(--warm),var(--gold));color:var(--night);box-shadow:0 0 0 1px rgba(255,240,200,.35) inset}
+.privacy{margin:0 0 18px;padding:12px 14px;border:1px solid rgba(209,169,84,.4);border-radius:12px;background:rgba(16,26,47,.75);color:var(--sub);font-size:.94rem}
+.privacy strong{color:var(--warm)}
+.meta-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.meta-grid label,.story-field label,.attach-field label{margin-top:0}
+.meta-grid input,.story-field textarea{width:100%;font:inherit;color:var(--ink);background:var(--night);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:42px}
+.story-field textarea{min-height:220px;resize:vertical;font-family:Georgia,serif;font-size:1.05rem;line-height:1.7}
+.attach-list{display:grid;gap:12px;margin:12px 0 0}
+.attach-item{border:1px solid var(--line);border-radius:12px;padding:10px;background:#0a1020a8}
+.attach-item img,.attach-item iframe{display:block;width:100%;max-height:420px;border:0;border-radius:8px;background:#060913}
+.attach-name{font-size:.8rem;color:var(--muted);margin:0 0 8px}
+.level-picks{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.level-picks button{min-width:42px;min-height:42px;border-radius:9px;border:1px solid var(--line);background:var(--night);color:var(--sub);font:inherit;font-weight:700}
+.level-picks button[aria-pressed=true]{border-color:var(--gold);color:var(--night);background:linear-gradient(140deg,var(--warm),var(--gold))}
+.descriptor{margin:0 0 10px;padding:10px 12px;border-left:2px solid var(--gold);color:var(--sub);font-size:.94rem;background:#0a1020a8;border-radius:0 8px 8px 0}
+.descriptor b{color:var(--warm);font-weight:700}
+.teacher-cat{border:1px solid var(--line);border-radius:12px;padding:13px;background:#0a1020a8;margin-bottom:10px}
+.teacher-cat h3{font-size:1rem;margin:0 0 4px;color:var(--warm)}
+.principle{position:relative;text-align:center;font-family:var(--display);font-size:12.5px;font-weight:500;letter-spacing:.08em;color:var(--text-2);padding:8px 12px 18px}
+.principle::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px 2px rgba(209,169,84,.6);margin-right:10px;vertical-align:middle}
+@media(max-width:760px){.meta-grid{grid-template-columns:1fr}.modes{width:100%;border-radius:16px}.topbar .badge{white-space:normal}}
+@media print{
+  .topbar .link-btn,.modes,.actions,.skip,.attach-field input,.level-picks button,.attach-field,.privacy{display:none!important}
+  .topbar{position:static;background:#fff;border-color:#bbb;color:#111}
+  .mark{color:#111}.mark .os{color:#6b5212}.badge{color:#6b5212;border-color:#bbb}
+  body{background:#fff;color:#111}
+  .panel,.paper,.teacher-cat,.privacy,.descriptor{background:#fff;border-color:#bbb;box-shadow:none;break-inside:avoid}
+  .paper h3,.hero h1,h2,h3,.scorebox,.teacher-cat h3{color:#111}
+  .cap{color:#6b5212}
+  .principle{color:#555}
+}
+.mode-wrap{padding-top:22px;padding-bottom:0}
+
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="mark" href="../" aria-label="STORIGEN OS home">STORIGEN <span class="os">OS</span><span class="tm">™</span></a>
+  <span class="badge" id="mode-badge">Teacher demo · Practice samples</span>
+  <a class="link-btn" href="../">Back to demo</a>
+</header>
+
+
+<nav class="shell mode-wrap" aria-label="Grade Along modes">
+  <div class="modes" role="group" aria-label="Choose a mode">
+    <button type="button" class="mode-btn" id="mode-practice" aria-pressed="true">Practice samples</button>
+    <button type="button" class="mode-btn" id="mode-teacher" aria-pressed="false">Grade a paper</button>
+  </div>
+</nav>
+
+<main id="main" class="shell">
+<div id="practice-view">
+<div class="hero"><div class="cap">Grade Along</div><h1>Writing review</h1><p>Review the evidence, adjust the draft, and mark it reviewed.</p></div>
+<p class="preview-warning" id="preview-warning" hidden><strong>Preview only.</strong> If you can see this notice, the file preview has not run the interactive demo. Download the HTML file and open it directly in a web browser.</p>
+<div class="grid">
+<section class="panel" aria-labelledby="writing">
+<div class="titleline"><div><h2 id="writing">Sample writing</h2><div class="eyebrow" id="sample-meta">Practice sample 01 · Grade 3 narrative</div></div><span class="badge">Fictional</span></div>
+<div class="sample-picker"><label for="sample">Practice story</label><select id="sample" disabled><option value="en">01 · The Last Bus Ticket (EN)</option><option value="es">02 · El último boleto (ES)</option><option value="thin">03 · The Missing Pencil (EN)</option><option value="jumps">04 · The Red Kite (EN)</option><option value="bridge">05 · El puente de papel (ES)</option><option value="lantern">06 · The Light in the Window (EN)</option><option value="garden">07 · The Garden Sign (EN)</option><option value="seed">08 · La caja de semillas (ES)</option></select></div>
+<p class="prompt"><strong>Prompt:</strong> <span id="prompt-text">Write a story about a small choice that changes what happens next.</span></p>
+<article class="paper" id="paper" lang="en"><h3>The Last Bus Ticket</h3>
+<p id="story-part-0"><mark id="passage-0">Maya wanted to get to the library before it closed. In her pocket was the last bus ticket.</mark></p>
+<p id="story-part-1">At the stop, a boy held a broken umbrella. His paper bridge was getting wet. <mark id="passage-1">Maya looked down the road. Her bus was coming.</mark></p>
+<p id="story-part-2"><mark id="passage-2">She could get on, or she could help him save the bridge. She put her ticket away and held the umbrella over his project.</mark></p>
+<p id="story-part-3">The boy took the bridge into the library. Maya followed him. <mark id="passage-3">They was both late, but the librarian held the door for them.</mark></p></article>
+<p class="source-note" id="sample-note">Select a rubric row to see how evidence across the story supports its score.</p>
+<details id="reading-aid" class="detail" hidden><summary>English reading aid · not used to grade</summary><div id="aid-content"></div></details>
+</section>
+<section class="panel" aria-labelledby="review">
+<div class="titleline"><div><h2 id="review">Rubric &amp; feedback</h2><div class="eyebrow" id="rubric-label">Whole-story scores · Legacy practice rubric · Simulated</div></div><div class="scorebox"><output id="total" aria-live="polite">14 / 20</output><span id="score-state">Draft score</span></div></div>
+<div class="criteria" aria-label="Rubric criteria"></div>
+<div class="detail">
+<h3>Whole-story assessment</h3><p class="assessment" id="assessment"></p><ul class="evidence-list" id="evidence" aria-label="Examples from the story"></ul>
+<div class="input-row"><label for="score">Review score</label><select id="score" disabled><option value="1">1 / 5</option><option value="2">2 / 5</option><option value="3">3 / 5</option><option value="4">4 / 5</option><option value="5">5 / 5</option></select></div>
+<label for="feedback">Review feedback</label><textarea id="feedback" disabled spellcheck="false"></textarea>
+</div>
+<div class="actions"><button type="button" class="primary" id="approve" disabled>Approve sample review</button><button type="button" class="secondary" id="reset" disabled>Reset sample</button></div>
+<p class="approval" role="status" id="approval" hidden></p>
+<details id="answer-key" class="detail" hidden><summary>Reveal answer key</summary><ol id="answer-list"></ol></details>
+<p class="status" id="status">Not reviewed. Nothing is saved or sent.</p>
+</section></div>
+<footer class="note">Practice only. Samples 06–08 use Lindsay’s Wonders rubric; 01–05 keep their original demo scores. Marks and scores are preset, not generated by a grading engine. No uploads, live grading, or student records. Changes reset when you switch samples or reload.</footer>
+</div>
+
+<div id="teacher-view" hidden>
+<div class="hero"><div class="cap">Grade Along</div><h1>Grade a paper</h1><p>You pick the levels. The app shows the rubric, adds the total, and keeps the review on this device.</p></div>
+<p class="privacy"><strong>Papers stay on this device.</strong> Nothing is uploaded or sent. A draft can be saved in this browser only. Use Clear all to remove it.</p>
+<div class="grid">
+<section class="panel" aria-labelledby="paper-heading">
+<div class="titleline"><div><h2 id="paper-heading">Student paper</h2><div class="eyebrow">Private teacher review · not published</div></div></div>
+<div class="meta-grid">
+<div><label for="t-name">Student first name or ID</label><input id="t-name" type="text" autocomplete="off" maxlength="80"></div>
+<div><label for="t-grade">Grade</label><input id="t-grade" type="text" autocomplete="off" maxlength="24" placeholder="e.g. 3"></div>
+<div><label for="t-date">Date</label><input id="t-date" type="date"></div>
+<div><label for="t-facilitator">Facilitator</label><input id="t-facilitator" type="text" autocomplete="name" maxlength="80"></div>
+</div>
+<div class="story-field"><label for="t-story">Story text</label><textarea id="t-story" spellcheck="true" placeholder="Paste or type the story here."></textarea></div>
+<div class="attach-field">
+<label for="t-files">Photo or PDF scans (optional, this device only)</label>
+<input id="t-files" type="file" accept="image/*,application/pdf" multiple>
+<div class="attach-list" id="t-attach-list"></div>
+</div>
+</section>
+<section class="panel" aria-labelledby="t-review">
+<div class="titleline"><div><h2 id="t-review">Storigen Wonders rubric</h2><div class="eyebrow">Four categories · levels 1–5 · total out of 20</div></div><div class="scorebox"><output id="t-total" aria-live="polite">— / 20</output><span id="t-score-state">Pick a level in each category</span></div></div>
+<div id="t-categories"></div>
+<div class="actions">
+<button type="button" class="primary" id="t-approve" disabled>Approve review</button>
+<button type="button" class="secondary" id="t-print" disabled>Print / Save as PDF</button>
+<button type="button" class="secondary" id="t-json" disabled>Download JSON</button>
+<button type="button" class="secondary" id="t-csv" disabled>Download CSV</button>
+<button type="button" class="secondary" id="t-clear">Clear all</button>
+</div>
+<p class="approval" role="status" id="t-approval" hidden></p>
+<p class="status" id="t-status">Not reviewed. Nothing is saved or sent unless you keep a draft in this browser.</p>
+</section>
+</div>
+</div>
+
+</main>
+<footer class="principle">Human first. AI assists. The learner decides.</footer>
+<script>
+
+const rubric=[
+ {name:'Seven Lenses',score:4,feedback:'Maya has a clear goal, and helping the boy creates a real choice. Show one consequence of missing the bus to strengthen the stakes.'},
+ {name:'Organization',score:4,feedback:'The bus arriving moves the story naturally from setup to choice. A short transition could clarify how the characters reached the library.'},
+ {name:'Development & Meaning',score:3,feedback:'The broken umbrella and paper bridge make the decision concrete. Add what Maya thought or felt after making her choice.'},
+ {name:'Conventions',score:3,feedback:'The meaning is clear. Reread the last sentence and try “They were both late.”'}
+];
+const spanishRubric=[
+ {name:'Seven Lenses',score:4,feedback:'Meta clara: llegar a la biblioteca. Agrega una consecuencia de perder el autobús para mostrar qué está en juego.'},
+ {name:'Organization',score:4,feedback:'La llegada del autobús marca el momento de decidir. Agrega una transición que explique cómo llegaron a la biblioteca.'},
+ {name:'Development & Meaning',score:3,feedback:'El paraguas roto y el puente de papel hacen concreta la decisión. Cuenta qué sintió Maya después.'},
+ {name:'Conventions',score:3,feedback:'El sentido se entiende. Revisa la concordancia entre “Ellos” y “llegó”. El texto original se conserva sin cambios.'}
+];
+const get=id=>document.getElementById(id);
+const stories={
+ en:{title:'The Last Bus Ticket',prompt:'Write a story about a small choice that changes what happens next.',parts:[
+  ['', 'Maya wanted to get to the library before it closed. In her pocket was the last bus ticket.', ''],
+  ['At the stop, a boy held a broken umbrella. His paper bridge was getting wet. ', 'Maya looked down the road. Her bus was coming.', ''],
+  ['', 'She could get on, or she could help him save the bridge. She put her ticket away and held the umbrella over his project.', ''],
+  ['The boy took the bridge into the library. Maya followed him. ', 'They was both late, but the librarian held the door for them.', '']
+ ]},
+ es:{title:'El último boleto',prompt:'Escribe un cuento sobre una pequeña decisión que cambia lo que sucede después.',parts:[
+  ['', 'Maya quería llegar a la biblioteca antes de que cerrara. En su bolsillo tenía el último boleto.', ''],
+  ['En la parada, un niño tenía un paraguas roto. Su puente de papel se estaba mojando. ', 'Maya miró la calle. Venía su autobús.', ''],
+  ['', 'Podía subir o ayudar al niño a salvar el puente. Guardó su boleto y sostuvo el paraguas encima del proyecto.', ''],
+  ['El niño llevó el puente a la biblioteca y Maya lo siguió. ', 'Ellos llegó tarde, pero la bibliotecaria les abrió la puerta.', '']
+ ]}
+};
+const assessments={
+ en:[
+  ["Maya is the central character. Her library goal, competing priorities, the bus-stop setting, and her decision to help are clear. We follow her viewpoint, but her feelings and the stakes of missing the bus are underdeveloped. The ending leaves it unclear whether there is a twist. This is not a checklist of required lenses.",[[0,"Character and goal"],[1,"World and obstacle"],[2,"Choice and viewpoint"],[3,"Ending and possible twist"]]],
+  ["The opening sets up a destination and deadline. The middle introduces a problem that interrupts the plan and leads to a choice. The ending returns to the library, but skips how Maya got there after letting the bus go.",[[0,"Beginning: set up the goal"],[1,"Middle: interrupt the plan"],[2,"Middle: make the choice"],[3,"End: return to the goal"]]],
+  ["The ticket, broken umbrella and paper bridge make the choice concrete. Maya’s action shows that she decides to help. The open door resolves the deadline, but the ending leaves her reaction and the meaning of the choice mostly unstated.",[[0,"Detail: the ticket"],[1,"Problem: the paper bridge"],[2,"Action: Maya helps"],[3,"Payoff: the door is open"]]],
+  ["Across the story, sentence boundaries and punctuation generally support clear reading. One visible subject–verb agreement error occurs at the end. One example is not enough to call it a recurring pattern.",[[0,"Clear sentence boundaries"],[2,"Punctuation supports meaning"],[3,"Agreement error: “They was both late”"]]]
+ ],
+ es:[
+  ["Maya es el personaje central. Se ven su meta, dos prioridades en conflicto, la parada y la decisión de ayudar. Se sigue su punto de vista, pero casi no se expresan sus emociones ni lo que arriesga al dejar pasar el autobús. No queda claro si hay un giro. No se presupone que todos los lentes sean obligatorios.",[[0,"Personaje y meta"],[1,"Mundo y obstáculo"],[2,"Decisión y punto de vista"],[3,"Desenlace y posible giro"]]],
+  ["El inicio fija el destino y el plazo. En el medio, el problema del puente interrumpe el plan y Maya toma una decisión. El final vuelve a la biblioteca, pero falta explicar cómo llegaron allí sin tomar el autobús.",[[0,"Inicio: se presenta la meta"],[1,"Desarrollo: surge el problema"],[2,"Desarrollo: Maya toma una decisión"],[3,"Final: vuelve a la meta"]]],
+  ["El boleto, el paraguas roto y el puente de papel hacen concreta la decisión. La acción muestra que Maya prefiere ayudar. La puerta abierta resuelve el plazo, pero falta la reacción de Maya o una pista sobre lo que significó su decisión.",[[0,"Detalle: el boleto"],[1,"Problema: el puente de papel"],[2,"Acción: Maya ayuda"],[3,"Desenlace: la puerta abierta"]]],
+  ["En el conjunto del texto, los límites de las oraciones y la puntuación suelen facilitar la lectura. Hay un caso visible de falta de concordancia al final. Un solo caso no basta para afirmar que sea un patrón.",[[0,"Oraciones delimitadas con claridad"],[2,"Puntuación que apoya la lectura"],[3,"Falta de concordancia: “Ellos llegó tarde”"]]]
+ ]
+};
+const extra={"thin": {"title": "The Missing Pencil", "lang": "en", "n": "03", "parts": ["Jalen needed a pencil to finish his drawing.", "He looked in his desk. It was not there.", "He asked Sam if he could borrow one. Sam said yes.", "Jalen finished the picture and gave the pencil back."], "review": [[3, "Jalen has a clear goal and one small obstacle. He takes action and succeeds. The reason the drawing matters, his viewpoint, and any change in expectations are not developed.", "Give Jalen a reason he needs to finish today.", [[0, "Character and goal"], [1, "Obstacle"], [3, "Outcome"]]], [4, "The opening gives Jalen a goal, the middle moves from a search to an action, and the ending resolves the problem. The sequence is clear even with few transitions.", "The order makes sense. Try a transition between the search and asking Sam.", [[0, "Beginning: set up the need"], [1, "Middle: the search stalls"], [2, "Middle: ask for help"], [3, "End: finish the drawing"]]], [2, "The draft tells what happened, but gives almost no detail about the picture or how Jalen felt. The resolution brings no new detail or insight.", "Describe one thing Jalen was drawing and why it mattered to him.", [[0, "The drawing is unnamed"], [2, "The exchange is only summarized"], [3, "The ending is brief"]]], [4, "Across this short sample, sentences are complete and easy to read. Periods and names are handled consistently. The sample is too brief to show much range.", "Keep the clear sentence boundaries as you add detail.", [[0, "Complete opening sentence"], [1, "Separate actions are readable"], [3, "Clear closing sentence"]]]]}, "jumps": {"title": "The Red Kite", "lang": "en", "n": "04", "parts": ["we had a red kite i wanted to make it go high", "then i was at my cousins house we ate chips", "the string broked. before that it was in the tree and dad said hold it", "we went home then I got it back but its gone"], "review": [[2, "A narrator, a kite, and a goal are visible. The tree and string might be obstacles, but the order makes their effects hard to trace. The ending leaves the outcome uncertain.", "Start by deciding whether the narrator gets the kite back.", [[0, "Narrator and goal"], [2, "Possible obstacles"], [3, "Unclear outcome"]]], [1, "The draft jumps from flying the kite to a cousin’s house and then back to an earlier event. The ending says the kite is both recovered and gone without explaining the change.", "Put the kite events in order first. Then decide whether the visit matters.", [[0, "Beginning: kite setup"], [1, "Jump: cousin’s house"], [2, "Another jump: back to the tree"], [3, "End: conflicting outcomes"]]], [2, "The red kite, tree, and broken string offer concrete material. The draft does not explain what the narrator did to solve the problem or how it ended.", "Add what the narrator tried after the kite got caught.", [[0, "Detail: a red kite"], [2, "Problem: tree and string"], [3, "Resolution needs detail"]]], [1, "Missing capitals and sentence stops recur, and verb form and contraction punctuation need attention. These are visible in the original, not corrections to it.", "Mark one stop after a complete thought, capitalize I, and review the past tense of break.", [[0, "Missing capitals and a sentence stop"], [2, "Verb form: “broked”"], [3, "Missing punctuation in “its gone”"]]]]}, "bridge": {"title": "El puente de papel", "lang": "es", "n": "05", "parts": ["El viernes Ana queria llevar su puente de papel a la feria antes de las cuatro.", "Cuando empezo la lluvia, la caja se mojo y una esquina del puente se doblo.", "En vez de regresar a casa, Ana puso el puente en una bolsa y tomo el camino cubierto.", "Llego antes de las cuatro y su amiga le ayudo a enderezar la esquina. Ana sonrio cuando pusieron el puente en la mesa."], "review": [[4, "Ana tiene una meta, un plazo, un obstáculo y una decisión que cambia el curso de la historia. El desenlace muestra su alivio. No hay evidencia clara de un giro, y no se presupone que sea obligatorio.", "Si quieres mostrar más de su perspectiva, cuenta qué pensó al ver la esquina doblada.", [[0, "Personaje, meta y plazo"], [1, "Obstáculo"], [2, "Decisión"], [3, "Desenlace"]]], [5, "El comienzo fija una meta y un plazo. La lluvia causa un problema y la decisión de Ana responde a él. El final resuelve tanto el plazo como el daño al puente.", "La secuencia se entiende incluso con errores de acentuación.", [[0, "Inicio: fija el plazo"], [1, "Desarrollo: surge el problema"], [2, "Desarrollo: toma una decisión"], [3, "Final: resuelve los dos problemas"]]], [4, "La caja mojada, la esquina doblada y el camino cubierto hacen concreta la decisión de Ana. Su sonrisa muestra cómo recibe el resultado, aunque hay espacio para desarrollar lo que sintió mientras intentaba llegar.", "Agrega una reacción de Ana justo antes de decidir qué camino tomar.", [[1, "Detalle: la esquina doblada"], [2, "Acción: protege el puente"], [3, "Desenlace: llega y sonríe"]]], [2, "La puntuación permite seguir la historia, pero faltan tildes en verbos en varias partes del texto. Es un patrón observable en el original; no impide reconocer que la historia está bien organizada.", "Revisa las tildes verbales en quería, empezó y llegó. El texto original no se cambia.", [[0, "Falta la tilde en “queria”"], [1, "Faltan tildes en “empezo”, “mojo” y “doblo”"], [3, "Faltan tildes en “Llego”, “ayudo” y “sonrio”"]]]]}};
+Object.assign(extra,{"lantern": {"title": "The Light in the Window", "lang": "en", "n": "06", "parts": ["On the morning of the school story fair, Nia carried a paper lantern in a shoebox. She had painted its sides yellow so they would glow like the window in her favorite book. Her little brother, Eli, had drawn a crooked star on the bottom. Nia put that side down. She wanted to win the ribbon for the best display, and she did not think crooked stars won ribbons.", "By lunch, rain was drumming on the cafeteria roof. When Nia went to set up, she found water dripping onto her table. One side of the lantern had sagged. She tried to stand it up, but each time she moved her hand, it folded again. Across the room, Eli was squatting under a table with the book she had promised to read with him. He had not looked up once.", "Nia could move to the dry end of the room and ask for a new sheet of paper. Instead, she carried the lantern to Eli and asked him to hold the bottom while she taped the torn side. He turned it so the star faced out. “That’s your window,” he said. “I put it there so you could find me in the story.”", "When the lights went down, the flashlight inside the lantern sent a crooked star across both of their hands. Nia set the shoebox lid beneath it and opened the book. The judges had not come to her table yet, but Eli had finally looked up. She started reading before the star could slide off his thumb."], "review": [[5, "All seven lenses work together. Nia wants a ribbon and treats the crooked star as a mistake. The leak threatens her display; through Nia’s viewpoint, we see how the fair pulls her away from Eli. His explanation turns the star from a flaw into a sign that he wanted to share the story with her.", "Keep the early detail about the hidden star. It makes Eli’s explanation change how we read the opening.", [[0, "Character, goal, setting, and Nia’s first view of the star"], [1, "The leak threatens the display and reveals a second stake"], [2, "The twist gives the star a new meaning"], [3, "The closing choice pays off both threads"]]], [5, "The setup plants the star and the ribbon. The leak moves the story from preparation to a choice. Eli’s explanation leads straight to the closing image and resolves what matters to Nia, without making the ribbon decision do all the work.", "Keep the transitions that move us from morning to lunch to lights-down.", [[0, "Beginning: set up the display"], [1, "Middle: the leak raises pressure"], [2, "Turning point: Nia brings the lantern to Eli"], [3, "Ending: she starts reading"]]], [5, "Specific details build a theme about being seen: the star hidden face down, Eli looking down at the book, and the star passing over both hands. The last gesture shows a change in priorities instead of spelling out a lesson.", "The star on Eli’s thumb is a strong last image. Let it carry the meaning.", [[0, "The star is hidden"], [1, "Eli waits with the book"], [3, "The shared star carries the ending"]]], [5, "Sentence lengths and structures vary, dialogue is punctuated cleanly, and the wording stays clear throughout. No deliberate conventions errors are planted in this control sample.", "Keep using a short sentence to emphasize an important action.", [[0, "Short and longer sentences work together"], [2, "Dialogue punctuation and clear action"], [3, "Sentence variety and clear references"]]]], "errors": []}, "garden": {"title": "The Garden Sign", "lang": "en", "n": "07", "parts": ["On monday our class was going to open the school garden. I was supposed to paint a sign that said Please Pick Only One. I wanted it to look like the signs at the park because I had never made anything that strangers would read. Ms. Reed gave me a board and told me the families would come at three.", "I put the board on a bench. There was two brushes in the cup, a wide one and a skinny one. I used the wide one first. My freind Leo came to look at it. The word Pick was so big that there was no room for Only One. I told Leo I could fit it if I made the letters tiny.", "We tried little letters nobody could read them from the path. I wanted a new board but the supply closet was locked. Then Leo found the clean back of the board. We turned it over. I asked him to stand on the path and tell me when he could see the words. The second time I wrote all four words on the board.", "At three a girl stopped beside the basket and read the sign out loud. She put one tomato in her pocket and left the others for the next kid. Leo and I sat down by the door. I was glad we fixed the sign because now the people knew what to do."], "review": [[3, "The narrator’s goal, the school-garden setting, the board problem, the deadline, and the narrator’s viewpoint are visible. Turning the sign over solves the problem rather than reframing what happened earlier. Five or six clear lenses fits level 3.", "Show why the sign might matter to someone the narrator didn’t think about at first.", [[0, "Character, goal, setting, viewpoint, and deadline"], [1, "Letters are too large to fit"], [2, "The reverse side is a solution, not a reframing twist"], [3, "A visitor shows why the sign matters"]]], [4, "The opening names the job and deadline. The middle tests the first plan and gives a practical reason to try a different one. The last scene returns to the deadline and shows the finished sign working.", "Use the final scene to connect the visitor’s reaction back to the narrator’s original worry.", [[0, "Beginning: assignment and deadline"], [1, "Middle: first attempt"], [2, "Middle: test, then revise"], [3, "End: visitor reads the sign"]]], [3, "The two brushes, tiny letters, and girl taking one tomato give the story concrete details. The last line explains what the narrator learned, rather than letting the scene carry more of that meaning.", "Replace the last explanation with one thing the narrator notices or does after the girl reads the sign.", [[1, "Two brushes and uneven lettering"], [2, "Testing from the path"], [3, "Specific payoff followed by a stated takeaway"]]], [3, "Missing capitalization, an agreement error, a spelling slip, and a fused sentence are visible in the original. The sequence and overall meaning remain clear.", "Reread for the capital letter in Monday, the plural verb with brushes, the spelling of friend, and the missing stop after letters.", [[0, "Capitalization: “monday”"], [1, "Agreement and spelling: “was two brushes” and “freind”"], [2, "Sentence boundary: “letters nobody”"]]]], "errors": [[0, "monday", "Monday", "Capitalization: capitalize days of the week."], [1, "There was two brushes", "There were two brushes", "Agreement: the verb goes with the plural brushes."], [1, "freind", "friend", "Spelling: the i comes before the e in friend."], [2, "letters nobody", "letters. Nobody", "Sentence boundary: separate the two complete thoughts."]]}, "seed": {"title": "La caja de semillas", "lang": "es", "n": "08", "parts": ["El martes tenia que llevar una caja de semillas al jardín de la escuela. La maestra dijo que cada grupo iba a plantar algo. Yo quería plantar girasoles junto a la cerca, donde mi abuelo siempre se quedaba cuando venía a buscarme. Puse la caja en mi mochila antes de salir.", "Ya en el jardin encontré la caja debajo de la mesa. Antes de eso llegué al salón y abrí mi mochila. La caja no estaba. Mis amigos estaba en la puerta. Sonó la campana yo miré en el pasillo. Pensé que iba a ser el único sin semillas y que nuestro lado de la cerca quedaría vacío.", "Después les dije a mis amigos que la caja se avía perdido. También les dije que ya la tenía. Fuimos al jardín con la maestra. Ella trajo agua en una jarra. Hicimos un hueco junto a la cerca. Yo no sabia si teníamos que poner una semilla o todas, así que le pregunté a mi amiga.", "Al final pusimos tres. Regamos la tierra con la jarra y nos fuimos a lavar las manos. Mi abuelo estaba en la puerta cuando salí. Le conté dónde estaban las semillas y miramos la cerca desde donde él solía esperar. La jardinera quedó de ese lado."], "review": [[3, "The narrator, goal, setting, personal viewpoint, and stakes are clear, and the missing box is an obstacle. Finding the same box restores the plan; the story doesn’t show a twist that changes how we understand earlier events.", "Explain how the seeds ended up under the table. If that discovery changes what the narrator thought, show the change.", [[0, "Character, goal, and setting"], [1, "Obstacle and stakes"], [3, "Viewpoint comes through in the connection with Grandpa"]]], [2, "A rough arc is recognizable, but the middle starts with finding the box and then jumps backward to losing it. It returns to both states without explaining how they fit together. The ending shows planting, but closes abruptly.", "Put the missing-box events in order, then say what connected the search to finding it under the table.", [[0, "Opening establishes the planting goal"], [1, "The box is found before the search is described"], [2, "The narrator reports both losing and finding it"], [3, "Ending stops after an image of the planter"]]], [3, "The fence, the empty patch, the watering jar, and looking at the garden from Grandpa’s spot give the narrative specific images. The reason the planting matters is mostly clear, though the narrator’s reaction after finding the box is missing.", "Add what the narrator felt when they realized Grandpa could see the spot where they planted.", [[0, "Relationship and place"], [1, "Imagine the patch staying empty"], [2, "Jarra and planting hole"], [3, "Grandpa’s view of the fence"]]], [2, "The Spanish original has missing accents, verb agreement and spelling slips, and a missing sentence stop. Most of the meaning is recoverable, but some errors slow the reading. The English aid is not used for scoring.", "In the original Spanish, check the accents on tenía, jardín, and sabía. Then reread the verb with amigos and split the two thoughts after campana.", [[0, "Missing accent: “tenia”"], [1, "Accent, agreement, and sentence boundary"], [2, "Spelling “avía” and missing accent in “sabia”"]]]], "errors": [[0, "tenia", "tenía", "Missing accent on the í."], [1, "en el jardin", "en el jardín", "Missing accent in jardín."], [1, "Mis amigos estaba", "Mis amigos estaban", "Plural subject requires estaban."], [1, "campana yo", "campana. Yo", "Separate the two complete thoughts."], [2, "se avía perdido", "se había perdido", "Use había, from haber, to form the past perfect."], [2, "no sabia", "no sabía", "Missing accent on the í."]], "aid": ["On Tuesday I had to bring a box of seeds to the school garden. The teacher said each group would plant something. I wanted to plant sunflowers by the fence, where Grandpa usually waited when he picked me up. I put the box in my backpack before I left.", "In the garden, I found the box under the table. Before that, I got to the classroom and opened my backpack. The box was not there. My friends were at the door. The bell rang. I looked in the hall. I thought I would be the only one without seeds and that our side of the fence would stay empty.", "Later I told my friends I had lost the box. I also told them I already had it. We went to the garden with the teacher. She brought water in a pitcher. We dug a hole by the fence. I didn’t know if we were supposed to plant one seed or all of them, so I asked my friend.", "In the end, we planted three. We watered the soil with the pitcher and went to wash our hands. Grandpa was at the door when I came out. I told him where the seeds were, and we looked at the fence from where he usually waited. The planter was on that side."]}});
+const wondersNames=["Application of the Seven Lenses","Beginning–Middle–End Organization","Development, Detail, and Meaning","Clarity and Writing Conventions"];
+let sampleKey='en', lang='en';
+function loadStory(){
+ const paper=get('paper'), extraStory=extra[sampleKey];
+ const story=extraStory?{title:extraStory.title,prompt:stories[lang].prompt,parts:extraStory.parts.map(p=>['',p,''])}:stories[lang];
+ get('sample-meta').textContent='Practice sample '+(extraStory?.n??(sampleKey==='en'?'01':'02'))+' · Grade 3 narrative';
+ paper.lang=lang;get('prompt-text').lang=lang;get('prompt-text').textContent=story.prompt;
+ const title=document.createElement('h3');title.textContent=story.title; paper.replaceChildren(title);
+ story.parts.forEach(([before,passage,after],i)=>{
+  const p=document.createElement('p'),mark=document.createElement('mark');
+  p.id='story-part-'+i;mark.id='passage-'+i;mark.textContent=passage;p.append(before,mark,after);paper.append(p);
+ });
+ const current=!!extraStory?.errors;
+ get('rubric-label').textContent=current?'STORIGEN Wonders rubric · Preset practice scores':'Whole-story scores · Legacy practice rubric · Simulated';
+ const key=get('answer-key'), answer=get('answer-list'), aid=get('reading-aid'), aidContent=get('aid-content');
+ key.hidden=!current;key.open=false;answer.replaceChildren();
+ if(current){
+  key.querySelector('summary').textContent='Reveal answer key';
+  for(const [i,original,suggestion,reason] of extraStory.errors){
+   const li=document.createElement('li');li.textContent='Paragraph '+(i+1)+': “'+original+'” → “'+suggestion+'”. '+reason;answer.append(li);
+  }
+  if(!extraStory.errors.length){const li=document.createElement('li');li.textContent='Clean control: no deliberate conventions errors.';answer.append(li);}
+ }
+ aid.hidden=!extraStory?.aid;aid.open=false;aidContent.replaceChildren();
+ if(extraStory?.aid){
+  const note=document.createElement('p');note.textContent='Read the story in English here. The original Spanish and its error notes remain the scoring source.';aidContent.append(note);
+  for(const part of extraStory.aid){const para=document.createElement('p');para.textContent=part;aidContent.append(para);}
+ }
+ get('sample-note').textContent=lang==='es'?'Spanish original. Intentional practice errors stay as written. Suggestions refer to the original, not a translation.':'Select a rubric row to see how evidence across the story supports its score.';
+}
+const rows=document.querySelector('.criteria'), score=get('score'), feedback=get('feedback'), approve=get('approve');
+let edits=rubric.map(x=>({...x})), selected=0, approved=false;
+const buttons=edits.map((item,i)=>{
+ const btn=document.createElement('button');btn.type='button';btn.className='criterion';
+ const name=document.createElement('span');name.textContent=item.name;
+ const points=document.createElement('b');btn.append(name,points);
+ btn.addEventListener('click',()=>select(i)); rows.append(btn);return {btn,points,name};
+});
+function render(){
+ const summary=edits.reduce((a,b)=>a+b.score,0)+' / 20';
+ get('total').textContent=summary;
+ get('score-state').textContent=approved?'Reviewed score':'Draft score';
+ get('status').textContent=approved?'Sample approved. Nothing was saved or sent.':'Not reviewed. Nothing is saved or sent.';
+ approve.textContent=approved?'✓ Review approved':'Approve sample review';
+ approve.setAttribute('data-reviewed',String(approved));
+ approve.setAttribute('aria-disabled',String(approved));
+ const confirmation=get('approval');
+ confirmation.hidden=!approved;
+ confirmation.textContent=approved?'Sample approved · '+summary:'';
+ const supported=new Set(currentAssessment(selected)[1].map(([i])=>i));
+ buttons.forEach(({btn,points,name},i)=>{btn.setAttribute('aria-pressed',String(i===selected));points.textContent=edits[i].score+' / 5';name.textContent=extra[sampleKey]?.errors?wondersNames[i]:edits[i].name;});
+ for(const [i,mark] of [...get('paper').querySelectorAll('mark')].entries()) mark.classList.toggle('selected',supported.has(i));
+}
+function select(i){
+ selected=i;const [rationale,links]=currentAssessment(i),list=get('evidence'),summary=get('assessment');
+ const reviewLang=extra[sampleKey]?.errors?'en':lang;
+ list.lang=reviewLang;feedback.lang=reviewLang;summary.lang=reviewLang;summary.textContent=rationale;
+ list.replaceChildren();
+ for(const [part,label] of links){
+  const li=document.createElement('li'),a=document.createElement('a');
+  a.href='#story-part-'+part;a.textContent=label;li.append(a);list.append(li);
+ }
+ if(i===3&&extra[sampleKey]?.errors?.length){
+  list.replaceChildren();
+  for(const [part,original,suggestion,reason] of extra[sampleKey].errors){
+   const li=document.createElement('li'),a=document.createElement('a');a.href='#story-part-'+part;
+   a.textContent='“'+original+'” → “'+suggestion+'”';li.append(a,' · '+reason);list.append(li);
+  }
+ }
+ score.value=String(edits[i].score);feedback.value=edits[i].feedback;render();
+}
+score.addEventListener('change',()=>{edits[selected].score=Number(score.value);approved=false;render();});
+feedback.addEventListener('input',()=>{edits[selected].feedback=feedback.value;approved=false;render();});
+approve.addEventListener('click',()=>{if(approved)return;approved=true;render();});
+function currentAssessment(i){
+ const item=extra[sampleKey]?.review[i];return item?[item[1],item[3]]:assessments[lang][i];
+}
+function resetReview(){
+ const sample=extra[sampleKey], base=lang==='es'?spanishRubric:rubric;
+ edits=base.map((x,i)=>sample?{...x,score:sample.review[i][0],feedback:sample.review[i][2]}:{...x});
+ approved=false;select(0);
+}
+get('reset').addEventListener('click',()=>{resetReview();buttons[0].btn.focus();});
+get('sample').addEventListener('change',()=>{sampleKey=get('sample').value;lang=extra[sampleKey]?.lang??sampleKey;loadStory();resetReview();});
+get('sample').value='garden';sampleKey='garden';loadStory();resetReview();
+for(const id of ['sample','score','feedback','approve','reset'])get(id).disabled=false;
+get('preview-warning').hidden=true;
+
+</script>
+<script>
+
+(function(){
+const WONDERS = [
+  {
+    id: "lenses",
+    name: "Application of the Seven Lenses",
+    levels: {
+      5: {label: "Exceptional", text: "All seven lenses woven together seamlessly — each deepens the story, and the twist reframes everything that came before."},
+      4: {label: "Exceeds", text: "All seven lenses present and working together; the twist reframes what came before."},
+      3: {label: "Meets", text: "Five or six lenses clearly present; the story holds together."},
+      2: {label: "Approaching", text: "Three or four lenses present; others named but undeveloped."},
+      1: {label: "Beginning", text: "Fewer than three lenses present; does not yet function as a story."}
+    }
+  },
+  {
+    id: "organization",
+    name: "Beginning–Middle–End Organization",
+    levels: {
+      5: {label: "Exceptional", text: "Beginning, middle, and end flow seamlessly — transitions build momentum and the ending resonates."},
+      4: {label: "Exceeds", text: "Clear beginning, middle, and end with purposeful transitions."},
+      3: {label: "Meets", text: "Clear beginning, middle, end; one or two abrupt transitions."},
+      2: {label: "Approaching", text: "Recognizable order, but the middle sags or the ending stops rather than closes."},
+      1: {label: "Beginning", text: "Events listed or scrambled; no discernible arc."}
+    }
+  },
+  {
+    id: "development",
+    name: "Development, Detail, and Meaning",
+    levels: {
+      5: {label: "Exceptional", text: "Rich, vivid detail throughout; theme resonates deeply without ever being stated outright."},
+      4: {label: "Exceeds", text: "Vivid, specific detail throughout; theme evident without being stated."},
+      3: {label: "Meets", text: "Solid detail in most places; meaning present and mostly clear."},
+      2: {label: "Approaching", text: "General or repeated detail; meaning stated rather than shown."},
+      1: {label: "Beginning", text: "Little detail; no discernible meaning or takeaway."}
+    }
+  },
+  {
+    id: "conventions",
+    name: "Clarity and Writing Conventions",
+    levels: {
+      5: {label: "Exceptional", text: "Polished and controlled throughout — virtually error-free with strong, varied sentences."},
+      4: {label: "Exceeds", text: "Clear and controlled; errors rare and never impede meaning."},
+      3: {label: "Meets", text: "Generally clear; some errors, none that impede meaning."},
+      2: {label: "Approaching", text: "Understandable, but errors slow the reader in places."},
+      1: {label: "Beginning", text: "Errors regularly impede meaning."}
+    }
+  }
+];
+
+const STORE = "storigen-os-grade-along-teacher-draft";
+const MAX_STORE_BYTES = 4 * 1024 * 1024;
+const $ = (id) => document.getElementById(id);
+const state = {
+  scores: WONDERS.map(() => null),
+  feedback: WONDERS.map(() => ""),
+  starters: WONDERS.map(() => ""),
+  approved: false,
+  files: []
+};
+
+function starterFor(i, score){
+  if(!score) return "";
+  const lvl = WONDERS[i].levels[score];
+  return lvl.label + " — " + lvl.text;
+}
+
+function allScored(){
+  return state.scores.every((s) => s >= 1 && s <= 5);
+}
+
+function total(){
+  if(!allScored()) return null;
+  return state.scores.reduce((a,b) => a+b, 0);
+}
+
+function renderCategories(){
+  const root = $("t-categories");
+  root.replaceChildren();
+  WONDERS.forEach((cat, i) => {
+    const wrap = document.createElement("article");
+    wrap.className = "teacher-cat";
+    wrap.innerHTML = "<h3>" + (i+1) + ". " + cat.name + "</h3>";
+    const picks = document.createElement("div");
+    picks.className = "level-picks";
+    picks.setAttribute("role", "group");
+    picks.setAttribute("aria-label", cat.name + " level");
+    for(let n=1;n<=5;n++){
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = String(n);
+      btn.setAttribute("aria-pressed", state.scores[i]===n ? "true" : "false");
+      btn.title = n + " — " + cat.levels[n].label;
+      btn.addEventListener("click", () => setScore(i, n));
+      picks.append(btn);
+    }
+    wrap.append(picks);
+    const desc = document.createElement("p");
+    desc.className = "descriptor";
+    desc.id = "t-desc-"+i;
+    if(state.scores[i]){
+      const lvl = cat.levels[state.scores[i]];
+      desc.innerHTML = "<b>" + state.scores[i] + " — " + lvl.label + ".</b> " + lvl.text;
+    } else {
+      desc.textContent = "Pick a level to see what it means.";
+    }
+    wrap.append(desc);
+    const lab = document.createElement("label");
+    lab.setAttribute("for", "t-feedback-"+i);
+    lab.textContent = "Feedback";
+    const ta = document.createElement("textarea");
+    ta.id = "t-feedback-"+i;
+    ta.value = state.feedback[i];
+    ta.addEventListener("input", () => {
+      state.feedback[i] = ta.value;
+      if(state.approved){ state.approved = false; }
+      renderStatus();
+      saveDraft();
+    });
+    wrap.append(lab, ta);
+    root.append(wrap);
+  });
+}
+
+function setScore(i, n){
+  const prevStarter = state.starters[i];
+  const current = state.feedback[i];
+  state.scores[i] = n;
+  const next = starterFor(i, n);
+  if(!current.trim() || current === prevStarter){
+    state.feedback[i] = next;
+    state.starters[i] = next;
+  }
+  state.approved = false;
+  renderCategories();
+  renderStatus();
+  saveDraft();
+}
+
+function renderStatus(){
+  const tot = total();
+  $("t-total").textContent = tot === null ? "— / 20" : (tot + " / 20");
+  $("t-score-state").textContent = tot === null ? "Pick a level in each category" : (state.approved ? "Approved review" : "Draft score");
+  $("t-approve").disabled = !allScored() || state.approved;
+  $("t-approve").dataset.reviewed = state.approved ? "true" : "false";
+  $("t-print").disabled = !allScored();
+  $("t-json").disabled = !allScored();
+  $("t-csv").disabled = !allScored();
+  const approval = $("t-approval");
+  if(state.approved){
+    approval.hidden = false;
+    const who = $("t-name").value.trim() || "this paper";
+    approval.textContent = "Review approved for " + who + ". Print or download to keep a copy. This still stays on this device unless you save the file.";
+    $("t-status").textContent = "Approved. A draft may also be kept in this browser until you clear it.";
+  } else {
+    approval.hidden = true;
+    $("t-status").textContent = allScored()
+      ? "Draft complete. Approve when you are ready, or print and download now. Nothing is sent."
+      : "Not reviewed. Nothing is uploaded or sent. A draft can be saved in this browser only.";
+  }
+}
+
+function payload(){
+  const cats = WONDERS.map((cat, i) => ({
+    category: cat.name,
+    score: state.scores[i],
+    level: state.scores[i] ? cat.levels[state.scores[i]].label : "",
+    descriptor: state.scores[i] ? cat.levels[state.scores[i]].text : "",
+    feedback: state.feedback[i]
+  }));
+  return {
+    tool: "STORIGEN OS Grade Along",
+    rubric: "Storigen Wonders Rubric",
+    student: $("t-name").value.trim(),
+    grade: $("t-grade").value.trim(),
+    date: $("t-date").value,
+    facilitator: $("t-facilitator").value.trim(),
+    story: $("t-story").value,
+    attachments: state.files.map((f) => ({name: f.name, type: f.type, size: f.size})),
+    categories: cats,
+    total: total(),
+    totalPossible: 20,
+    approved: state.approved
+  };
+}
+
+function download(filename, text, mime){
+  const blob = new Blob([text], {type: mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function csvEscape(v){
+  const s = v == null ? "" : String(v);
+  if(/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+
+function renderFiles(){
+  const list = $("t-attach-list");
+  list.replaceChildren();
+  state.files.forEach((f) => {
+    const item = document.createElement("div");
+    item.className = "attach-item";
+    const cap = document.createElement("p");
+    cap.className = "attach-name";
+    cap.textContent = f.name;
+    item.append(cap);
+    if((f.type || "").startsWith("image/")){
+      const img = document.createElement("img");
+      img.alt = "Scan of " + f.name;
+      img.src = f.url;
+      item.append(img);
+    } else if((f.type || "") === "application/pdf" || /\.pdf$/i.test(f.name)){
+      const frame = document.createElement("iframe");
+      frame.title = "PDF scan " + f.name;
+      frame.src = f.url;
+      frame.style.minHeight = "360px";
+      item.append(frame);
+    } else {
+      const p = document.createElement("p");
+      p.textContent = "Preview is not available for this file type, but it is attached on this device.";
+      item.append(p);
+    }
+    list.append(item);
+  });
+}
+
+function revokeFiles(){
+  state.files.forEach((f) => { if(f.blobUrl) URL.revokeObjectURL(f.blobUrl); });
+}
+
+function readAsDataURL(file){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(file);
+  });
+}
+
+async function addFiles(fileList){
+  for(const file of fileList){
+    const blobUrl = URL.createObjectURL(file);
+    let dataUrl = null;
+    try { dataUrl = await readAsDataURL(file); } catch(e){ dataUrl = null; }
+    state.files.push({
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      url: dataUrl || blobUrl,
+      blobUrl,
+      dataUrl
+    });
+  }
+  renderFiles();
+  saveDraft();
+}
+
+function collectDraft(){
+  return {
+    student: $("t-name").value,
+    grade: $("t-grade").value,
+    date: $("t-date").value,
+    facilitator: $("t-facilitator").value,
+    story: $("t-story").value,
+    scores: state.scores,
+    feedback: state.feedback,
+    starters: state.starters,
+    approved: state.approved,
+    files: state.files.map((f) => ({
+      name: f.name, type: f.type, size: f.size, dataUrl: f.dataUrl || null
+    }))
+  };
+}
+
+function saveDraft(){
+  try{
+    const draft = collectDraft();
+    const raw = JSON.stringify(draft);
+    if(raw.length > MAX_STORE_BYTES){
+      draft.files = draft.files.map((f) => ({name: f.name, type: f.type, size: f.size, dataUrl: null}));
+      const slimmer = JSON.stringify(draft);
+      if(slimmer.length > MAX_STORE_BYTES){
+        delete draft.story;
+        localStorage.setItem(STORE, JSON.stringify(draft));
+        return;
+      }
+      localStorage.setItem(STORE, slimmer);
+      return;
+    }
+    localStorage.setItem(STORE, raw);
+  } catch(e){ /* quota or private mode: keep working in memory */ }
+}
+
+function loadDraft(){
+  let raw;
+  try { raw = localStorage.getItem(STORE); } catch(e){ return false; }
+  if(!raw) return false;
+  let draft;
+  try { draft = JSON.parse(raw); } catch(e){ return false; }
+  $("t-name").value = draft.student || "";
+  $("t-grade").value = draft.grade || "";
+  $("t-date").value = draft.date || $("t-date").value;
+  $("t-facilitator").value = draft.facilitator || "";
+  $("t-story").value = draft.story || "";
+  if(Array.isArray(draft.scores)) state.scores = WONDERS.map((_,i) => draft.scores[i] ?? null);
+  if(Array.isArray(draft.feedback)) state.feedback = WONDERS.map((_,i) => draft.feedback[i] || "");
+  if(Array.isArray(draft.starters)) state.starters = WONDERS.map((_,i) => draft.starters[i] || "");
+  state.approved = !!draft.approved;
+  revokeFiles();
+  state.files = [];
+  if(Array.isArray(draft.files)){
+    draft.files.forEach((f) => {
+      if(f && f.dataUrl){
+        state.files.push({
+          name: f.name || "scan",
+          type: f.type || "",
+          size: f.size || 0,
+          url: f.dataUrl,
+          blobUrl: null,
+          dataUrl: f.dataUrl
+        });
+      }
+    });
+  }
+  return true;
+}
+
+function clearAll(){
+  if(!confirm("Clear this paper, scores, feedback, and the draft saved in this browser?")) return;
+  revokeFiles();
+  state.scores = WONDERS.map(() => null);
+  state.feedback = WONDERS.map(() => "");
+  state.starters = WONDERS.map(() => "");
+  state.approved = false;
+  state.files = [];
+  $("t-name").value = "";
+  $("t-grade").value = "";
+  $("t-date").value = today();
+  $("t-facilitator").value = "";
+  $("t-story").value = "";
+  $("t-files").value = "";
+  try { localStorage.removeItem(STORE); } catch(e){}
+  renderCategories();
+  renderFiles();
+  renderStatus();
+}
+
+function today(){
+  const d = new Date();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const day = String(d.getDate()).padStart(2,"0");
+  return d.getFullYear() + "-" + m + "-" + day;
+}
+
+function setMode(mode){
+  const practice = mode === "practice";
+  $("practice-view").hidden = !practice;
+  $("teacher-view").hidden = practice;
+  $("mode-practice").setAttribute("aria-pressed", practice ? "true" : "false");
+  $("mode-teacher").setAttribute("aria-pressed", practice ? "false" : "true");
+  $("mode-badge").textContent = practice ? "Teacher demo · Practice samples" : "Teacher demo · Private grading";
+  document.title = practice ? "Grade Along | STORIGEN OS" : "Grade a paper | Grade Along | STORIGEN OS";
+  if(!practice) $("t-name").focus();
+}
+
+function safeName(){
+  const n = ($("t-name").value.trim() || "paper").replace(/[^\w.-]+/g, "_").slice(0,40);
+  const d = $("t-date").value || today();
+  return "grade-along-" + n + "-" + d;
+}
+
+$("t-date").value = today();
+loadDraft();
+renderCategories();
+renderFiles();
+renderStatus();
+
+["t-name","t-grade","t-date","t-facilitator","t-story"].forEach((id) => {
+  $(id).addEventListener("input", () => {
+    if(state.approved && id !== "t-date"){ /* keep approved unless scores/feedback change */ }
+    saveDraft();
+    if(state.approved) renderStatus();
+  });
+});
+$("t-files").addEventListener("change", (e) => {
+  addFiles(e.target.files || []);
+  e.target.value = "";
+});
+$("t-approve").addEventListener("click", () => {
+  if(!allScored() || state.approved) return;
+  state.approved = true;
+  renderStatus();
+  saveDraft();
+});
+$("t-print").addEventListener("click", () => window.print());
+$("t-json").addEventListener("click", () => {
+  download(safeName() + ".json", JSON.stringify(payload(), null, 2), "application/json");
+});
+$("t-csv").addEventListener("click", () => {
+  const data = payload();
+  const rows = [["Category","Score","Level","Descriptor","Feedback"]];
+  data.categories.forEach((c) => {
+    rows.push([c.category, c.score, c.level, c.descriptor, c.feedback]);
+  });
+  rows.push([]);
+  rows.push(["Student", data.student]);
+  rows.push(["Grade", data.grade]);
+  rows.push(["Date", data.date]);
+  rows.push(["Facilitator", data.facilitator]);
+  rows.push(["Total", data.total, "out of", 20]);
+  rows.push(["Approved", data.approved ? "yes" : "no"]);
+  rows.push(["Story", data.story]);
+  const csv = rows.map((r) => r.map(csvEscape).join(",")).join("\n");
+  download(safeName() + ".csv", csv, "text/csv");
+});
+$("t-clear").addEventListener("click", clearAll);
+$("mode-practice").addEventListener("click", () => setMode("practice"));
+$("mode-teacher").addEventListener("click", () => setMode("teacher"));
+
+const params = new URLSearchParams(location.search);
+if(params.get("mode") === "grade" || params.get("mode") === "teacher"){
+  setMode("teacher");
+}
+})();
+
+</script>
+</body>
+</html>
