@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS schools (
   papers_used INTEGER NOT NULL DEFAULT 0,
   license_year INTEGER NOT NULL,
   status TEXT NOT NULL DEFAULT 'active',
+  teachers_own_rubrics INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL
 );
 

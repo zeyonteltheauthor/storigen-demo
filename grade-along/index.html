@@ -294,9 +294,9 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 <button type="submit" class="primary" id="gate-school-go">Sign in with invite</button>
 </form>
 <p class="gate-msg" id="gate-msg" role="status" aria-live="polite"></p>
-<p class="gate-note">The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only.</p>
+<p class="gate-note">The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only, and each signed-in account has its own.</p>
 <p class="gate-note">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
-<p class="version-label">Grade Along v13</p>
+<p class="version-label">Grade Along v14</p>
 </section>
 </main>
 <template id="ga-app">
@@ -444,7 +444,7 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 </div>
 <section class="panel school-panel" id="school-admin" hidden aria-labelledby="school-admin-title">
 <h2 id="school-admin-title">School admin</h2>
-<p>Add or remove teachers, set the yearly paper cap, save school rubrics, and view live pre/post growth by class and by grade. Invite codes are shown only once — copy them and share them with the teacher yourself.</p>
+<p>Add or remove teachers, choose whether teachers can use their own rubrics, save school rubrics, and view live pre/post growth by class and by grade. Invite codes are shown only once — copy them and share them with the teacher yourself. The yearly paper cap is set by Arrival House; you can see the meter but cannot change it.</p>
 <form class="school-form" id="school-add-form" autocomplete="off">
 <div><label for="school-add-email">Work email</label><input id="school-add-email" type="email" maxlength="200" required></div>
 <div><label for="school-add-name">Name</label><input id="school-add-name" type="text" maxlength="80"></div>
@@ -453,16 +453,14 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 </form>
 <p class="invite-once" id="school-invite" hidden></p>
 <div id="school-teachers"></div>
-<form class="school-form" id="school-cap-form">
-<div><label for="school-cap">Yearly paper cap</label><input id="school-cap" type="number" min="0" step="1" required></div>
-<button type="submit" class="secondary">Save cap</button>
-</form>
+<label class="bulk-check"><input type="checkbox" id="school-own-rubrics"> Teachers can use their own rubrics</label>
+<p class="growth-status">When this is off, teachers grade only with the school's approved rubrics, so scores stay comparable. When it is on, they can also build or import their own.</p>
 <p class="growth-status" id="school-admin-status" role="status"></p>
 <div id="school-report"></div>
 </section>
 <section class="panel school-panel" id="owner-panel" hidden aria-labelledby="owner-title">
 <h2 id="owner-title">Arrival House · school accounts</h2>
-<p>Create a pilot school and its first admin. Copy the invite code and share it with that admin along with the email you entered. It is shown only once and expires in 14 days.</p>
+<p>Create a pilot school and its first admin, and set or raise a school's yearly paper cap. Copy the invite code and share it with that admin along with the email you entered. It is shown only once and expires in 14 days.</p>
 <form class="owner-form" id="owner-form" autocomplete="off">
 <div><label for="owner-school">School name</label><input id="owner-school" type="text" maxlength="120" required></div>
 <div><label for="owner-cap">Yearly paper cap</label><input id="owner-cap" type="number" min="0" step="1" value="5000" required></div>
@@ -475,7 +473,7 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 <div id="owner-schools"></div>
 <p class="school-legal">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
 </section>
-<footer class="version-label" id="ga-version">Grade Along v13</footer>
+<footer class="version-label" id="ga-version">Grade Along v14</footer>
 </div>
 
 </main>
@@ -717,10 +715,46 @@ let batchRunning = false;
 let sessionAssess = "pre";           // session default: "pre" | "post"
 const PRE_FILE_STORE = "storigen-os-grade-along-pre-loaded";
 const HISTORY_STORE = "storigen-os-grade-along-history";
+const WORKSPACE_MIGRATED = "storigen-os-grade-along-workspace-migrated-v14";
+const LOCAL_BASES = [RUBRIC_STORE, STORE, QUEUE_STORE, PRE_FILE_STORE, HISTORY_STORE];
 const AI_URL = "https://grade-along-api.storigen.workers.dev/grade";
 const PASS_KEY = "storigen-grade-along-passcode";
 const SESSION_STORE = "storigen-grade-along-session";
 const API_BASE = "https://grade-along-api.storigen.workers.dev";
+function workspaceId(){
+  const s = window.GA_SCHOOL;
+  if(s && s.school && s.school.id && s.user && s.user.id) return "school:" + s.school.id + ":" + s.user.id;
+  return "passcode";
+}
+function workKey(base){ return base + "::" + workspaceId(); }
+function migratePasscodeWorkspace(){
+  if(workspaceId() !== "passcode") return;
+  try{
+    if(localStorage.getItem(WORKSPACE_MIGRATED) === "1") return;
+    const hasNew = LOCAL_BASES.some((base) => localStorage.getItem(workKey(base)) != null);
+    if(!hasNew){
+      LOCAL_BASES.forEach((base) => {
+        const raw = localStorage.getItem(base);
+        if(raw != null) localStorage.setItem(workKey(base), raw);
+      });
+    }
+    LOCAL_BASES.forEach((base) => localStorage.removeItem(base));
+    localStorage.setItem(WORKSPACE_MIGRATED, "1");
+  } catch(e){}
+}
+function teachersLockedToSchool(){
+  const s = window.GA_SCHOOL;
+  return !!(s && s.user && s.user.role !== "admin" && s.school && !s.school.teachersOwnRubrics);
+}
+function resetLocalWorkspace(){
+  revokeAll();
+  students = [blankStudent()];
+  state = students[0];
+  sessionAssess = "pre";
+  storeWarn = false;
+  RUB = DEFAULT_RUBRIC;
+  WONDERS = RUB.rows;
+}
 const ROW_LABEL = {ai: "AI draft", approved: "Teacher approved", edited: "Edited by teacher"};
 
 function aiPending(st = state){
@@ -1186,10 +1220,10 @@ function saveDraft(){
       warn = true;
       raw = JSON.stringify({v: 2, current, assess: sessionAssess, rubric: RUB.builtin ? null : Object.assign({id: RUB.id}, rubricForApi(RUB)), students: students.map((st) => serializeStudent(st, false))});
     }
-    try { localStorage.setItem(QUEUE_STORE, raw); }
+    try { localStorage.setItem(workKey(QUEUE_STORE), raw); }
     catch(e){
       warn = true;
-      localStorage.setItem(QUEUE_STORE, JSON.stringify({v: 2, current, assess: sessionAssess, rubric: RUB.builtin ? null : Object.assign({id: RUB.id}, rubricForApi(RUB)), students: students.map((st) => serializeStudent(st, false))}));
+      localStorage.setItem(workKey(QUEUE_STORE), JSON.stringify({v: 2, current, assess: sessionAssess, rubric: RUB.builtin ? null : Object.assign({id: RUB.id}, rubricForApi(RUB)), students: students.map((st) => serializeStudent(st, false))}));
     }
   } catch(e){ /* private mode: keep working in memory */ }
   storeWarn = warn && students.some((st) => st.files.length);
@@ -1229,7 +1263,7 @@ function restoreStudent(d){
 
 function loadDraft(){
   let raw = null;
-  try { raw = localStorage.getItem(QUEUE_STORE); } catch(e){ return false; }
+  try { raw = localStorage.getItem(workKey(QUEUE_STORE)); } catch(e){ return false; }
   try{
     if(raw){
       const q = JSON.parse(raw);
@@ -1242,11 +1276,11 @@ function loadDraft(){
       }
     }
     // Migrate a single-paper draft from the earlier version.
-    const old = localStorage.getItem(STORE);
+    const old = localStorage.getItem(workKey(STORE));
     if(old){
       students = [restoreStudent(JSON.parse(old))];
       state = students[0];
-      localStorage.removeItem(STORE);
+      localStorage.removeItem(workKey(STORE));
       return true;
     }
   } catch(e){}
@@ -1270,7 +1304,7 @@ function clearAll(){
   $("q-bulk-panel").hidden = true;
   $("t-files").value = "";
   fillForm();
-  try { localStorage.removeItem(QUEUE_STORE); localStorage.removeItem(STORE); } catch(e){}
+  try { localStorage.removeItem(workKey(QUEUE_STORE)); localStorage.removeItem(workKey(STORE)); } catch(e){}
   renderCategories();
   renderFiles();
   renderStatus();
@@ -1563,8 +1597,8 @@ function cleanRecord(r, source){
   rec.id = source[0] + ":" + normName(rec.firstName) + "|" + normGrade(rec.grade) + "|" + rec.date + "|" + rec.scores.join("-") + "|" + rec.rubricId;
   return rec;
 }
-function readJSON(key, fallback){ try { const v = JSON.parse(localStorage.getItem(key) || "null"); return v == null ? fallback : v; } catch(e){ return fallback; } }
-function writeJSON(key, v){ try { localStorage.setItem(key, JSON.stringify(v)); return true; } catch(e){ return false; } }
+function readJSON(key, fallback){ try { const v = JSON.parse(localStorage.getItem(workKey(key)) || "null"); return v == null ? fallback : v; } catch(e){ return fallback; } }
+function writeJSON(key, v){ try { localStorage.setItem(workKey(key), JSON.stringify(v)); return true; } catch(e){ return false; } }
 function loadedPre(){ return (readJSON(PRE_FILE_STORE, {}).records || []).map((r) => cleanRecord(r, "file")).filter(Boolean); }
 function deviceHistory(){ return (readJSON(HISTORY_STORE, []) || []).map((r) => cleanRecord(r, "device")).filter(Boolean); }
 // Pre records to compare against: the loaded file first, then approved pre scores saved in this browser.
@@ -1679,8 +1713,8 @@ function renderGrowthBar(){
   if(posts.length) parts.push(matched + " of " + posts.length + " post student" + (posts.length === 1 ? "" : "s") + " matched" + (diffN ? " (" + diffN + " flagged: different rubric)" : ""));
   parts.push("Saved in this browser on this device only: " + nDev + " approved score" + (nDev === 1 ? "" : "s") + " (other devices can't see them)");
   st.append(document.createTextNode(parts.join(" · ") + "."));
-  if(nFile){ const b = el("button", null, "Remove loaded pre scores"); b.type = "button"; b.addEventListener("click", () => { try { localStorage.removeItem(PRE_FILE_STORE); } catch(e){} renderAssess(); renderQueue(); }); st.append(b); }
-  if(nDev){ const b = el("button", null, "Clear device history"); b.type = "button"; b.addEventListener("click", () => { if(confirm("Delete the approved scores saved in this browser? Files you saved are not affected.")){ try { localStorage.removeItem(HISTORY_STORE); } catch(e){} renderAssess(); renderQueue(); } }); st.append(b); }
+  if(nFile){ const b = el("button", null, "Remove loaded pre scores"); b.type = "button"; b.addEventListener("click", () => { try { localStorage.removeItem(workKey(PRE_FILE_STORE)); } catch(e){} renderAssess(); renderQueue(); }); st.append(b); }
+  if(nDev){ const b = el("button", null, "Clear device history"); b.type = "button"; b.addEventListener("click", () => { if(confirm("Delete the approved scores saved in this browser? Files you saved are not affected.")){ try { localStorage.removeItem(workKey(HISTORY_STORE)); } catch(e){} renderAssess(); renderQueue(); } }); st.append(b); }
   $("q-print-growth").hidden = !matched;
 }
 // Approved scores are remembered in this browser (first name, grade, facilitator, date, assessment, scores only).
@@ -1887,6 +1921,7 @@ function schoolRubricList(){
   }).filter(Boolean);
 }
 function allRubrics(){
+  if(teachersLockedToSchool()) return schoolRubricList();
   const out = [DEFAULT_RUBRIC];
   const seen = new Set([DEFAULT_RUBRIC.id]);
   schoolRubricList().concat(rubricLibrary()).forEach((r) => {
@@ -1895,6 +1930,12 @@ function allRubrics(){
     out.push(r);
   });
   return out;
+}
+function enforceSchoolRubric(){
+  if(!teachersLockedToSchool()) return;
+  const list = schoolRubricList();
+  if(list.some((r) => r.id === RUB.id)) return;
+  if(list[0]) setRubric(list[0], !!studentsWithWork().length);
 }
 function findRubric(id){ return allRubrics().find((r) => r.id === id) || null; }
 function rubricShapeSame(a, b){ return a.min === b.min && a.max === b.max && a.rows.length === b.rows.length; }
@@ -1943,7 +1984,15 @@ function renderRubricUI(){
     sel.disabled = batchRunning;
   }
   const s = $("rubric-status");
-  if(s) s.textContent = rubricSummary() + (RUB.builtin ? " · STORIGEN default." : (RUB.school ? " · School rubric, shared with every teacher at this school." : " · Rubrics are saved in this browser on this device only; use Manage rubrics → Export to share one."));
+  if(s){
+    if(teachersLockedToSchool()){
+      s.textContent = schoolRubricList().length
+        ? (rubricSummary() + " · Your school requires an approved school rubric.")
+        : "Your school requires an approved school rubric. Ask your admin to add one, or to allow teachers to use their own.";
+    } else {
+      s.textContent = rubricSummary() + (RUB.builtin ? " · STORIGEN default." : (RUB.school ? " · School rubric, shared with every teacher at this school." : " · Rubrics are saved in this browser on this device only; use Manage rubrics → Export to share one."));
+    }
+  }
   $("t-review").textContent = RUB.builtin ? "Storigen Wonders rubric" : RUB.name;
   $("t-review-sub").textContent = RUB.builtin ? "Four categories · levels 1–5 · total out of 20" : rubricSummary();
   $("ai-rubric-note").textContent = RUB.builtin ? "each of the four rows, plus overall feedback, using the Storigen Wonders rubric" : "each of the " + WONDERS.length + " row" + (WONDERS.length === 1 ? "" : "s") + ", plus overall feedback, using “" + RUB.name + "”";
@@ -1967,15 +2016,18 @@ function storedPass(){ return $("ai-pass").value || (() => { try { return sessio
 function openRubrics(msg, kind){
   const card = rubricShell("Rubrics");
   card.append(el("h2", null, "Rubrics"));
-  card.append(el("p", null, window.GA_SCHOOL
+  const locked = teachersLockedToSchool();
+  card.append(el("p", null, locked
+    ? "Your school requires you to grade with an approved school rubric, so scores stay comparable. Ask your admin to add a rubric, or to allow teachers to use their own."
+    : (window.GA_SCHOOL
     ? "Pick the rubric each session grades with. School rubrics are shared with every teacher at this school. You can still keep private rubrics in this browser, or import a file."
-    : "Pick the rubric each session grades with. Build your school's or district's rubric, read one from a PDF or photo, or import a rubric file another teacher shared. Rubrics are saved in this browser on this device only — use Export to share a file with your team."));
+    : "Pick the rubric each session grades with. Build your school's or district's rubric, read one from a PDF or photo, or import a rubric file another teacher shared. Rubrics are saved in this browser on this device only — use Export to share a file with your team.")));
   const acts = el("div", "split-controls");
   const inF = el("input"); inF.type = "file"; inF.accept = ".json,application/json"; inF.hidden = true; inF.id = "rb-file";
   const inD = el("input"); inD.type = "file"; inD.accept = "application/pdf,.pdf,image/*,.heic,.heif"; inD.multiple = true; inD.hidden = true; inD.id = "rb-doc";
   inF.addEventListener("change", () => { const f = inF.files[0]; inF.value = ""; if(f) importRubricFile(f); });
   inD.addEventListener("change", () => { const fs = Array.from(inD.files || []); inD.value = ""; if(fs.length) importRubricDoc(fs, status); });
-  acts.append(mkBtn("+ New rubric", "primary", () => openEditor(blankRubric(), true)), mkBtn("Import from a document (PDF or photo)", "secondary", () => inD.click()), mkBtn("Import rubric file (.json)", "secondary", () => inF.click()), inF, inD);
+  if(!locked) acts.append(mkBtn("+ New rubric", "primary", () => openEditor(blankRubric(), true)), mkBtn("Import from a document (PDF or photo)", "secondary", () => inD.click()), mkBtn("Import rubric file (.json)", "secondary", () => inF.click()), inF, inD);
   const status = el("p", "split-status", msg || ""); status.id = "rb-status"; status.dataset.kind = kind || ""; status.setAttribute("role", "status"); status.setAttribute("aria-live", "polite");
   card.append(acts, status);
   const list = el("div", "rb-list");
@@ -1990,13 +2042,13 @@ function openRubrics(msg, kind){
     const use = mkBtn(r.id === RUB.id ? "In use" : "Use for this session", "secondary", () => { if(useRubric(r.id)) openRubrics("This session now uses “" + r.name + "”."); });
     use.disabled = r.id === RUB.id || batchRunning;
     a.append(use);
-    if(!r.builtin) a.append(mkBtn("Edit", "secondary", () => openEditor(r, false)));
-    a.append(mkBtn("Duplicate", "secondary", () => { const c = JSON.parse(JSON.stringify(r)); c.id = ""; c.builtin = false; c.name = (r.name + " (copy)").slice(0, RL.name); openEditor(c, true); }));
     a.append(mkBtn("Export", "secondary", () => { download("rubric-" + (r.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 50) || "custom") + ".json", JSON.stringify(rubricFile(r), null, 2), "application/json"); setMsg(status, "Exported “" + r.name + "”. Send that file to other teachers; they press Import rubric file."); }));
-    if(!r.builtin && window.GA_SCHOOL && window.GA_SCHOOL.user && window.GA_SCHOOL.user.role === "admin"){
+    if(!locked && !r.builtin && window.GA_SCHOOL && window.GA_SCHOOL.user && window.GA_SCHOOL.user.role === "admin"){
       a.append(mkBtn(r.school ? "Update school copy" : "Save to school", "secondary", () => saveRubricToSchool(r, status)));
     }
-    if(!r.builtin) a.append(mkBtn("Delete", "secondary", () => {
+    if(!locked && !r.builtin) a.append(mkBtn("Edit", "secondary", () => openEditor(r, false)));
+    if(!locked) a.append(mkBtn("Duplicate", "secondary", () => { const c = JSON.parse(JSON.stringify(r)); c.id = ""; c.builtin = false; c.name = (r.name + " (copy)").slice(0, RL.name); openEditor(c, true); }));
+    if(!locked && !r.builtin) a.append(mkBtn("Delete", "secondary", () => {
       if(r.id === RUB.id){ setMsg(status, "This session is using “" + r.name + "”. Switch the session to another rubric first.", "error"); return; }
       if(!confirm(r.school
         ? "Remove “" + r.name + "” from the school, and from this browser? Files you exported are not affected."
@@ -3028,7 +3080,9 @@ function safeName(){
   return "grade-along-" + n + "-" + d;
 }
 
+migratePasscodeWorkspace();
 loadDraft();
+enforceSchoolRubric();
 renderRubricUI();
 fillForm();
 renderCategories();
@@ -3225,11 +3279,12 @@ async function refreshSchool(msg){
     window.GA_SCHOOL.rubrics = data.rubrics || [];
     if(data.teachers) window.GA_SCHOOL.teachers = data.teachers;
     renderSchoolBar();
+    enforceSchoolRubric();
     renderRubricUI();
     if(isSchoolAdmin()){
       renderTeacherTable(data.teachers || []);
-      const cap = $("school-cap");
-      if(cap && data.usage) cap.value = data.usage.cap;
+      const box = $("school-own-rubrics");
+      if(box) box.checked = !!(data.school && data.school.teachersOwnRubrics);
       const report = await schoolFetch("/school/report");
       renderSchoolReport(report);
     }
@@ -3246,7 +3301,20 @@ async function refreshOwner(){
     box.replaceChildren();
     (data.schools || []).forEach((s) => {
       const u = s.usage || {};
-      box.append(el("p", null, s.name + " · " + (u.used || 0) + " of " + (u.cap || 0) + " papers · " + (s.status || "active") + " · " + ((s.teachers || []).filter((t) => t.active).length) + " people"));
+      const row = el("div", "school-form");
+      row.append(el("p", null, s.name + " · " + (u.used || 0) + " of " + (u.cap || 0) + " papers used · " + (s.status || "active") + " · " + ((s.teachers || []).filter((t) => t.active).length) + " people"));
+      const wrap = el("div");
+      const lab = el("label", null, "Yearly paper cap"); lab.setAttribute("for", "owner-cap-" + s.id);
+      const inp = el("input"); inp.type = "number"; inp.min = "0"; inp.step = "1"; inp.value = u.cap || 0; inp.id = "owner-cap-" + s.id;
+      wrap.append(lab, inp);
+      const btn = mkBtn("Save cap", "secondary", () => {
+        const paperAllowance = parseInt(inp.value, 10);
+        schoolFetch("/owner/schools", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({schoolId: s.id, paperAllowance})})
+          .then(() => { saySchool("owner-status", "Paper cap saved for “" + s.name + "”."); refreshOwner(); })
+          .catch((err) => saySchool("owner-status", err.message, "error"));
+      });
+      row.append(wrap, btn);
+      box.append(row);
     });
     if(!(data.schools || []).length) box.append(el("p", null, "No schools yet."));
   } catch(e){
@@ -3272,12 +3340,16 @@ function wireSchoolUi(){
       })
       .catch((err) => saySchool("school-admin-status", err.message, "error"));
   });
-  if($("school-cap-form")) $("school-cap-form").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const paperAllowance = parseInt($("school-cap").value, 10);
-    schoolFetch("/school/allowance", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({paperAllowance})})
-      .then(() => refreshSchool("Paper cap saved."))
-      .catch((err) => saySchool("school-admin-status", err.message, "error"));
+  if($("school-own-rubrics")) $("school-own-rubrics").addEventListener("change", (e) => {
+    const on = !!e.target.checked;
+    schoolFetch("/school/settings", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({teachersOwnRubrics: on})})
+      .then((data) => {
+        if(data.school) window.GA_SCHOOL.school = data.school;
+        enforceSchoolRubric();
+        renderRubricUI();
+        refreshSchool(on ? "Teachers can now use their own rubrics." : "Teachers can now grade only with approved school rubrics.");
+      })
+      .catch((err) => { e.target.checked = !on; saySchool("school-admin-status", err.message, "error"); });
   });
   if($("owner-form")) $("owner-form").addEventListener("submit", (e) => {
     e.preventDefault();

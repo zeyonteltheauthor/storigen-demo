@@ -10,7 +10,7 @@ Auth, either:
 
 `POST /verify` — passcode or session. Passcode returns `{ ok, mode: "passcode" }`. School session returns `{ ok, mode: "school", user, school, usage, rubrics }`. 401 otherwise.
 
-`POST /grade`, `POST /split`, `POST /rubric` — same bodies as v12. Both auth modes work. `/split` and `/rubric` do not count against the paper pool. `/grade` counts one paper per graded student in school mode (cover-only reads do not count), warns at 80% of the yearly cap (`usageNote`), and stops at 100%. Passcode mode has no cap and stores nothing.
+`POST /grade`, `POST /split`, `POST /rubric` — same bodies as v12. Both auth modes work. `/split` and `/rubric` do not count against the paper pool. `/grade` counts one paper per graded student in school mode (cover-only reads do not count), warns at 80% of the yearly cap (`usageNote`), and stops at 100%. Passcode mode has no cap and stores nothing. In school mode, a teacher whose school has not allowed personal rubrics must send an approved school rubric on `/grade`.
 
 School accounts (D1 binding `DB`, database `grade-along-db`):
 - `POST /auth/redeem` `{ email, code }` → `{ ok, token, user, school, usage, rubrics }`. The invite is one-time and expires in 14 days.
@@ -19,7 +19,8 @@ School accounts (D1 binding `DB`, database `grade-along-db`):
 - `GET /school` — current user, usage, school rubrics; admins also get the teacher list.
 - `POST /school/teachers` — admin adds or reactivates a teacher; returns `inviteCode` once.
 - `POST /school/teachers/remove` `{ teacherId }` — sets inactive and deletes sessions immediately.
-- `POST /school/allowance` `{ paperAllowance }`
+- `POST /school/settings` `{ teachersOwnRubrics }` — admin. When false (the default), teachers may only grade with a school rubric.
+- `POST /school/allowance` — rejected; only Arrival House can change the paper cap, via `POST /owner/schools` `{ schoolId, paperAllowance }`.
 - `POST /school/rubrics` and `POST /school/rubrics/delete` — admin shared rubrics (same shape as `/rubric`).
 - `POST /school/scores` — first name, grade, facilitator, date, pre/post, rubric id/name, scores, total, outOf only. No story text.
 - `GET /school/report` — admin growth report by grade and by class.

@@ -538,6 +538,8 @@ async function handleGrade(request, env, origin) {
       return json({ error: e.status === 429 ? "The AI service is busy. Try again in a minute." : "Could not read the cover sheet." }, 502, origin);
     }
   }
+  const rubricBlock = await rejectIfRubricNotAllowed(env, auth, rub, body.rubric && body.rubric.id);
+  if (rubricBlock) return json({ error: rubricBlock.error }, rubricBlock.status, origin);
   if (auth.kind === "school") {
     const preview = await checkPaper(env, auth);
     if (!preview.ok) return json({ error: preview.error, ...extraUsage(preview.usage) }, preview.status, origin);
@@ -681,8 +683,30 @@ function publicSchool(s, usage) {
     name: s.name,
     status: s.status,
     licenseYear: s.license_year,
+    teachersOwnRubrics: !!(Number(s.teachers_own_rubrics) || s.teachersOwnRubrics),
     usage: usage || usageView(s)
   };
+}
+
+function teacherMustUseSchoolRubric(auth) {
+  return auth && auth.kind === "school" && auth.teacher.role !== "admin" && !Number(auth.school && auth.school.teachers_own_rubrics);
+}
+
+function rubricPayloadEqual(a, b) {
+  return JSON.stringify({ name: a.name, min: a.min, max: a.max, rows: a.rows }) === JSON.stringify({ name: b.name, min: b.min, max: b.max, rows: b.rows });
+}
+
+async function rejectIfRubricNotAllowed(env, auth, rub, rawId) {
+  if (!teacherMustUseSchoolRubric(auth)) return null;
+  const msg = "Your school requires you to grade with an approved school rubric. Ask your admin to add one, or to allow teachers to use their own.";
+  if (!rub) return { error: msg, status: 403 };
+  const id = typeof rawId === "string" ? rawId : "";
+  const list = await schoolRubrics(env, auth.school.id);
+  const found = list.find((r) => r.id === id);
+  if (!found || !rubricPayloadEqual(found, rub)) {
+    return { error: found ? "That rubric does not match the school's approved copy. Refresh and try again." : msg, status: 403 };
+  }
+  return null;
 }
 
 function publicUser(t) {
@@ -708,7 +732,7 @@ async function loadSession(env, token) {
     `SELECT s.id AS session_id, s.expires_at, s.school_id,
             t.id AS teacher_id, t.email, t.name, t.role, t.active,
             sch.name AS school_name, sch.paper_allowance, sch.papers_used,
-            sch.license_year, sch.status AS school_status
+            sch.license_year, sch.status AS school_status, sch.teachers_own_rubrics
      FROM sessions s
      JOIN teachers t ON t.id = s.teacher_id
      JOIN schools sch ON sch.id = s.school_id
@@ -727,7 +751,8 @@ async function loadSession(env, token) {
     paper_allowance: row.paper_allowance,
     papers_used: row.papers_used,
     license_year: row.license_year,
-    status: row.school_status
+    status: row.school_status,
+    teachers_own_rubrics: row.teachers_own_rubrics ? 1 : 0
   };
   const teacher = {
     id: row.teacher_id,
@@ -883,7 +908,7 @@ async function handleAuthRedeem(request, env, origin) {
     `SELECT i.id AS invite_id, i.expires_at, i.used_at, i.school_id, i.teacher_id,
             t.email, t.name, t.role, t.active,
             sch.name AS school_name, sch.paper_allowance, sch.papers_used,
-            sch.license_year, sch.status AS school_status
+            sch.license_year, sch.status AS school_status, sch.teachers_own_rubrics
      FROM invites i
      JOIN teachers t ON t.id = i.teacher_id
      JOIN schools sch ON sch.id = i.school_id
@@ -904,7 +929,8 @@ async function handleAuthRedeem(request, env, origin) {
     paper_allowance: row.paper_allowance,
     papers_used: row.papers_used,
     license_year: row.license_year,
-    status: row.school_status
+    status: row.school_status,
+    teachers_own_rubrics: row.teachers_own_rubrics ? 1 : 0
   };
   const token = await issueSession(env, teacher, school);
   const usage = usageView(school);
@@ -945,7 +971,7 @@ async function createSchoolWithAdmin(env, body) {
   const teacherId = crypto.randomUUID();
   await dbRun(
     env,
-    "INSERT INTO schools (id, name, paper_allowance, papers_used, license_year, status, created_at) VALUES (?, ?, ?, 0, ?, 'active', ?)",
+    "INSERT INTO schools (id, name, paper_allowance, papers_used, license_year, status, teachers_own_rubrics, created_at) VALUES (?, ?, ?, 0, ?, 'active', 0, ?)",
     schoolId, name, allowance, year, now
   );
   await dbRun(
@@ -1144,18 +1170,33 @@ async function handleSchoolAllowance(request, env, origin) {
   if (limited) return limited(origin);
   const auth = await authorize(request, env);
   if (!auth.ok) return json({ error: auth.error }, auth.status, origin);
+  if (auth.kind !== "passcode") {
+    return json({ error: "Only Arrival House can change the paper cap." }, 403, origin);
+  }
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
+  return json({ error: "Only Arrival House can change the paper cap. Use the Arrival House panel." }, 403, origin);
+}
+
+async function handleSchoolSettings(request, env, origin) {
+  const blocked = await requireSchoolConfigured(env, origin);
+  if (blocked) return blocked;
+  const limited = await rateLimit(request, env, "school:");
+  if (limited) return limited(origin);
+  const auth = await authorize(request, env);
+  if (!auth.ok) return json({ error: auth.error }, auth.status, origin);
   const denied = needAdmin(auth);
   if (denied) return json({ error: denied.error }, denied.status, origin);
   let body;
   try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
-  const n = Number(body.paperAllowance);
-  if (!Number.isInteger(n) || n < 0 || n > 10_000_000) {
-    return json({ error: "Enter a whole-number yearly paper cap." }, 400, origin);
+  if (typeof body.teachersOwnRubrics !== "boolean") {
+    return json({ error: "Set whether teachers can use their own rubrics." }, 400, origin);
   }
-  await dbRun(env, "UPDATE schools SET paper_allowance = ? WHERE id = ?", n, auth.school.id);
+  await dbRun(env, "UPDATE schools SET teachers_own_rubrics = ? WHERE id = ?", body.teachersOwnRubrics ? 1 : 0, auth.school.id);
   const fresh = await dbOne(env, "SELECT * FROM schools WHERE id = ?", auth.school.id);
+  auth.school = fresh;
   const usage = usageView(fresh);
-  return json({ ok: true, usage, school: publicSchool(fresh, usage), ...extraUsage(usage) }, 200, origin);
+  return json({ ok: true, school: publicSchool(fresh, usage), usage, ...extraUsage(usage) }, 200, origin);
 }
 
 async function handleSchoolRubricsSave(request, env, origin) {
@@ -1421,6 +1462,10 @@ async function routeSchool(url, request, env, origin) {
   if (path === "/school/allowance") {
     if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
     return handleSchoolAllowance(request, env, origin);
+  }
+  if (path === "/school/settings") {
+    if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
+    return handleSchoolSettings(request, env, origin);
   }
   if (path === "/school/rubrics") {
     if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
