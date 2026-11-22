@@ -139,6 +139,21 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 .gate .primary{min-height:46px;font-size:1.02rem}
 .gate-msg{min-height:1.4em;font-weight:650;color:var(--warm)!important;margin:8px 0!important}.gate-msg[data-kind=error]{color:#ffb4a8!important}
 .gate-note{font-size:.85rem;color:var(--muted)!important}
+.gate-or{text-align:center;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem;color:var(--muted)!important;margin:16px 0 8px!important}
+.gate form + .gate-or + form{margin-top:0}
+.school-bar,.school-panel{margin:16px 0;padding:14px;border:1px solid var(--line);border-radius:12px;background:rgba(16,26,47,.6)}
+.school-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.school-bar p{margin:0;color:var(--sub);flex:1 1 200px}
+.school-meter[data-kind=warn]{color:var(--warm);font-weight:650}
+.school-meter[data-kind=stop]{color:#ffb4a8;font-weight:700}
+.school-panel h2{margin:0 0 8px;font-size:1.15rem}
+.school-panel .school-form,.owner-form{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));align-items:end;margin:10px 0}
+.school-panel label{display:block;font-size:.85rem;color:var(--sub);margin:0 0 4px}
+.school-panel input,.school-panel select{width:100%;font:inherit;color:var(--ink);background:var(--night);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:38px}
+.school-panel table{width:100%;border-collapse:collapse;font-size:.92rem;margin:8px 0}
+.school-panel th,.school-panel td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+.school-panel .invite-once{background:rgba(209,169,84,.12);border:1px solid #d1a95470;border-radius:8px;padding:10px 12px;color:var(--warm);font-weight:650}
+.school-legal{font-size:.85rem;color:var(--muted);margin:8px 0 0}
 button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-left:14px}
 .version-label{margin:18px 0 0;text-align:center;font-size:.8rem;color:var(--muted);letter-spacing:.04em}
 @media print{.version-label{display:none!important}}
@@ -264,15 +279,24 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 <section class="gate" aria-labelledby="gate-title">
 <div class="cap">Grade Along</div>
 <h1 id="gate-title">Private teacher tool</h1>
-<p>Grade Along is for the STORIGEN team only. Enter the teacher passcode to open it.</p>
+<p>Grade Along is for the STORIGEN team and invited schools.</p>
 <form id="gate-form" autocomplete="off" novalidate>
 <label for="gate-pass">Teacher passcode</label>
-<input id="gate-pass" type="password" autocomplete="current-password" maxlength="200" required>
-<button type="submit" class="primary" id="gate-go">Unlock</button>
+<input id="gate-pass" type="password" autocomplete="current-password" maxlength="200">
+<button type="submit" class="primary" id="gate-go">Unlock with passcode</button>
+</form>
+<p class="gate-or">or</p>
+<form id="gate-school" autocomplete="off" novalidate>
+<label for="gate-email">Work email</label>
+<input id="gate-email" type="email" autocomplete="username" maxlength="200" placeholder="you@yourschool.edu">
+<label for="gate-code">School invite code</label>
+<input id="gate-code" type="text" autocomplete="one-time-code" maxlength="20" placeholder="XXXX-XXXX-XXXX" spellcheck="false">
+<button type="submit" class="primary" id="gate-school-go">Sign in with invite</button>
 </form>
 <p class="gate-msg" id="gate-msg" role="status" aria-live="polite"></p>
-<p class="gate-note">The passcode is kept in this tab only and cleared when you close it or press Lock. Papers, names, and scores are never stored on the site; drafts stay in this browser on this device only.</p>
-<p class="version-label">Grade Along v12</p>
+<p class="gate-note">The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only.</p>
+<p class="gate-note">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
+<p class="version-label">Grade Along v13</p>
 </section>
 </main>
 <template id="ga-app">
@@ -318,7 +342,11 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 
 <div id="teacher-view" hidden>
 <div class="hero"><div class="cap">Grade Along</div><h1>Grade a paper</h1><p>Grade Along AI reads the paper and drafts a level and comment for each rubric row. You approve or edit every row and the feedback. The teacher decides.</p></div>
-<p class="privacy"><strong>Papers stay on this device until you press Grade with AI or Read covers.</strong> Then only the photos (or the PDF pages you tick, turned into pictures here), the story text, the first name, and the grade are sent. When reading a STORIGEN cover sheet, a picture of page 1 is sent too, and only the first name, grade, facilitator, and date are read from it (it is not used for scoring). Everything goes to the Grade Along AI service (Claude by Anthropic, through Cloudflare) to draft scores. With a school or district rubric, its rows and descriptions are sent too, and Import from a document sends pictures of the rubric pages. Grade Along does not store them. Use first names only. Drafts for every student can be saved in this browser only; use Clear all to remove them.</p>
+<p class="privacy"><strong>Papers stay on this device until you press Grade with AI or Read covers.</strong> Then only the photos (or the PDF pages you tick, turned into pictures here), the story text, the first name, and the grade are sent. When reading a STORIGEN cover sheet, a picture of page 1 is sent too, and only the first name, grade, facilitator, and date are read from it (it is not used for scoring). Everything goes to the Grade Along AI service (Claude by Anthropic, through Cloudflare) to draft scores. With a school or district rubric, its rows and descriptions are sent too, and Import from a document sends pictures of the rubric pages. Photos, PDFs and story text are never stored on the site. In team (passcode) mode, names and scores stay in this browser only. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Use first names only. Drafts for every student can be saved in this browser; use Clear all to remove them. A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
+<div class="school-bar" id="school-bar" hidden>
+<p class="school-meter" id="school-meter"></p>
+<button type="button" class="secondary" id="school-refresh">Refresh school</button>
+</div>
 <section class="queue" id="queue" aria-labelledby="q-heading">
 <div class="queue-head"><div><h2 id="q-heading" style="display:inline">Students</h2><span class="eyebrow" id="q-count"></span></div>
 <div class="queue-actions">
@@ -414,7 +442,40 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 <p class="status" id="t-status">Not reviewed. Nothing is sent unless you press Grade with AI.</p>
 </section>
 </div>
-<footer class="version-label" id="ga-version">Grade Along v12</footer>
+<section class="panel school-panel" id="school-admin" hidden aria-labelledby="school-admin-title">
+<h2 id="school-admin-title">School admin</h2>
+<p>Add or remove teachers, set the yearly paper cap, save school rubrics, and view live pre/post growth by class and by grade. Invite codes are shown only once — copy them and share them with the teacher yourself.</p>
+<form class="school-form" id="school-add-form" autocomplete="off">
+<div><label for="school-add-email">Work email</label><input id="school-add-email" type="email" maxlength="200" required></div>
+<div><label for="school-add-name">Name</label><input id="school-add-name" type="text" maxlength="80"></div>
+<div><label for="school-add-role">Role</label><select id="school-add-role"><option value="teacher">Teacher</option><option value="admin">Admin</option></select></div>
+<button type="submit" class="primary" id="school-add-go">Add teacher</button>
+</form>
+<p class="invite-once" id="school-invite" hidden></p>
+<div id="school-teachers"></div>
+<form class="school-form" id="school-cap-form">
+<div><label for="school-cap">Yearly paper cap</label><input id="school-cap" type="number" min="0" step="1" required></div>
+<button type="submit" class="secondary">Save cap</button>
+</form>
+<p class="growth-status" id="school-admin-status" role="status"></p>
+<div id="school-report"></div>
+</section>
+<section class="panel school-panel" id="owner-panel" hidden aria-labelledby="owner-title">
+<h2 id="owner-title">Arrival House · school accounts</h2>
+<p>Create a pilot school and its first admin. Copy the invite code and share it with that admin along with the email you entered. It is shown only once and expires in 14 days.</p>
+<form class="owner-form" id="owner-form" autocomplete="off">
+<div><label for="owner-school">School name</label><input id="owner-school" type="text" maxlength="120" required></div>
+<div><label for="owner-cap">Yearly paper cap</label><input id="owner-cap" type="number" min="0" step="1" value="5000" required></div>
+<div><label for="owner-admin-name">Admin name</label><input id="owner-admin-name" type="text" maxlength="80"></div>
+<div><label for="owner-admin-email">Admin work email</label><input id="owner-admin-email" type="email" maxlength="200" required></div>
+<button type="submit" class="primary">Create school</button>
+</form>
+<p class="invite-once" id="owner-invite" hidden></p>
+<p class="growth-status" id="owner-status" role="status"></p>
+<div id="owner-schools"></div>
+<p class="school-legal">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
+</section>
+<footer class="version-label" id="ga-version">Grade Along v13</footer>
 </div>
 
 </main>
@@ -658,6 +719,8 @@ const PRE_FILE_STORE = "storigen-os-grade-along-pre-loaded";
 const HISTORY_STORE = "storigen-os-grade-along-history";
 const AI_URL = "https://grade-along-api.storigen.workers.dev/grade";
 const PASS_KEY = "storigen-grade-along-passcode";
+const SESSION_STORE = "storigen-grade-along-session";
+const API_BASE = "https://grade-along-api.storigen.workers.dev";
 const ROW_LABEL = {ai: "AI draft", approved: "Teacher approved", edited: "Edited by teacher"};
 
 function aiPending(st = state){
@@ -1635,6 +1698,22 @@ function rememberScores(list){
   while(hist.length > 500) hist.shift();
   writeJSON(HISTORY_STORE, hist);
   renderGrowthBar();
+  if(window.GA_SCHOOL && window.GA_SCHOOL.token){
+    list.forEach((st) => {
+      const r = scoreRecord(st, "device");
+      if(!r || !r.firstName) return;
+      fetch(API_BASE + "/school/scores", {
+        method: "POST",
+        headers: authHeaders(""),
+        body: JSON.stringify({
+          firstName: r.firstName, grade: r.grade, facilitator: r.facilitator, date: r.date,
+          assessment: r.assessment, rubricId: r.rubricId, rubricName: r.rubricName,
+          scores: r.scores, total: r.total, outOf: r.outOf
+        }),
+        cache: "no-store"
+      }).then((res) => res.json().then((data) => { applyUsage(data); if(!res.ok) throw new Error(); }).catch(() => {})).catch(() => {});
+    });
+  }
 }
 function saveClassScores(){
   syncForm();
@@ -1801,7 +1880,22 @@ function rubricLibrary(){
   }).filter(Boolean);
 }
 function saveLibrary(list){ return writeJSON(RUBRIC_STORE, list.map((r) => Object.assign({id: r.id, updated: r.updated || ""}, rubricForApi(r)))); }
-function allRubrics(){ return [DEFAULT_RUBRIC].concat(rubricLibrary()); }
+function schoolRubricList(){
+  const list = (window.GA_SCHOOL && Array.isArray(window.GA_SCHOOL.rubrics)) ? window.GA_SCHOOL.rubrics : [];
+  return list.map((r) => {
+    try { const n = normalizeRubric(r); n.school = true; n.updated = r.updated || ""; return n; } catch(e){ return null; }
+  }).filter(Boolean);
+}
+function allRubrics(){
+  const out = [DEFAULT_RUBRIC];
+  const seen = new Set([DEFAULT_RUBRIC.id]);
+  schoolRubricList().concat(rubricLibrary()).forEach((r) => {
+    if(!r.id || seen.has(r.id)) return;
+    seen.add(r.id);
+    out.push(r);
+  });
+  return out;
+}
 function findRubric(id){ return allRubrics().find((r) => r.id === id) || null; }
 function rubricShapeSame(a, b){ return a.min === b.min && a.max === b.max && a.rows.length === b.rows.length; }
 function studentsWithWork(){ return students.filter((st) => st.scores.some((x) => x != null) || st.rowStatus.some(Boolean) || st.feedback.some((f) => (f || "").trim())); }
@@ -1844,12 +1938,12 @@ function renderRubricUI(){
     sel.replaceChildren();
     const list = allRubrics();
     if(!list.some((r) => r.id === RUB.id)) list.push(RUB);   // removed from this browser's list: the session keeps its copy
-    list.forEach((r) => { const o = el("option", null, r.name + (r.builtin ? " (built in)" : "")); o.value = r.id; sel.append(o); });
+    list.forEach((r) => { const o = el("option", null, r.name + (r.builtin ? " (built in)" : (r.school ? " (school)" : ""))); o.value = r.id; sel.append(o); });
     sel.value = RUB.id;
     sel.disabled = batchRunning;
   }
   const s = $("rubric-status");
-  if(s) s.textContent = rubricSummary() + (RUB.builtin ? " · STORIGEN default." : " · Rubrics are saved in this browser on this device only; use Manage rubrics → Export to share one.");
+  if(s) s.textContent = rubricSummary() + (RUB.builtin ? " · STORIGEN default." : (RUB.school ? " · School rubric, shared with every teacher at this school." : " · Rubrics are saved in this browser on this device only; use Manage rubrics → Export to share one."));
   $("t-review").textContent = RUB.builtin ? "Storigen Wonders rubric" : RUB.name;
   $("t-review-sub").textContent = RUB.builtin ? "Four categories · levels 1–5 · total out of 20" : rubricSummary();
   $("ai-rubric-note").textContent = RUB.builtin ? "each of the four rows, plus overall feedback, using the Storigen Wonders rubric" : "each of the " + WONDERS.length + " row" + (WONDERS.length === 1 ? "" : "s") + ", plus overall feedback, using “" + RUB.name + "”";
@@ -1873,7 +1967,9 @@ function storedPass(){ return $("ai-pass").value || (() => { try { return sessio
 function openRubrics(msg, kind){
   const card = rubricShell("Rubrics");
   card.append(el("h2", null, "Rubrics"));
-  card.append(el("p", null, "Pick the rubric each session grades with. Build your school's or district's rubric, read one from a PDF or photo, or import a rubric file another teacher shared. Rubrics are saved in this browser on this device only — use Export to share a file with your team."));
+  card.append(el("p", null, window.GA_SCHOOL
+    ? "Pick the rubric each session grades with. School rubrics are shared with every teacher at this school. You can still keep private rubrics in this browser, or import a file."
+    : "Pick the rubric each session grades with. Build your school's or district's rubric, read one from a PDF or photo, or import a rubric file another teacher shared. Rubrics are saved in this browser on this device only — use Export to share a file with your team."));
   const acts = el("div", "split-controls");
   const inF = el("input"); inF.type = "file"; inF.accept = ".json,application/json"; inF.hidden = true; inF.id = "rb-file";
   const inD = el("input"); inD.type = "file"; inD.accept = "application/pdf,.pdf,image/*,.heic,.heif"; inD.multiple = true; inD.hidden = true; inD.id = "rb-doc";
@@ -1887,6 +1983,7 @@ function openRubrics(msg, kind){
     const it = el("article", "rb-item"); it.dataset.on = r.id === RUB.id ? "true" : "false";
     const h = el("h3", null, r.name);
     if(r.builtin) h.append(el("span", "rb-badge", "Built in"));
+    if(r.school) h.append(el("span", "rb-badge", "School"));
     if(r.id === RUB.id) h.append(el("span", "rb-badge", "This session"));
     it.append(h, el("p", null, rubricSummary(r) + " · " + r.rows.map((x) => x.name).join(" · ")));
     const a = el("div", "rb-acts");
@@ -1896,10 +1993,22 @@ function openRubrics(msg, kind){
     if(!r.builtin) a.append(mkBtn("Edit", "secondary", () => openEditor(r, false)));
     a.append(mkBtn("Duplicate", "secondary", () => { const c = JSON.parse(JSON.stringify(r)); c.id = ""; c.builtin = false; c.name = (r.name + " (copy)").slice(0, RL.name); openEditor(c, true); }));
     a.append(mkBtn("Export", "secondary", () => { download("rubric-" + (r.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 50) || "custom") + ".json", JSON.stringify(rubricFile(r), null, 2), "application/json"); setMsg(status, "Exported “" + r.name + "”. Send that file to other teachers; they press Import rubric file."); }));
+    if(!r.builtin && window.GA_SCHOOL && window.GA_SCHOOL.user && window.GA_SCHOOL.user.role === "admin"){
+      a.append(mkBtn(r.school ? "Update school copy" : "Save to school", "secondary", () => saveRubricToSchool(r, status)));
+    }
     if(!r.builtin) a.append(mkBtn("Delete", "secondary", () => {
       if(r.id === RUB.id){ setMsg(status, "This session is using “" + r.name + "”. Switch the session to another rubric first.", "error"); return; }
-      if(!confirm("Delete “" + r.name + "” from this browser? Files you exported are not affected.")) return;
-      saveLibrary(rubricLibrary().filter((x) => x.id !== r.id)); renderRubricUI(); openRubrics("Deleted “" + r.name + "”.");
+      if(!confirm(r.school
+        ? "Remove “" + r.name + "” from the school, and from this browser? Files you exported are not affected."
+        : "Delete “" + r.name + "” from this browser? Files you exported are not affected.")) return;
+      const finish = () => { saveLibrary(rubricLibrary().filter((x) => x.id !== r.id)); renderRubricUI(); openRubrics("Deleted “" + r.name + "”."); };
+      if(r.school && window.GA_SCHOOL && window.GA_SCHOOL.user && window.GA_SCHOOL.user.role === "admin"){
+        fetch(API_BASE + "/school/rubrics/delete", {method:"POST", headers: authHeaders(""), body: JSON.stringify({id: r.id}), cache:"no-store"})
+          .then((res) => res.json().then((data) => { applyUsage(data); if(data.ok && window.GA_SCHOOL.rubrics) window.GA_SCHOOL.rubrics = window.GA_SCHOOL.rubrics.filter((x) => x.id !== r.id); finish(); }))
+          .catch(() => setMsg(status, "Could not remove that school rubric right now.", "error"));
+        return;
+      }
+      finish();
     }));
     it.append(a);
     list.append(it);
@@ -1995,8 +2104,13 @@ function openEditor(src, isNew, note){
     if(!applyToSession(r)) return;
     if(i >= 0) lib[i] = r; else lib.push(r);
     if(!saveLibrary(lib)){ setMsg(status, "Could not save: this browser's storage is full. Export the rubric to keep a copy.", "error"); return; }
+    const after = "Saved “" + r.name + "” (" + rubricSummary(r) + ")." + (RUB.id === r.id ? "" : " Press Use for this session to grade with it.");
+    if(window.GA_SCHOOL && window.GA_SCHOOL.user && window.GA_SCHOOL.user.role === "admin"){
+      saveRubricToSchool(r, status, after);
+      return;
+    }
     renderRubricUI();
-    openRubrics("Saved “" + r.name + "” (" + rubricSummary(r) + ")." + (RUB.id === r.id ? "" : " Press Use for this session to grade with it."));
+    openRubrics(after);
   }
   render();
 }
@@ -2623,6 +2737,21 @@ async function coverJpeg(st){
   }
 }
 
+function authHeaders(pass){
+  const h = {"Content-Type": "application/json"};
+  const tok = window.GA_SCHOOL && window.GA_SCHOOL.token;
+  if(tok) h["X-Teacher-Session"] = tok;
+  else if(pass) h["X-Teacher-Passcode"] = pass;
+  return h;
+}
+function applyUsage(data){
+  if(!window.GA_SCHOOL || !data) return;
+  if(data.usage) window.GA_SCHOOL.usage = data.usage;
+  if(data.rubrics) window.GA_SCHOOL.rubrics = data.rubrics;
+  if(data.user) window.GA_SCHOOL.user = data.user;
+  if(data.school) window.GA_SCHOOL.school = data.school;
+  if(typeof renderSchoolBar === "function") renderSchoolBar();
+}
 async function postAI(body, pass, url){
   let res, data = null;
   const ctrl = new AbortController();
@@ -2630,7 +2759,7 @@ async function postAI(body, pass, url){
   try{
     res = await fetch(url || AI_URL, {
       method: "POST",
-      headers: {"Content-Type": "application/json", "X-Teacher-Passcode": pass},
+      headers: authHeaders(pass),
       body: JSON.stringify(body),
       signal: ctrl.signal
     });
@@ -2640,8 +2769,12 @@ async function postAI(body, pass, url){
   } finally {
     clearTimeout(timer);
   }
+  if(data) applyUsage(data);
   if(!res.ok || !data || !data.ok){
-    if(res.status === 401){ try { sessionStorage.removeItem(PASS_KEY); } catch(e){} }
+    if(res.status === 401){
+      try { sessionStorage.removeItem(PASS_KEY); } catch(e){}
+      if(window.GA_SCHOOL){ try { localStorage.removeItem(SESSION_STORE); } catch(e2){} }
+    }
     throw aiError((data && data.error) || ("The AI service returned an error (" + res.status + ")."), res.status);
   }
   return data;
@@ -2947,6 +3080,230 @@ $("ai-pass").addEventListener("input", () => { $("q-pass").value = $("ai-pass").
     if(files.length) bulkAdd(files);
   });
 }
+
+function isSchoolAdmin(){ return !!(window.GA_SCHOOL && window.GA_SCHOOL.user && window.GA_SCHOOL.user.role === "admin"); }
+function isPasscodeMode(){ return !window.GA_SCHOOL && !!storedPass(); }
+async function schoolFetch(path, opts){
+  const o = opts || {};
+  const res = await fetch(API_BASE + path, Object.assign({cache: "no-store"}, o, {headers: Object.assign(authHeaders(storedPass()), o.headers || {})}));
+  let data = null;
+  try { data = await res.json(); } catch(e){}
+  if(data) applyUsage(data);
+  if(res.status === 401){ try { localStorage.removeItem(SESSION_STORE); } catch(e){} }
+  if(!res.ok || !data || data.ok === false){
+    const err = new Error((data && data.error) || ("Request failed (" + res.status + ")."));
+    err.status = res.status; err.data = data; throw err;
+  }
+  return data;
+}
+function saveRubricToSchool(r, status, after){
+  const body = Object.assign({id: r.id}, rubricForApi(r));
+  setMsg(status, "Saving “" + r.name + "” to the school…");
+  return schoolFetch("/school/rubrics", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)}).then((data) => {
+    if(data.rubric){
+      const list = (window.GA_SCHOOL.rubrics || []).filter((x) => x.id !== data.rubric.id);
+      list.push(data.rubric);
+      window.GA_SCHOOL.rubrics = list;
+    }
+    renderRubricUI();
+    openRubrics((after || ("Saved “" + r.name + "” to the school.")) + " Every teacher at this school will see it.");
+  }).catch((e) => {
+    renderRubricUI();
+    if(after) openRubrics(after + " Could not also save it to the school: " + e.message);
+    else setMsg(status, e.message, "error");
+  });
+}
+function renderSchoolBar(){
+  const bar = $("school-bar");
+  const meter = $("school-meter");
+  const admin = $("school-admin");
+  const owner = $("owner-panel");
+  if(!bar) return;
+  const school = window.GA_SCHOOL;
+  const passMode = !school && !!storedPass();
+  if(owner) owner.hidden = !passMode;
+  if(admin) admin.hidden = !(school && isSchoolAdmin());
+  bar.hidden = !school;
+  const hidePass = !!school;
+  ["ai-pass","q-pass"].forEach((id) => {
+    const el = $(id);
+    if(!el) return;
+    const wrap = el.closest("div");
+    if(wrap) wrap.hidden = hidePass;
+  });
+  if(school){
+    const u = school.usage || {};
+    const name = (school.school && school.school.name) || "Your school";
+    const who = (school.user && (school.user.name || school.user.email)) || "";
+    const role = school.user && school.user.role === "admin" ? "admin" : "teacher";
+    let msg = name + (who ? " · " + who : "") + " · " + role + " · " + (u.used || 0) + " of " + (u.cap || 0) + " papers used this year";
+    if(u.stopped) msg += " · no papers left";
+    else if(u.warn) msg += " · 80% or more used";
+    else if(u.remaining != null) msg += " · " + u.remaining + " remaining";
+    meter.textContent = msg;
+    meter.dataset.kind = u.stopped ? "stop" : (u.warn ? "warn" : "");
+    const badge = $("mode-badge");
+    if(badge && !badge.dataset.keep) badge.dataset.school = name;
+  } else if(meter){ meter.textContent = ""; meter.dataset.kind = ""; }
+}
+function saySchool(id, msg, kind){
+  const el = $(id);
+  if(!el) return;
+  el.textContent = msg || "";
+  el.dataset.kind = kind || "";
+}
+function showInvite(id, text){
+  const el = $(id);
+  if(!el) return;
+  el.hidden = !text;
+  el.textContent = text || "";
+}
+function renderTeacherTable(teachers){
+  const box = $("school-teachers");
+  if(!box) return;
+  box.replaceChildren();
+  if(!teachers || !teachers.length){ box.append(el("p", null, "No teachers yet.")); return; }
+  const table = el("table");
+  const thead = el("thead"); const hr = el("tr");
+  ["Name","Email","Role","Status",""].forEach((h) => hr.append(el("th", null, h)));
+  thead.append(hr); table.append(thead);
+  const tb = el("tbody");
+  teachers.forEach((t) => {
+    const tr = el("tr");
+    tr.append(el("td", null, t.name || "—"), el("td", null, t.email), el("td", null, t.role), el("td", null, t.active ? "Active" : "Removed"));
+    const td = el("td");
+    if(t.active && t.id !== (window.GA_SCHOOL.user && window.GA_SCHOOL.user.id)){
+      const b = mkBtn("Remove", "secondary", () => {
+        if(!confirm("Remove " + (t.name || t.email) + "? Their sign-in will stop working right away.")) return;
+        schoolFetch("/school/teachers/remove", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({teacherId: t.id})})
+          .then(() => refreshSchool("Removed " + (t.email) + "."))
+          .catch((e) => saySchool("school-admin-status", e.message, "error"));
+      });
+      td.append(b);
+    }
+    tr.append(td); tb.append(tr);
+  });
+  table.append(tb); box.append(table);
+}
+function renderSchoolReport(data){
+  const box = $("school-report");
+  if(!box) return;
+  box.replaceChildren();
+  if(!data) return;
+  box.append(el("h3", null, "School growth report"));
+  box.append(el("p", null, (data.totalRecords || 0) + " approved score record" + (data.totalRecords === 1 ? "" : "s") + " at this school. First names and scores only."));
+  function section(title, groups){
+    box.append(el("h3", null, title));
+    if(!groups || !groups.length){ box.append(el("p", null, "No scores in this view yet.")); return; }
+    groups.forEach((g) => {
+      box.append(el("h3", null, g.label + (g.averageChange != null ? " · average change " + (g.averageChange > 0 ? "+" : "") + g.averageChange : " · no matched pre/post yet")));
+      const table = el("table");
+      const thead = el("thead"); const hr = el("tr");
+      ["Student","Grade","Class","Pre","Post","Change"].forEach((h) => hr.append(el("th", null, h)));
+      thead.append(hr); table.append(thead);
+      const tb = el("tbody");
+      (g.students || []).forEach((s) => {
+        const tr = el("tr");
+        const change = s.differentRubric ? "different rubric" : (s.change == null ? "—" : ((s.change > 0 ? "+" : "") + s.change));
+        tr.append(el("td", null, s.firstName), el("td", null, s.grade || "—"), el("td", null, s.facilitator || "—"),
+          el("td", null, s.pre == null ? "—" : String(s.pre)), el("td", null, s.post == null ? "—" : String(s.post)), el("td", null, change));
+        tb.append(tr);
+      });
+      table.append(tb); box.append(table);
+    });
+  }
+  section("By grade", data.byGrade);
+  section("By class", data.byClass);
+}
+async function refreshSchool(msg){
+  if(!window.GA_SCHOOL) return;
+  try{
+    const data = await schoolFetch("/school");
+    window.GA_SCHOOL.user = data.user;
+    window.GA_SCHOOL.school = data.school;
+    window.GA_SCHOOL.usage = data.usage;
+    window.GA_SCHOOL.rubrics = data.rubrics || [];
+    if(data.teachers) window.GA_SCHOOL.teachers = data.teachers;
+    renderSchoolBar();
+    renderRubricUI();
+    if(isSchoolAdmin()){
+      renderTeacherTable(data.teachers || []);
+      const cap = $("school-cap");
+      if(cap && data.usage) cap.value = data.usage.cap;
+      const report = await schoolFetch("/school/report");
+      renderSchoolReport(report);
+    }
+    if(msg) saySchool("school-admin-status", msg);
+  } catch(e){
+    saySchool("school-admin-status", e.message, "error");
+  }
+}
+async function refreshOwner(){
+  const box = $("owner-schools");
+  if(!box) return;
+  try{
+    const data = await schoolFetch("/owner/schools");
+    box.replaceChildren();
+    (data.schools || []).forEach((s) => {
+      const u = s.usage || {};
+      box.append(el("p", null, s.name + " · " + (u.used || 0) + " of " + (u.cap || 0) + " papers · " + (s.status || "active") + " · " + ((s.teachers || []).filter((t) => t.active).length) + " people"));
+    });
+    if(!(data.schools || []).length) box.append(el("p", null, "No schools yet."));
+  } catch(e){
+    saySchool("owner-status", e.message, "error");
+  }
+}
+function wireSchoolUi(){
+  renderSchoolBar();
+  if($("school-refresh")) $("school-refresh").addEventListener("click", () => refreshSchool("Updated."));
+  if($("school-add-form")) $("school-add-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = $("school-add-email").value;
+    const name = $("school-add-name").value;
+    const role = $("school-add-role").value;
+    saySchool("school-admin-status", "Adding…");
+    showInvite("school-invite", "");
+    schoolFetch("/school/teachers", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({email, name, role})})
+      .then((data) => {
+        $("school-add-email").value = "";
+        $("school-add-name").value = "";
+        showInvite("school-invite", "Invite code for " + data.teacher.email + " (copy now, shown once): " + data.inviteCode);
+        refreshSchool("Teacher added. Copy the invite code now and send it to them with their work email.");
+      })
+      .catch((err) => saySchool("school-admin-status", err.message, "error"));
+  });
+  if($("school-cap-form")) $("school-cap-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const paperAllowance = parseInt($("school-cap").value, 10);
+    schoolFetch("/school/allowance", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({paperAllowance})})
+      .then(() => refreshSchool("Paper cap saved."))
+      .catch((err) => saySchool("school-admin-status", err.message, "error"));
+  });
+  if($("owner-form")) $("owner-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    saySchool("owner-status", "Creating…");
+    showInvite("owner-invite", "");
+    const body = {
+      name: $("owner-school").value,
+      paperAllowance: parseInt($("owner-cap").value, 10),
+      adminName: $("owner-admin-name").value,
+      adminEmail: $("owner-admin-email").value
+    };
+    schoolFetch("/owner/schools", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)})
+      .then((data) => {
+        $("owner-school").value = "";
+        $("owner-admin-name").value = "";
+        $("owner-admin-email").value = "";
+        showInvite("owner-invite", "Invite code for " + data.admin.email + " at " + data.school.name + " (copy now, shown once): " + data.inviteCode);
+        saySchool("owner-status", "School created. Copy the invite code now and share it with the admin.");
+        refreshOwner();
+      })
+      .catch((err) => saySchool("owner-status", err.message, "error"));
+  });
+  if(window.GA_SCHOOL) refreshSchool();
+  else if(!window.GA_SCHOOL && storedPass()) refreshOwner();
+}
+
 $("t-approve").addEventListener("click", () => {
   setTimeout(() => { if(state.approved) rememberScores([state]); }, 0);
   if(!allScored() || state.approved) return;
@@ -2999,35 +3356,58 @@ const params = new URLSearchParams(location.search);
 if(params.get("mode") === "grade" || params.get("mode") === "teacher"){
   setMode("teacher");
 }
+wireSchoolUi();
 }
 </script>
 <script>
-/* Passcode gate: the app markup lives in <template id="ga-app"> and its code in functions that run only
-   after the Worker confirms the teacher passcode. Static hosting cannot hide source, but nothing works
-   (and grading is refused by the server) without the passcode. No student data ships in this page. */
+/* Gate: the app markup lives in <template id="ga-app"> and its code runs only after the Worker
+   confirms a teacher passcode or a school session. Static hosting cannot hide source, but grading
+   is refused by the server without one of those. No student papers ship in this page. */
 (function(){
-  var VERIFY_URL = "https://grade-along-api.storigen.workers.dev/verify";
+  var API_BASE = "https://grade-along-api.storigen.workers.dev";
+  var VERIFY_URL = API_BASE + "/verify";
   var PASS_KEY = "storigen-grade-along-passcode";
   var OK_KEY = "storigen-grade-along-verified";
+  var SESSION_STORE = "storigen-grade-along-session";
   var gate = document.getElementById("ga-gate");
   var form = document.getElementById("gate-form");
+  var schoolForm = document.getElementById("gate-school");
   var input = document.getElementById("gate-pass");
+  var emailInput = document.getElementById("gate-email");
+  var codeInput = document.getElementById("gate-code");
   var msg = document.getElementById("gate-msg");
   var go = document.getElementById("gate-go");
+  var schoolGo = document.getElementById("gate-school-go");
   var mounted = false;
   function say(t, kind){ msg.textContent = t; msg.dataset.kind = kind || ""; }
   function ss(fn){ try { return fn(); } catch(e){ return null; } }
-  function forget(){ ss(function(){ sessionStorage.removeItem(PASS_KEY); sessionStorage.removeItem(OK_KEY); }); }
-  function mount(){
+  function ls(fn){ try { return fn(); } catch(e){ return null; } }
+  function forget(){
+    ss(function(){ sessionStorage.removeItem(PASS_KEY); sessionStorage.removeItem(OK_KEY); });
+    ls(function(){ localStorage.removeItem(SESSION_STORE); });
+    window.GA_SCHOOL = null;
+  }
+  function mount(badge){
     if(mounted) return;
     mounted = true;
     var tpl = document.getElementById("ga-app");
     gate.replaceWith(document.importNode(tpl.content, true));
     tpl.remove();
     document.getElementById("ga-lock").hidden = false;
-    document.getElementById("mode-badge").textContent = "Teacher demo · Practice samples";
+    document.getElementById("mode-badge").textContent = badge || "Teacher demo · Practice samples";
     gaPracticeApp();
     gaTeacherApp();
+  }
+  function schoolBadge(data){
+    var name = data && data.school && data.school.name;
+    var role = data && data.user && data.user.role === "admin" ? "Admin" : "Teacher";
+    return name ? (name + " · " + role) : "School account";
+  }
+  function acceptSchool(data, token){
+    window.GA_SCHOOL = { token: token, user: data.user, school: data.school, usage: data.usage, rubrics: data.rubrics || [], teachers: data.teachers || [] };
+    ls(function(){ localStorage.setItem(SESSION_STORE, token); });
+    ss(function(){ sessionStorage.removeItem(PASS_KEY); sessionStorage.removeItem(OK_KEY); });
+    mount(schoolBadge(data));
   }
   function tryPass(pass, quiet){
     go.disabled = true;
@@ -3036,34 +3416,78 @@ if(params.get("mode") === "grade" || params.get("mode") === "teacher"){
       go.disabled = false;
       if(r.status === 200){
         ss(function(){ sessionStorage.setItem(PASS_KEY, pass); sessionStorage.setItem(OK_KEY, "1"); });
+        ls(function(){ localStorage.removeItem(SESSION_STORE); });
+        window.GA_SCHOOL = null;
         say("");
-        mount();
+        mount("STORIGEN team · passcode");
         return;
       }
-      if(r.status === 401){ forget(); say(quiet ? "Enter the teacher passcode to continue." : "That passcode didn't work. Check it and try again.", quiet ? "" : "error"); }
+      if(r.status === 401){ ss(function(){ sessionStorage.removeItem(PASS_KEY); sessionStorage.removeItem(OK_KEY); }); say(quiet ? "Enter the teacher passcode or a school invite to continue." : "That passcode didn't work. Check it and try again.", quiet ? "" : "error"); }
       else if(r.status === 429) say("Too many tries. Wait a minute, then try again.", "error");
       else say("Could not check the passcode right now (error " + r.status + "). Try again in a minute.", "error");
-      input.value = "";
-      input.focus();
+      if(!quiet){ input.value = ""; input.focus(); }
     }, function(){
       go.disabled = false;
-      // Offline: a passcode already verified in this tab may reopen the app (AI grading still needs the network).
-      if(ss(function(){ return sessionStorage.getItem(OK_KEY) === "1" && sessionStorage.getItem(PASS_KEY) === pass; })){ mount(); return; }
+      if(ss(function(){ return sessionStorage.getItem(OK_KEY) === "1" && sessionStorage.getItem(PASS_KEY) === pass; })){ mount("STORIGEN team · passcode"); return; }
       say("You seem to be offline. Connect to the internet to unlock Grade Along.", "error");
+    });
+  }
+  function trySession(token, quiet){
+    if(schoolGo) schoolGo.disabled = true;
+    if(!quiet) say("Checking…");
+    return fetch(VERIFY_URL, {method: "POST", headers: {"X-Teacher-Session": token}, cache: "no-store"}).then(function(r){
+      if(schoolGo) schoolGo.disabled = false;
+      return r.json().then(function(data){
+        if(r.status === 200 && data && data.ok && data.mode === "school"){ say(""); acceptSchool(data, token); return; }
+        ls(function(){ localStorage.removeItem(SESSION_STORE); });
+        if(!quiet) say((data && data.error) || "That school sign-in has expired. Enter a new invite code.", "error");
+      }).catch(function(){ if(schoolGo) schoolGo.disabled = false; if(!quiet) say("Could not check the school sign-in right now.", "error"); });
+    }, function(){
+      if(schoolGo) schoolGo.disabled = false;
+      if(!quiet) say("You seem to be offline. Connect to the internet to unlock Grade Along.", "error");
+    });
+  }
+  function redeem(){
+    var email = (emailInput.value || "").trim();
+    var code = (codeInput.value || "").trim();
+    if(!email || !code){ say("Enter your work email and the invite code.", "error"); return; }
+    schoolGo.disabled = true;
+    say("Signing in…");
+    fetch(API_BASE + "/auth/redeem", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({email: email, code: code}),
+      cache: "no-store"
+    }).then(function(r){
+      schoolGo.disabled = false;
+      return r.json().then(function(data){
+        if(r.status === 200 && data && data.ok && data.token){ say(""); acceptSchool(data, data.token); return; }
+        say((data && data.error) || "Could not sign in with that invite.", "error");
+      }).catch(function(){ say("Could not sign in right now.", "error"); });
+    }, function(){
+      schoolGo.disabled = false;
+      say("You seem to be offline. Connect to the internet to sign in.", "error");
     });
   }
   form.addEventListener("submit", function(e){
     e.preventDefault();
     var pass = input.value;
-    if(!pass){ say("Enter the teacher passcode.", "error"); input.focus(); return; }
+    if(!pass){ say("Enter the teacher passcode, or sign in with a school invite below.", "error"); input.focus(); return; }
     tryPass(pass, false);
+  });
+  schoolForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    redeem();
   });
   document.getElementById("ga-lock").addEventListener("click", function(){
     forget();
     location.replace(location.pathname + location.search);
   });
-  var saved = ss(function(){ return sessionStorage.getItem(PASS_KEY); });
-  if(saved) tryPass(saved, true); else input.focus();
+  var savedSession = ls(function(){ return localStorage.getItem(SESSION_STORE); });
+  var savedPass = ss(function(){ return sessionStorage.getItem(PASS_KEY); });
+  if(savedSession) trySession(savedSession, true);
+  else if(savedPass) tryPass(savedPass, true);
+  else input.focus();
 })();
 </script>
 <script>

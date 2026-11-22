@@ -2,8 +2,9 @@
 // POST /grade : drafts rubric scores + comments for a teacher to approve or edit
 //   (Storigen Wonders by default, or a teacher-supplied rubric in body.rubric).
 // POST /rubric: reads a rubric document (pictures) into rubric JSON for the teacher to review.
-// Secrets (set with `wrangler secret put`): ANTHROPIC_API_KEY, TEACHER_PASSCODE.
-// Student content is never logged or stored by this Worker.
+// Secrets (set with `wrangler secret put`): ANTHROPIC_API_KEY, TEACHER_PASSCODE, SESSION_SECRET.
+// Passcode mode stores nothing. School accounts store first names and approved scores only —
+// never story text, photos or PDFs. Student paper content is never logged.
 
 const ALLOWED_ORIGIN = "https://zeyonteltheauthor.github.io";
 const MODEL = "claude-sonnet-5-5";
@@ -107,8 +108,8 @@ function cors(origin) {
   };
   if (origin === ALLOWED_ORIGIN) {
     h["Access-Control-Allow-Origin"] = ALLOWED_ORIGIN;
-    h["Access-Control-Allow-Methods"] = "POST, OPTIONS";
-    h["Access-Control-Allow-Headers"] = "Content-Type, X-Teacher-Passcode";
+    h["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS";
+    h["Access-Control-Allow-Headers"] = "Content-Type, X-Teacher-Passcode, X-Teacher-Session";
     h["Access-Control-Max-Age"] = "600";
   }
   return h;
@@ -375,17 +376,11 @@ const RUBRIC_SCHEMA = {
 
 // Reads a rubric document (photos or PDF pages turned into pictures on the teacher's device) into rubric JSON.
 async function handleRubric(request, env, origin) {
-  if (!env.TEACHER_PASSCODE) return json({ error: "passcode not configured" }, 503, origin);
   if (!env.ANTHROPIC_API_KEY) return json({ error: "AI key not configured" }, 503, origin);
-  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-  let allowed = true;
-  try {
-    if (env.RATE_LIMITER) allowed = (await env.RATE_LIMITER.limit({ key: "rubric:" + ip })).success;
-    else allowed = memLimit(ip);
-  } catch { allowed = memLimit(ip); }
-  if (!allowed) return json({ error: "Too many requests. Wait a minute and try again." }, 429, origin);
-  const pass = request.headers.get("X-Teacher-Passcode") || "";
-  if (!pass || !(await safeEqual(pass, env.TEACHER_PASSCODE))) return json({ error: "Wrong teacher passcode." }, 401, origin);
+  const limited = await rateLimit(request, env, "rubric:");
+  if (limited) return limited(origin);
+  const auth = await authorize(request, env);
+  if (!auth.ok) return json({ error: auth.error }, auth.status, origin);
   const len = Number(request.headers.get("Content-Length") || 0);
   if (len > MAX_BODY) return json({ error: "Too much data in one request." }, 413, origin);
   let body;
@@ -428,17 +423,11 @@ const SPLIT_SCHEMA = {
 
 // Finds cover-sheet pages in a combined class scan so the page can split it into one student per paper.
 async function handleSplit(request, env, origin) {
-  if (!env.TEACHER_PASSCODE) return json({ error: "passcode not configured" }, 503, origin);
   if (!env.ANTHROPIC_API_KEY) return json({ error: "AI key not configured" }, 503, origin);
-  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-  let allowed = true;
-  try {
-    if (env.RATE_LIMITER) allowed = (await env.RATE_LIMITER.limit({ key: "split:" + ip })).success;
-    else allowed = memLimit(ip);
-  } catch { allowed = memLimit(ip); }
-  if (!allowed) return json({ error: "Too many requests. Wait a minute and try again." }, 429, origin);
-  const pass = request.headers.get("X-Teacher-Passcode") || "";
-  if (!pass || !(await safeEqual(pass, env.TEACHER_PASSCODE))) return json({ error: "Wrong teacher passcode." }, 401, origin);
+  const limited = await rateLimit(request, env, "split:");
+  if (limited) return limited(origin);
+  const auth = await authorize(request, env);
+  if (!auth.ok) return json({ error: auth.error }, auth.status, origin);
   const len = Number(request.headers.get("Content-Length") || 0);
   if (len > MAX_BODY) return json({ error: "Too much data in one request." }, 413, origin);
   let body;
@@ -471,37 +460,32 @@ async function handleSplit(request, env, origin) {
 
 // Passcode check only (used by the Grade Along page gate). Same CORS and rate limit; never echoes the passcode.
 async function handleVerify(request, env, origin) {
-  if (!env.TEACHER_PASSCODE) return json({ error: "passcode not configured" }, 503, origin);
-  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-  let allowed = true;
-  try {
-    if (env.RATE_LIMITER) allowed = (await env.RATE_LIMITER.limit({ key: "verify:" + ip })).success;
-    else allowed = memLimit(ip);
-  } catch { allowed = memLimit(ip); }
-  if (!allowed) return json({ error: "Too many tries. Wait a minute and try again." }, 429, origin);
-  const pass = request.headers.get("X-Teacher-Passcode") || "";
-  if (!pass || !(await safeEqual(pass, env.TEACHER_PASSCODE))) {
-    return json({ ok: false, error: "Wrong teacher passcode." }, 401, origin);
+  const limited = await rateLimit(request, env, "verify:");
+  if (limited) return limited(origin);
+  const auth = await authorize(request, env);
+  if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status, origin);
+  if (auth.kind === "school") {
+    const usage = usageView(auth.school);
+    const rubrics = env.DB ? await schoolRubrics(env, auth.school.id) : [];
+    return json({
+      ok: true,
+      mode: "school",
+      user: publicUser(auth.teacher),
+      school: publicSchool(auth.school, usage),
+      usage,
+      rubrics,
+      ...extraUsage(usage)
+    }, 200, origin);
   }
-  return json({ ok: true }, 200, origin);
+  return json({ ok: true, mode: "passcode" }, 200, origin);
 }
 
 async function handleGrade(request, env, origin) {
-  if (!env.TEACHER_PASSCODE) return json({ error: "passcode not configured" }, 503, origin);
   if (!env.ANTHROPIC_API_KEY) return json({ error: "AI key not configured" }, 503, origin);
-
-  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-  let allowed = true;
-  try {
-    if (env.RATE_LIMITER) allowed = (await env.RATE_LIMITER.limit({ key: "grade:" + ip })).success;
-    else allowed = memLimit(ip);
-  } catch { allowed = memLimit(ip); }
-  if (!allowed) return json({ error: "Too many requests. Wait a minute and try again." }, 429, origin);
-
-  const pass = request.headers.get("X-Teacher-Passcode") || "";
-  if (!pass || !(await safeEqual(pass, env.TEACHER_PASSCODE))) {
-    return json({ error: "Wrong teacher passcode." }, 401, origin);
-  }
+  const limited = await rateLimit(request, env, "grade:");
+  if (limited) return limited(origin);
+  const auth = await authorize(request, env);
+  if (!auth.ok) return json({ error: auth.error }, auth.status, origin);
 
   const len = Number(request.headers.get("Content-Length") || 0);
   if (len > MAX_BODY) return json({ error: "Upload too large. Use up to 3 smaller photos." }, 413, origin);
@@ -548,11 +532,15 @@ async function handleGrade(request, env, origin) {
     // Cover-only request: returns just the four fields.
     try {
       const cover = await readCover(env, coverB64);
-      return json({ ok: true, cover, note: "Read from the cover sheet. The teacher checks it." }, 200, origin);
+      return json({ ok: true, cover, note: "Read from the cover sheet. The teacher checks it.", ...extraUsage(auth.kind === "school" ? usageView(auth.school) : null) }, 200, origin);
     } catch (e) {
       console.log("cover failed", e.status || e.message); // no student content
       return json({ error: e.status === 429 ? "The AI service is busy. Try again in a minute." : "Could not read the cover sheet." }, 502, origin);
     }
+  }
+  if (auth.kind === "school") {
+    const preview = await checkPaper(env, auth);
+    if (!preview.ok) return json({ error: preview.error, ...extraUsage(preview.usage) }, preview.status, origin);
   }
   const coverPromise = coverB64 ? readCover(env, coverB64).catch(() => null) : Promise.resolve(undefined);
 
@@ -570,7 +558,12 @@ async function handleGrade(request, env, origin) {
       const draft = rub ? validateCustomDraft(out.input, rub) : validateDraft(out.input);
       const cover = await coverPromise;
       const extra = cover === undefined ? {} : { cover };
-      return json({ ok: true, model: out.model || MODEL, ...draft, ...extra, note: "AI draft. The teacher decides." }, 200, origin);
+      let usageExtra = {};
+      if (auth.kind === "school") {
+        const slot = await consumePaper(env, auth);
+        usageExtra = extraUsage(slot.ok ? slot.usage : (slot.usage || usageView(auth.school)));
+      }
+      return json({ ok: true, model: out.model || MODEL, ...draft, ...extra, note: "AI draft. The teacher decides.", ...usageExtra }, 200, origin);
     } catch (e) {
       lastErr = e;
       if (e.status && e.status < 500 && e.status !== 429) break;
@@ -581,6 +574,874 @@ async function handleGrade(request, env, origin) {
   return json({ error: status === 429 ? "The AI service is busy. Try again in a minute." : "The AI could not draft this paper. Try again, or grade it by hand." }, 502, origin);
 }
 
+// --- School accounts (Phase 1) ------------------------------------------------
+const INVITE_DAYS = 14;
+const SESSION_DAYS = 30;
+const INVITE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+async function rateLimit(request, env, prefix) {
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  let allowed = true;
+  try {
+    if (env.RATE_LIMITER) allowed = (await env.RATE_LIMITER.limit({ key: prefix + ip })).success;
+    else allowed = memLimit(ip);
+  } catch { allowed = memLimit(ip); }
+  if (allowed) return null;
+  const msg = prefix === "verify:" || prefix === "auth:"
+    ? "Too many tries. Wait a minute and try again."
+    : "Too many requests. Wait a minute and try again.";
+  return (origin) => json({ error: msg }, 429, origin);
+}
+
+function nowIso() { return new Date().toISOString(); }
+function daysFromNow(days) { return new Date(Date.now() + days * 86400000).toISOString(); }
+
+function bytesToB64url(bytes) {
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function randomToken() {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return bytesToB64url(bytes);
+}
+
+function randomInvite() {
+  const bytes = new Uint8Array(12);
+  crypto.getRandomValues(bytes);
+  let s = "";
+  for (const b of bytes) s += INVITE_ALPHABET[b % INVITE_ALPHABET.length];
+  return s.slice(0, 4) + "-" + s.slice(4, 8) + "-" + s.slice(8, 12);
+}
+
+function normalizeInvite(code) {
+  return String(code || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+function formatInvite(norm) {
+  if (norm.length !== 12) return norm;
+  return norm.slice(0, 4) + "-" + norm.slice(4, 8) + "-" + norm.slice(8, 12);
+}
+
+function cleanEmail(v) {
+  const s = cleanStr(v, 200).toLowerCase();
+  if (!/^[a-z0-9._%+'-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(s)) return "";
+  return s;
+}
+
+async function hmacHex(secret, value) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(value));
+  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function usageView(school) {
+  const cap = Number(school.paper_allowance) || 0;
+  const used = Number(school.papers_used) || 0;
+  const remaining = Math.max(0, cap - used);
+  const ratio = cap > 0 ? used / cap : (used > 0 ? 1 : 1);
+  const stopped = remaining <= 0;
+  return {
+    used,
+    cap,
+    remaining,
+    warn: cap > 0 && used / cap >= 0.8 && !stopped,
+    stopped,
+    year: school.license_year,
+    status: school.status
+  };
+}
+
+function usageMessage(usage) {
+  if (usage.stopped) {
+    return "This school has used all of its papers for the year. Ask Arrival House to raise the cap.";
+  }
+  if (usage.warn) {
+    return "This school has used 80% or more of its papers for the year.";
+  }
+  return "";
+}
+
+function publicTeacher(t) {
+  return { id: t.id, email: t.email, name: t.name, role: t.role, active: !!t.active };
+}
+
+function publicSchool(s, usage) {
+  return {
+    id: s.id,
+    name: s.name,
+    status: s.status,
+    licenseYear: s.license_year,
+    usage: usage || usageView(s)
+  };
+}
+
+function publicUser(t) {
+  return { id: t.id, email: t.email, name: t.name, role: t.role };
+}
+
+async function dbOne(env, sql, ...params) {
+  return env.DB.prepare(sql).bind(...params).first();
+}
+async function dbAll(env, sql, ...params) {
+  const r = await env.DB.prepare(sql).bind(...params).all();
+  return r.results || [];
+}
+async function dbRun(env, sql, ...params) {
+  return env.DB.prepare(sql).bind(...params).run();
+}
+
+async function loadSession(env, token) {
+  if (!env.DB || !env.SESSION_SECRET || !token) return null;
+  const hash = await hmacHex(env.SESSION_SECRET, token);
+  const row = await dbOne(
+    env,
+    `SELECT s.id AS session_id, s.expires_at, s.school_id,
+            t.id AS teacher_id, t.email, t.name, t.role, t.active,
+            sch.name AS school_name, sch.paper_allowance, sch.papers_used,
+            sch.license_year, sch.status AS school_status
+     FROM sessions s
+     JOIN teachers t ON t.id = s.teacher_id
+     JOIN schools sch ON sch.id = s.school_id
+     WHERE s.token_hash = ?`,
+    hash
+  );
+  if (!row) return null;
+  if (row.expires_at <= nowIso()) {
+    await dbRun(env, "DELETE FROM sessions WHERE id = ?", row.session_id);
+    return null;
+  }
+  if (!row.active) return null;
+  const school = {
+    id: row.school_id,
+    name: row.school_name,
+    paper_allowance: row.paper_allowance,
+    papers_used: row.papers_used,
+    license_year: row.license_year,
+    status: row.school_status
+  };
+  const teacher = {
+    id: row.teacher_id,
+    email: row.email,
+    name: row.name,
+    role: row.role,
+    active: row.active,
+    school_id: row.school_id
+  };
+  return { kind: "school", teacher, school, sessionId: row.session_id };
+}
+
+async function authorize(request, env) {
+  const sessionTok = (request.headers.get("X-Teacher-Session") || "").trim();
+  const passHeader = request.headers.get("X-Teacher-Passcode");
+  const pass = passHeader || "";
+  if (sessionTok) {
+    const sess = await loadSession(env, sessionTok);
+    if (sess) return { ok: true, ...sess };
+    if (!pass) return { ok: false, error: "Session expired. Sign in again.", status: 401 };
+  }
+  if (passHeader !== null) {
+    if (!env.TEACHER_PASSCODE) {
+      return { ok: false, error: "passcode not configured", status: 503 };
+    }
+    if (pass && (await safeEqual(pass, env.TEACHER_PASSCODE))) {
+      return { ok: true, kind: "passcode" };
+    }
+    return { ok: false, error: "Wrong teacher passcode.", status: 401 };
+  }
+  if (!env.TEACHER_PASSCODE && !env.SESSION_SECRET) {
+    return { ok: false, error: "passcode not configured", status: 503 };
+  }
+  return { ok: false, error: "Sign in with a school invite or the teacher passcode.", status: 401 };
+}
+
+function needAdmin(auth) {
+  if (auth.kind !== "school" || auth.teacher.role !== "admin") {
+    return { error: "Only a school admin can do that.", status: 403 };
+  }
+  return null;
+}
+
+async function schoolRubrics(env, schoolId) {
+  const rows = await dbAll(
+    env,
+    "SELECT id, name, min, max, rows_json, updated_at FROM rubrics WHERE school_id = ? ORDER BY name",
+    schoolId
+  );
+  return rows.map((r) => {
+    let parsed;
+    try { parsed = JSON.parse(r.rows_json); } catch { parsed = []; }
+    return { id: r.id, name: r.name, min: r.min, max: r.max, rows: parsed, updated: r.updated_at, school: true };
+  });
+}
+
+async function requireSchoolConfigured(env, origin) {
+  if (!env.DB) return json({ error: "School accounts are not configured yet." }, 503, origin);
+  if (!env.SESSION_SECRET) return json({ error: "School sign-in is not configured yet." }, 503, origin);
+  return null;
+}
+
+async function issueInvite(env, schoolId, teacherId) {
+  await dbRun(env, "DELETE FROM invites WHERE teacher_id = ? AND used_at IS NULL", teacherId);
+  const code = randomInvite();
+  const hash = await hmacHex(env.SESSION_SECRET, normalizeInvite(code));
+  await dbRun(
+    env,
+    "INSERT INTO invites (id, school_id, teacher_id, code_hash, expires_at, used_at, created_at) VALUES (?, ?, ?, ?, ?, NULL, ?)",
+    crypto.randomUUID(), schoolId, teacherId, hash, daysFromNow(INVITE_DAYS), nowIso()
+  );
+  return code;
+}
+
+async function issueSession(env, teacher, school) {
+  const token = randomToken();
+  const hash = await hmacHex(env.SESSION_SECRET, token);
+  await dbRun(
+    env,
+    "INSERT INTO sessions (id, teacher_id, school_id, token_hash, expires_at, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+    crypto.randomUUID(), teacher.id, school.id, hash, daysFromNow(SESSION_DAYS), nowIso()
+  );
+  return token;
+}
+
+
+async function checkPaper(env, auth) {
+  if (auth.kind !== "school") return { ok: true, usage: null };
+  const fresh = await dbOne(env, "SELECT * FROM schools WHERE id = ?", auth.school.id);
+  if (fresh) auth.school = fresh;
+  if (auth.school.status !== "active") {
+    return { ok: false, error: "This school account is paused.", status: 403, usage: usageView(auth.school) };
+  }
+  const usage = usageView(auth.school);
+  if (usage.stopped) {
+    return { ok: false, error: usageMessage(usage), status: 403, usage };
+  }
+  return { ok: true, usage };
+}
+
+async function consumePaper(env, auth) {
+  if (auth.kind !== "school") return { ok: true, usage: null };
+  const school = auth.school;
+  if (school.status !== "active") {
+    return { ok: false, error: "This school account is paused.", status: 403, usage: usageView(school) };
+  }
+  const preview = usageView(school);
+  if (preview.stopped) {
+    return { ok: false, error: usageMessage(preview), status: 403, usage: preview };
+  }
+  const updated = await dbOne(
+    env,
+    `UPDATE schools SET papers_used = papers_used + 1
+     WHERE id = ? AND status = 'active' AND papers_used < paper_allowance
+     RETURNING paper_allowance, papers_used, license_year, status, name, id`,
+    school.id
+  );
+  if (!updated) {
+    const fresh = await dbOne(env, "SELECT * FROM schools WHERE id = ?", school.id);
+    const usage = fresh ? usageView(fresh) : preview;
+    return { ok: false, error: usageMessage(usage) || "This school cannot grade a paper right now.", status: 403, usage };
+  }
+  auth.school = updated;
+  await dbRun(
+    env,
+    "INSERT INTO usage_events (id, school_id, teacher_id, kind, papers, created_at) VALUES (?, ?, ?, 'grade', 1, ?)",
+    crypto.randomUUID(), school.id, auth.teacher.id, nowIso()
+  );
+  return { ok: true, usage: usageView(updated) };
+}
+
+function extraUsage(usage) {
+  if (!usage) return {};
+  const msg = usageMessage(usage);
+  return { usage, ...(msg ? { usageNote: msg } : {}) };
+}
+
+async function handleAuthRedeem(request, env, origin) {
+  const blocked = await requireSchoolConfigured(env, origin);
+  if (blocked) return blocked;
+  const limited = await rateLimit(request, env, "auth:");
+  if (limited) return limited(origin);
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
+  const email = cleanEmail(body.email);
+  const norm = normalizeInvite(body.code);
+  if (!email || norm.length !== 12) {
+    return json({ error: "Enter your work email and the invite code." }, 400, origin);
+  }
+  const hash = await hmacHex(env.SESSION_SECRET, norm);
+  const row = await dbOne(
+    env,
+    `SELECT i.id AS invite_id, i.expires_at, i.used_at, i.school_id, i.teacher_id,
+            t.email, t.name, t.role, t.active,
+            sch.name AS school_name, sch.paper_allowance, sch.papers_used,
+            sch.license_year, sch.status AS school_status
+     FROM invites i
+     JOIN teachers t ON t.id = i.teacher_id
+     JOIN schools sch ON sch.id = i.school_id
+     WHERE i.code_hash = ?`,
+    hash
+  );
+  if (!row || row.used_at || row.expires_at <= nowIso() || !row.active) {
+    return json({ error: "That invite code is not valid, has expired, or was already used." }, 401, origin);
+  }
+  if (row.email !== email) {
+    return json({ error: "Use the work email this invite was created for." }, 401, origin);
+  }
+  await dbRun(env, "UPDATE invites SET used_at = ? WHERE id = ?", nowIso(), row.invite_id);
+  const teacher = { id: row.teacher_id, email: row.email, name: row.name, role: row.role, school_id: row.school_id };
+  const school = {
+    id: row.school_id,
+    name: row.school_name,
+    paper_allowance: row.paper_allowance,
+    papers_used: row.papers_used,
+    license_year: row.license_year,
+    status: row.school_status
+  };
+  const token = await issueSession(env, teacher, school);
+  const usage = usageView(school);
+  const rubrics = await schoolRubrics(env, school.id);
+  return json({
+    ok: true,
+    token,
+    user: publicUser(teacher),
+    school: publicSchool(school, usage),
+    usage,
+    rubrics,
+    note: "Signed in. Keep this session on this device; the invite code cannot be used again."
+  }, 200, origin);
+}
+
+async function handleAuthLogout(request, env, origin) {
+  const blocked = await requireSchoolConfigured(env, origin);
+  if (blocked) return blocked;
+  const auth = await authorize(request, env);
+  if (!auth.ok || auth.kind !== "school") return json({ error: auth.error || "Not signed in." }, auth.status || 401, origin);
+  await dbRun(env, "DELETE FROM sessions WHERE id = ?", auth.sessionId);
+  return json({ ok: true }, 200, origin);
+}
+
+async function createSchoolWithAdmin(env, body) {
+  const name = cleanStr(body.name, 120).replace(/[\r\n]+/g, " ");
+  const adminEmail = cleanEmail(body.adminEmail);
+  const adminName = cleanStr(body.adminName, 80).replace(/[\r\n]+/g, " ") || adminEmail;
+  const allowance = Number(body.paperAllowance);
+  if (!name) throw Object.assign(new Error("Enter a school name."), { status: 400 });
+  if (!adminEmail) throw Object.assign(new Error("Enter the first admin's work email."), { status: 400 });
+  if (!Number.isInteger(allowance) || allowance < 0 || allowance > 10_000_000) {
+    throw Object.assign(new Error("Enter a whole-number yearly paper cap."), { status: 400 });
+  }
+  const year = Number(body.licenseYear) || new Date().getFullYear();
+  const now = nowIso();
+  const schoolId = crypto.randomUUID();
+  const teacherId = crypto.randomUUID();
+  await dbRun(
+    env,
+    "INSERT INTO schools (id, name, paper_allowance, papers_used, license_year, status, created_at) VALUES (?, ?, ?, 0, ?, 'active', ?)",
+    schoolId, name, allowance, year, now
+  );
+  await dbRun(
+    env,
+    "INSERT INTO teachers (id, school_id, email, name, role, active, created_at) VALUES (?, ?, ?, ?, 'admin', 1, ?)",
+    teacherId, schoolId, adminEmail, adminName, now
+  );
+  const inviteCode = await issueInvite(env, schoolId, teacherId);
+  const school = { id: schoolId, name, paper_allowance: allowance, papers_used: 0, license_year: year, status: "active" };
+  return {
+    school: publicSchool(school),
+    admin: { id: teacherId, email: adminEmail, name: adminName, role: "admin" },
+    inviteCode
+  };
+}
+
+async function handleOwnerSchools(request, env, origin) {
+  const blocked = await requireSchoolConfigured(env, origin);
+  if (blocked) return blocked;
+  const limited = await rateLimit(request, env, "owner:");
+  if (limited) return limited(origin);
+  const auth = await authorize(request, env);
+  if (!auth.ok) return json({ error: auth.error }, auth.status, origin);
+  if (auth.kind !== "passcode") return json({ error: "Only Arrival House can create a school. Use the teacher passcode." }, 403, origin);
+
+  if (request.method === "GET") {
+    const rows = await dbAll(env, "SELECT * FROM schools ORDER BY created_at DESC");
+    const schools = [];
+    for (const s of rows) {
+      const teachers = await dbAll(
+        env,
+        "SELECT id, email, name, role, active FROM teachers WHERE school_id = ? ORDER BY role, name, email",
+        s.id
+      );
+      schools.push({ ...publicSchool(s), teachers: teachers.map(publicTeacher) });
+    }
+    return json({ ok: true, schools }, 200, origin);
+  }
+
+  if (request.method !== "POST") return json({ error: "Use POST or GET." }, 405, origin);
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
+  if (body.schoolId && (body.paperAllowance != null || body.status || body.resetUsed)) {
+    const school = await dbOne(env, "SELECT * FROM schools WHERE id = ?", cleanStr(body.schoolId, 80));
+    if (!school) return json({ error: "School not found." }, 404, origin);
+    let allowance = school.paper_allowance;
+    let used = school.papers_used;
+    let status = school.status;
+    if (body.paperAllowance != null) {
+      const n = Number(body.paperAllowance);
+      if (!Number.isInteger(n) || n < 0 || n > 10_000_000) {
+        return json({ error: "Enter a whole-number yearly paper cap." }, 400, origin);
+      }
+      allowance = n;
+    }
+    if (body.resetUsed === true) used = 0;
+    if (body.status === "active" || body.status === "paused") status = body.status;
+    await dbRun(env, "UPDATE schools SET paper_allowance = ?, papers_used = ?, status = ? WHERE id = ?",
+      allowance, used, status, school.id);
+    const fresh = await dbOne(env, "SELECT * FROM schools WHERE id = ?", school.id);
+    return json({ ok: true, school: publicSchool(fresh) }, 200, origin);
+  }
+  try {
+    const created = await createSchoolWithAdmin(env, body);
+    return json({
+      ok: true,
+      ...created,
+      note: "Copy the invite code now. It is shown only once and expires in 14 days. Share it with the admin along with the email you entered."
+    }, 200, origin);
+  } catch (e) {
+    return json({ error: e.message || "Could not create the school." }, e.status || 500, origin);
+  }
+}
+
+async function handleSchoolGet(request, env, origin) {
+  const blocked = await requireSchoolConfigured(env, origin);
+  if (blocked) return blocked;
+  const limited = await rateLimit(request, env, "school:");
+  if (limited) return limited(origin);
+  const auth = await authorize(request, env);
+  if (!auth.ok) return json({ error: auth.error }, auth.status, origin);
+  if (auth.kind !== "school") return json({ error: "Sign in with a school invite." }, 401, origin);
+  const usage = usageView(auth.school);
+  const rubrics = await schoolRubrics(env, auth.school.id);
+  const out = {
+    ok: true,
+    user: publicUser(auth.teacher),
+    school: publicSchool(auth.school, usage),
+    usage,
+    rubrics,
+    ...extraUsage(usage)
+  };
+  if (auth.teacher.role === "admin") {
+    const teachers = await dbAll(
+      env,
+      "SELECT id, email, name, role, active FROM teachers WHERE school_id = ? ORDER BY role, name, email",
+      auth.school.id
+    );
+    out.teachers = teachers.map(publicTeacher);
+  }
+  return json(out, 200, origin);
+}
+
+async function handleSchoolTeachers(request, env, origin) {
+  const blocked = await requireSchoolConfigured(env, origin);
+  if (blocked) return blocked;
+  const limited = await rateLimit(request, env, "school:");
+  if (limited) return limited(origin);
+  const auth = await authorize(request, env);
+  if (!auth.ok) return json({ error: auth.error }, auth.status, origin);
+  const denied = needAdmin(auth);
+  if (denied) return json({ error: denied.error }, denied.status, origin);
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
+  const email = cleanEmail(body.email);
+  const name = cleanStr(body.name, 80).replace(/[\r\n]+/g, " ") || email;
+  const role = body.role === "admin" ? "admin" : "teacher";
+  if (!email) return json({ error: "Enter the teacher's work email." }, 400, origin);
+  const existing = await dbOne(
+    env,
+    "SELECT * FROM teachers WHERE school_id = ? AND email = ?",
+    auth.school.id, email
+  );
+  let teacher;
+  if (existing) {
+    await dbRun(
+      env,
+      "UPDATE teachers SET name = ?, role = ?, active = 1 WHERE id = ?",
+      name || existing.name, role, existing.id
+    );
+    teacher = { ...existing, name: name || existing.name, role, active: 1 };
+  } else {
+    teacher = {
+      id: crypto.randomUUID(),
+      school_id: auth.school.id,
+      email,
+      name,
+      role,
+      active: 1
+    };
+    await dbRun(
+      env,
+      "INSERT INTO teachers (id, school_id, email, name, role, active, created_at) VALUES (?, ?, ?, ?, ?, 1, ?)",
+      teacher.id, teacher.school_id, email, name, role, nowIso()
+    );
+  }
+  const inviteCode = await issueInvite(env, auth.school.id, teacher.id);
+  return json({
+    ok: true,
+    teacher: publicTeacher(teacher),
+    inviteCode,
+    note: "Copy the invite code now. It is shown only once and expires in 14 days. Share it with the teacher and the email you entered."
+  }, 200, origin);
+}
+
+async function handleSchoolTeachersRemove(request, env, origin) {
+  const blocked = await requireSchoolConfigured(env, origin);
+  if (blocked) return blocked;
+  const limited = await rateLimit(request, env, "school:");
+  if (limited) return limited(origin);
+  const auth = await authorize(request, env);
+  if (!auth.ok) return json({ error: auth.error }, auth.status, origin);
+  const denied = needAdmin(auth);
+  if (denied) return json({ error: denied.error }, denied.status, origin);
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
+  const teacherId = cleanStr(body.teacherId, 80);
+  if (!teacherId) return json({ error: "Choose a teacher to remove." }, 400, origin);
+  if (teacherId === auth.teacher.id) return json({ error: "You cannot remove yourself." }, 400, origin);
+  const target = await dbOne(
+    env,
+    "SELECT * FROM teachers WHERE id = ? AND school_id = ?",
+    teacherId, auth.school.id
+  );
+  if (!target) return json({ error: "Teacher not found." }, 404, origin);
+  if (target.role === "admin") {
+    const others = await dbOne(
+      env,
+      "SELECT COUNT(*) AS n FROM teachers WHERE school_id = ? AND role = 'admin' AND active = 1 AND id != ?",
+      auth.school.id, teacherId
+    );
+    if (!others || others.n < 1) {
+      return json({ error: "Keep at least one school admin." }, 400, origin);
+    }
+  }
+  await dbRun(env, "UPDATE teachers SET active = 0 WHERE id = ?", teacherId);
+  await dbRun(env, "DELETE FROM sessions WHERE teacher_id = ?", teacherId);
+  await dbRun(env, "DELETE FROM invites WHERE teacher_id = ? AND used_at IS NULL", teacherId);
+  return json({ ok: true }, 200, origin);
+}
+
+async function handleSchoolAllowance(request, env, origin) {
+  const blocked = await requireSchoolConfigured(env, origin);
+  if (blocked) return blocked;
+  const limited = await rateLimit(request, env, "school:");
+  if (limited) return limited(origin);
+  const auth = await authorize(request, env);
+  if (!auth.ok) return json({ error: auth.error }, auth.status, origin);
+  const denied = needAdmin(auth);
+  if (denied) return json({ error: denied.error }, denied.status, origin);
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
+  const n = Number(body.paperAllowance);
+  if (!Number.isInteger(n) || n < 0 || n > 10_000_000) {
+    return json({ error: "Enter a whole-number yearly paper cap." }, 400, origin);
+  }
+  await dbRun(env, "UPDATE schools SET paper_allowance = ? WHERE id = ?", n, auth.school.id);
+  const fresh = await dbOne(env, "SELECT * FROM schools WHERE id = ?", auth.school.id);
+  const usage = usageView(fresh);
+  return json({ ok: true, usage, school: publicSchool(fresh, usage), ...extraUsage(usage) }, 200, origin);
+}
+
+async function handleSchoolRubricsSave(request, env, origin) {
+  const blocked = await requireSchoolConfigured(env, origin);
+  if (blocked) return blocked;
+  const limited = await rateLimit(request, env, "school:");
+  if (limited) return limited(origin);
+  const auth = await authorize(request, env);
+  if (!auth.ok) return json({ error: auth.error }, auth.status, origin);
+  const denied = needAdmin(auth);
+  if (denied) return json({ error: denied.error }, denied.status, origin);
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
+  let rub;
+  try { rub = cleanRubric(body, true); } catch (e) {
+    return json({ error: e.rubric ? e.message : "The rubric is not valid." }, 400, origin);
+  }
+  const id = (typeof body.id === "string" && /^[\w-]{1,60}$/.test(body.id) && body.id !== "storigen-wonders")
+    ? body.id
+    : crypto.randomUUID();
+  const now = nowIso();
+  const existing = await dbOne(env, "SELECT id FROM rubrics WHERE id = ? AND school_id = ?", id, auth.school.id);
+  if (existing) {
+    await dbRun(
+      env,
+      "UPDATE rubrics SET name = ?, min = ?, max = ?, rows_json = ?, updated_by = ?, updated_at = ? WHERE id = ? AND school_id = ?",
+      rub.name, rub.min, rub.max, JSON.stringify(rub.rows), auth.teacher.id, now, id, auth.school.id
+    );
+  } else {
+    await dbRun(
+      env,
+      "INSERT INTO rubrics (id, school_id, name, min, max, rows_json, updated_by, updated_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      id, auth.school.id, rub.name, rub.min, rub.max, JSON.stringify(rub.rows), auth.teacher.id, now, now
+    );
+  }
+  const saved = { id, name: rub.name, min: rub.min, max: rub.max, rows: rub.rows, updated: now, school: true };
+  return json({ ok: true, rubric: saved }, 200, origin);
+}
+
+async function handleSchoolRubricsDelete(request, env, origin) {
+  const blocked = await requireSchoolConfigured(env, origin);
+  if (blocked) return blocked;
+  const limited = await rateLimit(request, env, "school:");
+  if (limited) return limited(origin);
+  const auth = await authorize(request, env);
+  if (!auth.ok) return json({ error: auth.error }, auth.status, origin);
+  const denied = needAdmin(auth);
+  if (denied) return json({ error: denied.error }, denied.status, origin);
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
+  const id = cleanStr(body.id, 60);
+  if (!id) return json({ error: "Choose a rubric to remove." }, 400, origin);
+  await dbRun(env, "DELETE FROM rubrics WHERE id = ? AND school_id = ?", id, auth.school.id);
+  return json({ ok: true }, 200, origin);
+}
+
+function normName(v) {
+  return cleanStr(v, 40).toLowerCase().replace(/\s+/g, " ");
+}
+function normGrade(v) {
+  return cleanStr(v, 24).toLowerCase().replace(/\s+/g, " ");
+}
+
+function parseScoreList(raw, maxRows) {
+  if (!Array.isArray(raw)) return null;
+  if (raw.length < 1 || raw.length > (maxRows || 10)) return null;
+  const out = [];
+  for (const x of raw) {
+    const n = Number(x);
+    if (!Number.isFinite(n) || n < 0 || n > 10) return null;
+    out.push(n);
+  }
+  return out;
+}
+
+async function handleSchoolScores(request, env, origin) {
+  const blocked = await requireSchoolConfigured(env, origin);
+  if (blocked) return blocked;
+  const limited = await rateLimit(request, env, "school:");
+  if (limited) return limited(origin);
+  const auth = await authorize(request, env);
+  if (!auth.ok) return json({ error: auth.error }, auth.status, origin);
+  if (auth.kind !== "school") return json({ error: "Sign in with a school invite." }, 401, origin);
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
+  const firstName = cleanStr(body.firstName || body.student, 40).split(/\s+/)[0] || "";
+  if (!firstName) return json({ error: "A first name is needed to save a score." }, 400, origin);
+  const grade = cleanStr(body.grade, 24);
+  const facilitator = cleanStr(body.facilitator, 80);
+  const date = cleanStr(body.date, 32);
+  const assessment = body.assessment === "post" ? "post" : "pre";
+  const rubricId = cleanStr(body.rubricId, 60);
+  const rubricName = cleanStr(body.rubricName, 100);
+  const scores = parseScoreList(body.scores);
+  if (!scores) return json({ error: "The scores are not valid." }, 400, origin);
+  const total = Number(body.total);
+  const outOf = Number(body.outOf);
+  const now = nowIso();
+  const existing = await dbOne(
+    env,
+    `SELECT id FROM scores
+     WHERE school_id = ? AND teacher_id = ? AND first_name = ? AND grade = ?
+       AND date = ? AND assessment = ? AND rubric_id = ?`,
+    auth.school.id, auth.teacher.id, firstName, grade, date, assessment, rubricId
+  );
+  if (existing) {
+    await dbRun(
+      env,
+      `UPDATE scores SET facilitator = ?, rubric_name = ?, scores_json = ?, total = ?, out_of = ?, updated_at = ?
+       WHERE id = ?`,
+      facilitator, rubricName, JSON.stringify(scores),
+      Number.isFinite(total) ? total : null, Number.isFinite(outOf) ? outOf : null, now, existing.id
+    );
+    return json({ ok: true, id: existing.id, updated: true }, 200, origin);
+  }
+  const id = crypto.randomUUID();
+  await dbRun(
+    env,
+    `INSERT INTO scores (id, school_id, teacher_id, first_name, grade, facilitator, date, assessment,
+      rubric_id, rubric_name, scores_json, total, out_of, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    id, auth.school.id, auth.teacher.id, firstName, grade, facilitator, date, assessment,
+    rubricId, rubricName, JSON.stringify(scores),
+    Number.isFinite(total) ? total : null, Number.isFinite(outOf) ? outOf : null, now, now
+  );
+  return json({ ok: true, id, updated: false }, 200, origin);
+}
+
+function parseScoresJson(s) {
+  try {
+    const a = JSON.parse(s);
+    return Array.isArray(a) ? a : [];
+  } catch { return []; }
+}
+
+function scoreKey(r) {
+  return normName(r.first_name) + "|" + normGrade(r.grade) + "|" + (r.rubric_id || "");
+}
+
+async function handleSchoolReport(request, env, origin) {
+  const blocked = await requireSchoolConfigured(env, origin);
+  if (blocked) return blocked;
+  const limited = await rateLimit(request, env, "school:");
+  if (limited) return limited(origin);
+  const auth = await authorize(request, env);
+  if (!auth.ok) return json({ error: auth.error }, auth.status, origin);
+  if (auth.kind !== "school") return json({ error: "Sign in with a school invite." }, 401, origin);
+  const denied = needAdmin(auth);
+  if (denied) return json({ error: denied.error }, denied.status, origin);
+  const rows = await dbAll(
+    env,
+    `SELECT sc.*, t.name AS teacher_name, t.email AS teacher_email
+     FROM scores sc
+     JOIN teachers t ON t.id = sc.teacher_id
+     WHERE sc.school_id = ?
+     ORDER BY sc.first_name, sc.grade, sc.date`,
+    auth.school.id
+  );
+  const records = rows.map((r) => ({
+    firstName: r.first_name,
+    grade: r.grade,
+    facilitator: r.facilitator,
+    teacherName: r.teacher_name || r.teacher_email,
+    teacherId: r.teacher_id,
+    date: r.date,
+    assessment: r.assessment,
+    rubricId: r.rubric_id,
+    rubricName: r.rubric_name,
+    scores: parseScoresJson(r.scores_json),
+    total: r.total,
+    outOf: r.out_of
+  }));
+
+  function groups(keyFn) {
+    const map = new Map();
+    for (const r of records) {
+      const k = keyFn(r) || "(not set)";
+      if (!map.has(k)) map.set(k, []);
+      map.get(k).push(r);
+    }
+    const out = [];
+    for (const [label, list] of map) {
+      const pres = list.filter((x) => x.assessment === "pre");
+      const posts = list.filter((x) => x.assessment === "post");
+      const used = new Set();
+      const students = [];
+      const matchPost = (pre) => posts.find((p, i) => !used.has(i) && scoreKey(p) === scoreKey(pre) && (used.add(i), true));
+      for (const pre of pres) {
+        const post = matchPost(pre);
+        const sameRubric = !post || pre.rubricId === post.rubricId;
+        students.push({
+          firstName: pre.firstName,
+          grade: pre.grade,
+          facilitator: pre.facilitator || (post && post.facilitator) || "",
+          pre: pre.total,
+          post: post && sameRubric ? post.total : null,
+          change: post && sameRubric && pre.total != null && post.total != null ? post.total - pre.total : null,
+          differentRubric: !!(post && !sameRubric),
+          unmatchedPost: false,
+          rubricName: pre.rubricName
+        });
+      }
+      posts.forEach((p, i) => {
+        if (used.has(i)) return;
+        students.push({
+          firstName: p.firstName,
+          grade: p.grade,
+          facilitator: p.facilitator || "",
+          pre: null,
+          post: p.total,
+          change: null,
+          differentRubric: false,
+          unmatchedPost: true,
+          rubricName: p.rubricName
+        });
+      });
+      const paired = students.filter((s) => s.pre != null && s.post != null && !s.differentRubric);
+      const avgChange = paired.length
+        ? Math.round((paired.reduce((a, s) => a + s.change, 0) / paired.length) * 10) / 10
+        : null;
+      out.push({ label, students, paired: paired.length, averageChange: avgChange });
+    }
+    out.sort((a, b) => String(a.label).localeCompare(String(b.label)));
+    return out;
+  }
+
+  return json({
+    ok: true,
+    school: publicSchool(auth.school),
+    usage: usageView(auth.school),
+    totalRecords: records.length,
+    byGrade: groups((r) => r.grade),
+    byClass: groups((r) => r.facilitator || r.teacherName)
+  }, 200, origin);
+}
+
+async function routeSchool(url, request, env, origin) {
+  const path = url.pathname;
+  if (path === "/auth/redeem") {
+    if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
+    return handleAuthRedeem(request, env, origin);
+  }
+  if (path === "/auth/logout") {
+    if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
+    return handleAuthLogout(request, env, origin);
+  }
+  if (path === "/owner/schools") {
+    if (request.method !== "GET" && request.method !== "POST") return json({ error: "Use GET or POST." }, 405, origin);
+    return handleOwnerSchools(request, env, origin);
+  }
+  if (path === "/school") {
+    if (request.method !== "GET") return json({ error: "Use GET." }, 405, origin);
+    return handleSchoolGet(request, env, origin);
+  }
+  if (path === "/school/teachers") {
+    if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
+    return handleSchoolTeachers(request, env, origin);
+  }
+  if (path === "/school/teachers/remove") {
+    if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
+    return handleSchoolTeachersRemove(request, env, origin);
+  }
+  if (path === "/school/allowance") {
+    if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
+    return handleSchoolAllowance(request, env, origin);
+  }
+  if (path === "/school/rubrics") {
+    if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
+    return handleSchoolRubricsSave(request, env, origin);
+  }
+  if (path === "/school/rubrics/delete") {
+    if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
+    return handleSchoolRubricsDelete(request, env, origin);
+  }
+  if (path === "/school/scores") {
+    if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
+    return handleSchoolScores(request, env, origin);
+  }
+  if (path === "/school/report") {
+    if (request.method !== "GET") return json({ error: "Use GET." }, 405, origin);
+    return handleSchoolReport(request, env, origin);
+  }
+  return null;
+}
+
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -589,7 +1450,14 @@ export default {
       return new Response(null, { status: origin === ALLOWED_ORIGIN ? 204 : 403, headers: cors(origin) });
     }
     if (url.pathname === "/" && request.method === "GET") {
-      return json({ service: "grade-along-api", ok: true, passcodeConfigured: !!env.TEACHER_PASSCODE }, 200, origin);
+      return json({ service: "grade-along-api", ok: true, passcodeConfigured: !!env.TEACHER_PASSCODE, schoolAccounts: !!(env.DB && env.SESSION_SECRET) }, 200, origin);
+    }
+    if (origin && origin !== ALLOWED_ORIGIN && url.pathname !== "/") return json({ error: "Origin not allowed." }, 403, origin);
+    try {
+      const schoolRes = await routeSchool(url, request, env, origin);
+      if (schoolRes) return schoolRes;
+    } catch {
+      return json({ error: "Server error." }, 500, origin);
     }
     if (url.pathname === "/split") {
       if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);

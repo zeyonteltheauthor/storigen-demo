@@ -1,29 +1,36 @@
 # grade-along-api (Cloudflare Worker)
 
-`POST /split` — body `{ pages: [{ n, image: small base64 JPEG }] }` (up to 24 per request). Returns `{ ok, covers: [page numbers] }`: which pages are STORIGEN cover sheets, so a combined class scan can be split into one student per paper. No names or text are returned.
+Live URL: https://grade-along-api.storigen.workers.dev
 
-`POST /verify` — checks `X-Teacher-Passcode` only and returns 200 `{ ok: true }` or 401 (same CORS and rate limit). Used by the Grade Along page gate.
+CORS: only `https://zeyonteltheauthor.github.io`. Rate limit: `RATE_LIMITER` binding, 20 requests/min per IP (in-memory fallback). Model: `claude-sonnet-5-5`.
 
-`POST /rubric` — body `{ images: [base64 JPEG, up to 4 pages], text? }`. Claude reads a school or district rubric into `{ ok, rubric: { name, min, max, rows: [{ title, description, levels: { n: { label, text } } }] }, notes }` for the teacher to review and edit before saving. Same passcode, CORS and rate limit (key `rubric:`). Nothing is stored.
+Auth, either:
+- Header `X-Teacher-Passcode` matching the `TEACHER_PASSCODE` secret (passcode mode, unchanged from v12). Or
+- Header `X-Teacher-Session` for a school session from a redeemed invite.
 
-`POST /grade` — drafts rubric scores and feedback for Grade Along. The teacher approves or edits every row. By default it uses the Storigen Wonders rubric, unchanged. An optional `rubric` in the body (same shape as `/rubric` returns) is validated server-side: 1–10 rows, whole-number scale from 0 to 10 with min below max, capped text (name 100, title 120, description 500, level label 40, level text 400) and at most 40,000 characters of JSON. The draft is then scored against that rubric, with a per-row score enum. The response then has one row per rubric row, `totalPossible = rows × max`, and `rubric: { name, min, max, rows }`.
+`POST /verify` — passcode or session. Passcode returns `{ ok, mode: "passcode" }`. School session returns `{ ok, mode: "school", user, school, usage, rubrics }`. 401 otherwise.
 
-- CORS: only `https://zeyonteltheauthor.github.io`.
-- Header `X-Teacher-Passcode` must match the `TEACHER_PASSCODE` secret (constant-time compare). If unset: 503 `passcode not configured`.
-- Rate limit: `RATE_LIMITER` binding, 20 requests/min per IP (in-memory fallback).
-- Body: `{ firstName, grade, title?, text?, images?: [base64 JPEG, up to 3] }`.
-- Optional `coverImage` (base64 JPEG of a STORIGEN cover sheet, page 1). Claude reads only `{ firstName, grade, facilitator, date }` from it in a separate call (first name only; never last name or school), and the result is returned as `cover`. The cover is never added to the grading prompt or used for scoring.
-- Cover-only mode: send `{ coverImage }` with no images or text to get `{ ok, cover: { firstName, grade, facilitator, date }, note }`.
-- Response: `{ ok, model, rows: [{category, score, level, comment} x4], total, totalPossible: 20, overallFeedback, transcriptionNote, note , cover? }`.
-- Model: `claude-sonnet-5-5` with structured JSON output (`output_config.format`). Override with a `MODEL` var if needed.
-- No student content is logged or stored.
+`POST /grade`, `POST /split`, `POST /rubric` — same bodies as v12. Both auth modes work. `/split` and `/rubric` do not count against the paper pool. `/grade` counts one paper per graded student in school mode (cover-only reads do not count), warns at 80% of the yearly cap (`usageNote`), and stops at 100%. Passcode mode has no cap and stores nothing.
+
+School accounts (D1 binding `DB`, database `grade-along-db`):
+- `POST /auth/redeem` `{ email, code }` → `{ ok, token, user, school, usage, rubrics }`. The invite is one-time and expires in 14 days.
+- `POST /auth/logout` — ends this session.
+- `GET` / `POST /owner/schools` — Arrival House only (passcode). Create a school and first admin (returns `inviteCode` once), list schools, or update a cap/status.
+- `GET /school` — current user, usage, school rubrics; admins also get the teacher list.
+- `POST /school/teachers` — admin adds or reactivates a teacher; returns `inviteCode` once.
+- `POST /school/teachers/remove` `{ teacherId }` — sets inactive and deletes sessions immediately.
+- `POST /school/allowance` `{ paperAllowance }`
+- `POST /school/rubrics` and `POST /school/rubrics/delete` — admin shared rubrics (same shape as `/rubric`).
+- `POST /school/scores` — first name, grade, facilitator, date, pre/post, rubric id/name, scores, total, outOf only. No story text.
+- `GET /school/report` — admin growth report by grade and by class.
+
+Nothing logs student content. Photos, PDFs and story text are never stored. Invites and sessions are stored as HMAC hashes under `SESSION_SECRET`.
 
 Secrets (never commit):
 
 ```bash
 npx wrangler secret put ANTHROPIC_API_KEY
 npx wrangler secret put TEACHER_PASSCODE
+npx wrangler secret put SESSION_SECRET
 npx wrangler deploy
 ```
-
-Live URL: https://grade-along-api.storigen.workers.dev
