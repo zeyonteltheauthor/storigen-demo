@@ -59,6 +59,16 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 .descriptor b{color:var(--warm);font-weight:700}
 .teacher-cat{border:1px solid var(--line);border-radius:12px;padding:13px;background:#0a1020a8;margin-bottom:10px}
 .teacher-cat h3{font-size:1rem;margin:0 0 4px;color:var(--warm)}
+.gate-wrap{display:flex;justify-content:center;padding:clamp(28px,8vh,90px) 0 40px}
+.gate{width:min(100%,460px);background:linear-gradient(145deg,var(--raised),var(--surface) 62%);border:1px solid var(--line);border-radius:18px;padding:clamp(20px,4vw,32px);box-shadow:0 16px 38px #06091360}
+.gate h1{font-size:clamp(1.6rem,4vw,2.1rem);line-height:1.15;margin:.3rem 0 .6rem;font-family:var(--display)}
+.gate p{color:var(--sub);margin:0 0 14px}
+.gate form{display:grid;gap:8px;margin:6px 0 4px}
+.gate input{width:100%;font:inherit;color:var(--ink);background:var(--night);border:1px solid var(--line);border-radius:9px;padding:10px 12px;min-height:46px}
+.gate .primary{min-height:46px;font-size:1.02rem}
+.gate-msg{min-height:1.4em;font-weight:650;color:var(--warm)!important;margin:8px 0!important}.gate-msg[data-kind=error]{color:#ffb4a8!important}
+.gate-note{font-size:.85rem;color:var(--muted)!important}
+button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-left:14px}
 .version-label{margin:18px 0 0;text-align:center;font-size:.8rem;color:var(--muted);letter-spacing:.04em}
 @media print{.version-label{display:none!important}}
 .principle{position:relative;text-align:center;font-family:var(--display);font-size:12.5px;font-weight:500;letter-spacing:.08em;color:var(--text-2);padding:8px 12px 18px}
@@ -173,11 +183,28 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 <a class="skip" href="#main">Skip to content</a>
 <header class="topbar">
   <a class="mark" href="../" aria-label="STORIGEN OS home">STORIGEN <span class="os">OS</span><span class="tm">™</span></a>
-  <span class="badge" id="mode-badge">Teacher demo · Practice samples</span>
+  <span class="badge" id="mode-badge">Private · teacher passcode</span>
+  <button type="button" class="link-btn lock-btn" id="ga-lock" hidden>Lock</button>
   <a class="link-btn" href="../">Back to demo</a>
 </header>
 
 
+<main id="ga-gate" class="shell gate-wrap">
+<section class="gate" aria-labelledby="gate-title">
+<div class="cap">Grade Along</div>
+<h1 id="gate-title">Private teacher tool</h1>
+<p>Grade Along is for the STORIGEN team only. Enter the teacher passcode to open it.</p>
+<form id="gate-form" autocomplete="off" novalidate>
+<label for="gate-pass">Teacher passcode</label>
+<input id="gate-pass" type="password" autocomplete="current-password" maxlength="200" required>
+<button type="submit" class="primary" id="gate-go">Unlock</button>
+</form>
+<p class="gate-msg" id="gate-msg" role="status" aria-live="polite"></p>
+<p class="gate-note">The passcode is kept in this tab only and cleared when you close it or press Lock. Papers, names, and scores are never stored on the site; drafts stay in this browser on this device only.</p>
+<p class="version-label">Grade Along v9</p>
+</section>
+</main>
+<template id="ga-app">
 <nav class="shell mode-wrap" aria-label="Grade Along modes">
   <div class="modes" role="group" aria-label="Choose a mode">
     <button type="button" class="mode-btn" id="mode-practice" aria-pressed="true">Practice samples</button>
@@ -297,13 +324,15 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 <p class="status" id="t-status">Not reviewed. Nothing is sent unless you press Grade with AI.</p>
 </section>
 </div>
-<footer class="version-label" id="ga-version">Grade Along v8</footer>
+<footer class="version-label" id="ga-version">Grade Along v9</footer>
 </div>
 
 </main>
 <footer class="principle">Human first. AI assists. The learner decides.</footer>
+</template>
 <script>
-
+/* Practice samples: runs only after the passcode is verified. */
+function gaPracticeApp(){
 const rubric=[
  {name:'Seven Lenses',score:4,feedback:'Maya has a clear goal, and helping the boy creates a real choice. Show one consequence of missing the bus to strengthen the stakes.'},
  {name:'Organization',score:4,feedback:'The bus arriving moves the story naturally from setup to choice. A short transition could clarify how the characters reached the library.'},
@@ -435,10 +464,11 @@ get('sample').value='garden';sampleKey='garden';loadStory();resetReview();
 for(const id of ['sample','score','feedback','approve','reset'])get(id).disabled=false;
 get('preview-warning').hidden=true;
 
+}
 </script>
 <script>
-
-(function(){
+/* Teacher grading: runs only after the passcode is verified. */
+function gaTeacherApp(){
 const WONDERS = [
   {
     id: "lenses",
@@ -2004,8 +2034,72 @@ const params = new URLSearchParams(location.search);
 if(params.get("mode") === "grade" || params.get("mode") === "teacher"){
   setMode("teacher");
 }
+}
+</script>
+<script>
+/* Passcode gate: the app markup lives in <template id="ga-app"> and its code in functions that run only
+   after the Worker confirms the teacher passcode. Static hosting cannot hide source, but nothing works
+   (and grading is refused by the server) without the passcode. No student data ships in this page. */
+(function(){
+  var VERIFY_URL = "https://grade-along-api.storigen.workers.dev/verify";
+  var PASS_KEY = "storigen-grade-along-passcode";
+  var OK_KEY = "storigen-grade-along-verified";
+  var gate = document.getElementById("ga-gate");
+  var form = document.getElementById("gate-form");
+  var input = document.getElementById("gate-pass");
+  var msg = document.getElementById("gate-msg");
+  var go = document.getElementById("gate-go");
+  var mounted = false;
+  function say(t, kind){ msg.textContent = t; msg.dataset.kind = kind || ""; }
+  function ss(fn){ try { return fn(); } catch(e){ return null; } }
+  function forget(){ ss(function(){ sessionStorage.removeItem(PASS_KEY); sessionStorage.removeItem(OK_KEY); }); }
+  function mount(){
+    if(mounted) return;
+    mounted = true;
+    var tpl = document.getElementById("ga-app");
+    gate.replaceWith(document.importNode(tpl.content, true));
+    tpl.remove();
+    document.getElementById("ga-lock").hidden = false;
+    document.getElementById("mode-badge").textContent = "Teacher demo · Practice samples";
+    gaPracticeApp();
+    gaTeacherApp();
+  }
+  function tryPass(pass, quiet){
+    go.disabled = true;
+    if(!quiet) say("Checking…");
+    return fetch(VERIFY_URL, {method: "POST", headers: {"X-Teacher-Passcode": pass}, cache: "no-store"}).then(function(r){
+      go.disabled = false;
+      if(r.status === 200){
+        ss(function(){ sessionStorage.setItem(PASS_KEY, pass); sessionStorage.setItem(OK_KEY, "1"); });
+        say("");
+        mount();
+        return;
+      }
+      if(r.status === 401){ forget(); say(quiet ? "Enter the teacher passcode to continue." : "That passcode didn't work. Check it and try again.", quiet ? "" : "error"); }
+      else if(r.status === 429) say("Too many tries. Wait a minute, then try again.", "error");
+      else say("Could not check the passcode right now (error " + r.status + "). Try again in a minute.", "error");
+      input.value = "";
+      input.focus();
+    }, function(){
+      go.disabled = false;
+      // Offline: a passcode already verified in this tab may reopen the app (AI grading still needs the network).
+      if(ss(function(){ return sessionStorage.getItem(OK_KEY) === "1" && sessionStorage.getItem(PASS_KEY) === pass; })){ mount(); return; }
+      say("You seem to be offline. Connect to the internet to unlock Grade Along.", "error");
+    });
+  }
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    var pass = input.value;
+    if(!pass){ say("Enter the teacher passcode.", "error"); input.focus(); return; }
+    tryPass(pass, false);
+  });
+  document.getElementById("ga-lock").addEventListener("click", function(){
+    forget();
+    location.replace(location.pathname + location.search);
+  });
+  var saved = ss(function(){ return sessionStorage.getItem(PASS_KEY); });
+  if(saved) tryPass(saved, true); else input.focus();
 })();
-
 </script>
 <script>
 /* Offline + updates: register the site service worker; when a new version takes over an open tab, reload once. */

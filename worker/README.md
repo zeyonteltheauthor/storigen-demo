@@ -1,5 +1,7 @@
 # grade-along-api (Cloudflare Worker)
 
+`POST /verify` — checks `X-Teacher-Passcode` only and returns 200 `{ ok: true }` or 401 (same CORS and rate limit). Used by the Grade Along page gate.
+
 `POST /grade` — drafts Storigen Wonders rubric scores and feedback for Grade Along. The teacher approves or edits every row.
 
 - CORS: only `https://zeyonteltheauthor.github.io`.

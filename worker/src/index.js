@@ -228,6 +228,23 @@ async function callClaude(env, content, system = SYSTEM_PROMPT, schema = OUTPUT_
   return { input, model: data.model };
 }
 
+// Passcode check only (used by the Grade Along page gate). Same CORS and rate limit; never echoes the passcode.
+async function handleVerify(request, env, origin) {
+  if (!env.TEACHER_PASSCODE) return json({ error: "passcode not configured" }, 503, origin);
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  let allowed = true;
+  try {
+    if (env.RATE_LIMITER) allowed = (await env.RATE_LIMITER.limit({ key: "verify:" + ip })).success;
+    else allowed = memLimit(ip);
+  } catch { allowed = memLimit(ip); }
+  if (!allowed) return json({ error: "Too many tries. Wait a minute and try again." }, 429, origin);
+  const pass = request.headers.get("X-Teacher-Passcode") || "";
+  if (!pass || !(await safeEqual(pass, env.TEACHER_PASSCODE))) {
+    return json({ ok: false, error: "Wrong teacher passcode." }, 401, origin);
+  }
+  return json({ ok: true }, 200, origin);
+}
+
 async function handleGrade(request, env, origin) {
   if (!env.TEACHER_PASSCODE) return json({ error: "passcode not configured" }, 503, origin);
   if (!env.ANTHROPIC_API_KEY) return json({ error: "AI key not configured" }, 503, origin);
@@ -323,6 +340,12 @@ export default {
     }
     if (url.pathname === "/" && request.method === "GET") {
       return json({ service: "grade-along-api", ok: true, passcodeConfigured: !!env.TEACHER_PASSCODE }, 200, origin);
+    }
+    if (url.pathname === "/verify") {
+      if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
+      if (origin && origin !== ALLOWED_ORIGIN) return json({ error: "Origin not allowed." }, 403, origin);
+      try { return await handleVerify(request, env, origin); }
+      catch { return json({ error: "Server error." }, 500, origin); }
     }
     if (url.pathname === "/grade") {
       if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
