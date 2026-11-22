@@ -115,6 +115,7 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 .bulk-row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px}
 .bulk-row input[type=password]{font:inherit;color:var(--ink);background:var(--night);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:42px;min-width:220px}
 .bulk-row .primary{font-size:1.05rem;padding:10px 20px;min-height:48px}
+.bulk-tip{border-left:3px solid var(--gold);padding:6px 10px;background:#0a1020a8;border-radius:0 8px 8px 0;color:var(--warm)!important}
 .bulk-check{display:flex;align-items:center;gap:8px;font-size:.88rem;color:var(--sub);margin:4px 0 10px;font-weight:600}
 .from-cover{display:inline-block;margin-left:6px;font-size:.72rem;font-weight:750;padding:1px 7px;border-radius:999px;border:1px solid var(--violet);color:var(--violet);vertical-align:middle}
 .cover-note{font-size:.85rem;color:var(--warm);margin:0 0 8px}
@@ -225,7 +226,7 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 <div class="queue-actions">
 <button type="button" class="secondary" id="q-add">+ Add student</button>
 <button type="button" class="secondary" id="q-bulk">Bulk upload (one file per student)</button>
-<input id="q-bulk-files" type="file" accept="image/*,.heic,.heif,application/pdf" multiple hidden>
+<input id="q-bulk-files" type="file" accept="application/pdf,.pdf,image/*,.heic,.heif" multiple hidden>
 <button type="button" class="secondary" id="q-grade-all" hidden>Grade all with AI</button>
 <button type="button" class="secondary" id="q-print-all" hidden>Print all approved</button>
 <button type="button" class="secondary" id="q-remove" hidden>Remove this student</button>
@@ -234,11 +235,13 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 <div class="bulk-panel" id="q-bulk-panel" hidden>
 <h3 id="q-bulk-title">Students added</h3>
 <p id="q-bulk-msg"></p>
+<p class="bulk-tip" id="q-bulk-tip" hidden></p>
 <label class="bulk-check"><input type="checkbox" id="q-cover-on" checked> Read first name, grade, facilitator, and date from each cover sheet (page 1)</label>
 <div class="bulk-row">
 <div><label for="q-pass">Teacher passcode</label><input id="q-pass" type="password" autocomplete="off" maxlength="200" placeholder="Kept for this tab only"></div>
 <button type="button" class="primary" id="q-bulk-grade">Grade all with AI</button>
 <button type="button" class="secondary" id="q-read-covers">Read covers only</button>
+<button type="button" class="secondary" id="q-bulk-more">+ Add more files</button>
 <button type="button" class="secondary" id="q-bulk-hide">Hide</button>
 </div>
 </div>
@@ -258,7 +261,7 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 <div class="story-field"><label for="t-story">Story text</label><textarea id="t-story" spellcheck="true" placeholder="Paste or type the story here."></textarea></div>
 <div class="attach-field">
 <label for="t-files">Photos or a scanned PDF of the paper (up to 3 pages are sent to AI)</label>
-<input id="t-files" type="file" accept="image/*,.heic,.heif,application/pdf" multiple>
+<input id="t-files" type="file" accept="application/pdf,.pdf,image/*,.heic,.heif" multiple>
 <div class="attach-list" id="t-attach-list"></div>
 <p class="slot-note" id="t-slot-note" aria-live="polite"></p>
 </div>
@@ -294,7 +297,7 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 <p class="status" id="t-status">Not reviewed. Nothing is sent unless you press Grade with AI.</p>
 </section>
 </div>
-<footer class="version-label" id="ga-version">Grade Along v7</footer>
+<footer class="version-label" id="ga-version">Grade Along v8</footer>
 </div>
 
 </main>
@@ -843,10 +846,45 @@ function isEmptyStudent(st){
   return !hasPaper(st) && !st.scores.some(Boolean) && !(st.overall || "").trim() && (!(st.student || "").trim() || st.soft.student);
 }
 
-async function bulkAdd(fileList){
-  if(batchRunning) return;
-  const files = Array.from(fileList || []).filter((f) => isPdfFile(f) || isImageFile(f));
-  if(!files.length) return;
+// Phone pickers sometimes hand over files with no type and no ".pdf" in the name; look at the first bytes.
+async function sniffKind(file){
+  if(isPdfFile(file)) return "pdf";
+  if(isImageFile(file)) return "image";
+  try{
+    const b = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+    const head = String.fromCharCode.apply(null, b);
+    if(head.startsWith("%PDF")) return "pdf";
+    if((b[0] === 0xFF && b[1] === 0xD8) || head.startsWith("\x89PNG") || head.startsWith("GIF8") || head.slice(8, 12) === "WEBP") return "image";
+    if(head.slice(4, 8) === "ftyp") return "image";   // HEIC
+  } catch(e){}
+  return "";
+}
+
+let bulkBusy = Promise.resolve();
+let bulkSession = {files: 0, students: 0, skipped: []};
+function bulkAdd(fileList){
+  // Copy the FileList right away (it empties when the input is reset), and run picks one after another
+  // so a second pick appends students instead of racing the first.
+  const picked = Array.from(fileList || []);
+  bulkBusy = bulkBusy.then(() => bulkAddInner(picked)).catch((e) => {
+    batchProg("Some files could not be added. Try adding them again.", "error");
+  });
+  return bulkBusy;
+}
+
+async function bulkAddInner(picked){
+  if(batchRunning || !picked.length) return;
+  const files = [], skipped = [];
+  for(const f of picked){
+    const kind = await sniffKind(f);
+    if(kind === "pdf") files.push(isPdfFile(f) ? f : new File([f], (f.name || "paper").replace(/\.[^.]*$/, "") + ".pdf", {type: "application/pdf"}));
+    else if(kind === "image") files.push(f);
+    else skipped.push(f.name || "file");
+  }
+  if($("q-bulk-panel").hidden) bulkSession = {files: 0, students: 0, skipped: []};
+  bulkSession.files += picked.length;
+  bulkSession.skipped.push(...skipped);
+  if(!files.length){ showBulkPanel(0, 0); return; }
   files.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: "base"}));
   syncForm();
   const tpl = state;
@@ -868,6 +906,7 @@ async function bulkAdd(fileList){
     st.files.push(await fileEntry(file, {bulk: true}));
     added.push(st);
   }
+  bulkSession.students += added.length;
   state = added[0];
   showStudent();
   saveDraft();
@@ -882,11 +921,21 @@ function showBulkPanel(nAdded, nPdf){
   const panel = $("q-bulk-panel");
   panel.hidden = false;
   const multi = students.filter((st) => st.files.some((f) => f.bulk && f.pdf && f.pdf.numPages > 1)).length;
-  $("q-bulk-title").textContent = "Added " + nAdded + " student" + (nAdded === 1 ? "" : "s") + " — one per file";
-  let msg = "Names come from the file names; click a student to fix one. Grade, date, and facilitator were copied from the student you had open. ";
-  if(nPdf) msg += multi ? ("Page 1 of each multi-page PDF is treated as the STORIGEN cover sheet: it is not graded, and the next pages (up to 3) are ticked. Please click through and check the ticks. ") : "Up to 3 pages per PDF are ticked for AI. Please check the ticks. ";
-  msg += "When you are ready, press Grade all with AI. Each student's draft still needs your approval.";
+  const n = bulkSession.students;
+  $("q-bulk-title").textContent = n ? ("Added " + n + " student" + (n === 1 ? "" : "s") + " — one per file · " + students.length + " in this session") : "No students added";
+  let msg = "";
+  if(bulkSession.skipped.length) msg += "Skipped " + bulkSession.skipped.length + " file" + (bulkSession.skipped.length === 1 ? "" : "s") + " that are not a PDF or photo: " + bulkSession.skipped.slice(0, 5).join(", ") + ". ";
+  if(n){
+    msg += "Names come from the file names; tap a student to fix one. Grade, date, and facilitator were copied from the student you had open. ";
+    if(multi) msg += "Page 1 of each multi-page PDF is treated as the STORIGEN cover sheet: it is not graded, and the next pages (up to 3) are ticked. ";
+    else if(nPdf) msg += "Up to 3 pages per PDF are ticked for AI. ";
+    msg += n > 1 ? "Tap each student in the list below to check their pages. " : "";
+    msg += "When you are ready, press Grade all with AI. Each student's draft still needs your approval.";
+  }
   $("q-bulk-msg").textContent = msg;
+  const tip = $("q-bulk-tip");
+  tip.hidden = bulkSession.files > 1;
+  tip.textContent = "Only 1 file came through. Phone file pickers often take one file per tap. On Android, press and hold the first file, then tap the others, then tap Select or Open. On iPhone or iPad, tap Select (top right) first, then tap each file, then Open. You can also press + Add more files as many times as you like — each file you add becomes another student.";
   if(!$("q-pass").value) $("q-pass").value = $("ai-pass").value;
   renderQueue();
 }
@@ -1897,6 +1946,7 @@ $("q-bulk-files").addEventListener("change", (e) => {
 $("q-bulk-grade").addEventListener("click", gradeAll);
 $("q-read-covers").addEventListener("click", readCoversAll);
 $("q-bulk-hide").addEventListener("click", () => { $("q-bulk-panel").hidden = true; });
+$("q-bulk-more").addEventListener("click", () => $("q-bulk-files").click());
 $("q-cover-on").addEventListener("change", renderQueue);
 $("q-pass").addEventListener("input", () => { $("ai-pass").value = $("q-pass").value; });
 $("ai-pass").addEventListener("input", () => { $("q-pass").value = $("ai-pass").value; });
