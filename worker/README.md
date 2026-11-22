@@ -49,3 +49,7 @@ npx wrangler deploy
 
 ## Public demo (`POST /demo/grade`)
 Unauthenticated. Reuses the existing RATE_LIMITER with a `demo:` key prefix and caps about 3 papers per IP per calendar day (America/New_York) via the Cache API (a count only — never the paper). Same body shape as `/grade` (text and/or photos, optional rubric). No session, no D1 writes, no school usage consumption. CORS matches the other routes.
+
+
+## Feedback language
+`POST /grade` and `POST /demo/grade` accept `feedbackLanguage`: `en` (default), `es`, or `paper`. Row comments, overall feedback, and summaries are written in that language regardless of the paper. When the paper’s language differs, the draft may also include `storySummary`, `studentFacingFeedback`, and `paperLanguage`. Quoted phrases from the paper stay in the original, with a gloss in the feedback language.

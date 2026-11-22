@@ -279,6 +279,12 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 .demo-samples label:first-child{margin-top:0}
 .demo-samples select{width:100%;max-width:32rem;font:inherit;color:var(--ink);background:var(--night);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:42px}
 .demo-samples .demo-hint{margin:8px 0 0;color:var(--sub);font-size:.9rem}
+
+#t-feedback-lang-wrap{min-width:12rem}
+#t-story-summary-wrap,#t-student-facing-box{margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#0a1020a8}
+#t-story-summary-wrap h3,#t-student-facing-box h3{margin:0 0 6px;font-size:1rem;color:var(--warm)}
+#t-story-summary,#t-student-facing-text{margin:0;color:var(--ink);white-space:pre-wrap}
+#t-student-facing-wrap{margin-top:12px}
 @media print{
   @page{size:letter;margin:.5in}
   html:has(body.print-report){background:#fff!important;color-scheme:light}
@@ -296,12 +302,12 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 <a class="skip" href="#main">Skip to content</a>
 <header class="topbar">
   <div class="brand-lockup">
-    <a class="mark" href="../" aria-label="STORIGEN OS home">STORIGEN <span class="os">OS</span><span class="tm">™</span></a>
+    <a class="mark" id="ga-home" href="../" aria-label="STORIGEN OS home">STORIGEN <span class="os">OS</span><span class="tm">™</span></a>
     <span class="ga-wordmark">Grade Along</span>
   </div>
   <span class="badge" id="mode-badge">Private · teacher passcode</span>
   <button type="button" class="link-btn lock-btn" id="ga-lock" hidden>Lock</button>
-  <a class="link-btn" href="../">Back to demo</a>
+  <a class="link-btn" id="ga-back" href="../">Back to demo</a>
 </header>
 
 
@@ -330,7 +336,7 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 <p class="gate-msg" id="gate-msg" role="status" aria-live="polite"></p>
 <p class="gate-note">The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only, and each signed-in account has its own.</p>
 <p class="gate-note">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
-<p class="version-label">Grade Along v18</p>
+<p class="version-label">Grade Along v19</p>
 <p class="gate-powered">Powered by STORIGEN · Arrival House Media</p>
 </section>
 </main>
@@ -451,6 +457,12 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 <p>Grade Along AI drafts a level and a comment for <span id="ai-rubric-note">each of the four rows, plus overall feedback, using the Storigen Wonders rubric</span>. It uses the first name, grade, photos (up to 3) and/or the story text above.</p>
 <div class="ai-row">
 <div><label for="ai-pass">Teacher passcode</label><input id="ai-pass" type="password" autocomplete="off" maxlength="200" placeholder="Kept for this tab only"></div>
+<div id="t-feedback-lang-wrap"><label for="ai-feedback-lang">Feedback language</label>
+<select id="ai-feedback-lang">
+<option value="en" selected>English</option>
+<option value="es">Spanish</option>
+<option value="paper">Same as paper</option>
+</select></div>
 <button type="button" class="primary" id="ai-go">Grade with AI</button>
 </div>
 <p class="ai-status" id="ai-status" role="status" aria-live="polite"></p>
@@ -465,6 +477,17 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 <label for="t-overall">Feedback for the student</label>
 <textarea id="t-overall" spellcheck="true" placeholder="Write overall feedback, or use Grade with AI to draft it."></textarea>
 <div class="row-actions" id="t-overall-actions" hidden><button type="button" class="secondary" id="t-overall-approve">Approve feedback</button><button type="button" class="secondary" id="t-overall-edit">Edit</button></div>
+</div>
+<div id="t-story-summary-wrap" hidden>
+<h3 id="t-story-summary-title">What the story is about</h3>
+<p id="t-story-summary"></p>
+</div>
+<div id="t-student-facing-wrap" hidden>
+<label class="bulk-check"><input type="checkbox" id="t-student-facing-on"> Show student-facing feedback in the paper's language</label>
+<div id="t-student-facing-box" hidden>
+<h3>For the student</h3>
+<p id="t-student-facing-text"></p>
+</div>
 </div>
 <div class="actions">
 <button type="button" class="primary" id="t-approve" disabled>Approve review</button>
@@ -508,7 +531,7 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 <div id="owner-schools"></div>
 <p class="school-legal">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
 </section>
-<footer class="version-label" id="ga-version">Grade Along v18</footer>
+<footer class="version-label" id="ga-version">Grade Along v19</footer>
 </div>
 
 </main>
@@ -764,7 +787,10 @@ function blankStudent(){
     soft: {date: true},// field -> true when not typed by the teacher (inherited, from filename, or from cover); a cover may fill it
     coverRead: false,
     assess: "",        // "" = session default, or "pre" / "post"
-    preMatch: ""       // "" = match automatically, "none" = no pre scores, or a pre record id
+    preMatch: "",      // "" = match automatically, "none" = no pre scores, or a pre record id
+    storySummary: "",
+    studentFacingFeedback: "",
+    paperLanguage: ""
   };
 }
 const FIELD_IDS = {student: "t-name", grade: "t-grade", date: "t-date", facilitator: "t-facilitator"};
@@ -776,7 +802,8 @@ let sessionAssess = "pre";           // session default: "pre" | "post"
 const PRE_FILE_STORE = "storigen-os-grade-along-pre-loaded";
 const HISTORY_STORE = "storigen-os-grade-along-history";
 const WORKSPACE_MIGRATED = "storigen-os-grade-along-workspace-migrated-v14";
-const LOCAL_BASES = [RUBRIC_STORE, STORE, QUEUE_STORE, PRE_FILE_STORE, HISTORY_STORE];
+const FEEDBACK_LANG_STORE = "storigen-os-grade-along-feedback-lang";
+const LOCAL_BASES = [RUBRIC_STORE, STORE, QUEUE_STORE, PRE_FILE_STORE, HISTORY_STORE, FEEDBACK_LANG_STORE];
 const AI_URL = window.GA_DEMO
   ? "https://grade-along-api.storigen.workers.dev/demo/grade"
   : "https://grade-along-api.storigen.workers.dev/grade";
@@ -1259,7 +1286,7 @@ function serializeStudent(st, withFiles){
     auto: st.auto, soft: st.soft, coverRead: st.coverRead, assess: st.assess || "", preMatch: st.preMatch || "",
     scores: st.scores, feedback: st.feedback, starters: st.starters, approved: st.approved,
     rowStatus: st.rowStatus, aiDraft: st.aiDraft, overall: st.overall, overallStatus: st.overallStatus,
-    aiOverall: st.aiOverall, aiModel: st.aiModel, aiNote: st.aiNote,
+    aiOverall: st.aiOverall, aiModel: st.aiModel, aiNote: st.aiNote, storySummary: st.storySummary || "", studentFacingFeedback: st.studentFacingFeedback || "", paperLanguage: st.paperLanguage || "",
     files: st.files.map((f) => ({
       name: f.name, type: f.type, size: f.size,
       dataUrl: withFiles ? (f.dataUrl || null) : null,
@@ -1306,6 +1333,7 @@ function restoreStudent(d){
   st.overall = d.overall || "";
   st.overallStatus = ["ai","approved","edited"].includes(d.overallStatus) ? d.overallStatus : "";
   st.aiOverall = d.aiOverall || ""; st.aiModel = d.aiModel || ""; st.aiNote = d.aiNote || "";
+  st.storySummary = d.storySummary || ""; st.studentFacingFeedback = d.studentFacingFeedback || ""; st.paperLanguage = d.paperLanguage || "";
   const flags = (o) => { const r = {}; if(o && typeof o === "object") Object.keys(FIELD_IDS).forEach((k) => { if(o[k] === true) r[k] = true; }); return r; };
   st.auto = flags(d.auto);
   st.soft = d.soft ? flags(d.soft) : {};
@@ -1461,6 +1489,7 @@ function showStudent(){
   renderFiles();
   renderStatus();
   renderAssess();
+  renderLanguageExtras(state);
 }
 
 function releasePdfs(st){
@@ -2972,7 +3001,7 @@ async function requestDraft(st, pass, onStatus, withCover){
   if(st !== state) releasePdfs(st);
   onStatus("Grade Along AI is reading the paper… this can take up to a minute.");
   const rid = RUB.id;
-  const data = await postAI({firstName, grade, text: text || undefined, images: images.length ? images : undefined, coverImage, rubric: RUB.builtin ? undefined : rubricForApi(RUB)}, pass);
+  const data = await postAI({firstName, grade, text: text || undefined, images: images.length ? images : undefined, coverImage, rubric: RUB.builtin ? undefined : rubricForApi(RUB), feedbackLanguage: feedbackLang()}, pass);
   if(RUB.id !== rid || (data.rows || []).length !== WONDERS.length) throw aiError("The rubric changed while this paper was being graded. Grade it again.");
   return data;
 }
@@ -3144,6 +3173,9 @@ function applyAI(data, st = state){
   st.overallStatus = st.overall ? "ai" : "";
   st.aiModel = String(data.model || "");
   st.aiNote = String(data.transcriptionNote || "");
+  st.storySummary = String(data.storySummary || "");
+  st.studentFacingFeedback = String(data.studentFacingFeedback || "");
+  st.paperLanguage = String(data.paperLanguage || "");
   st.approved = false;
   st.error = "";
   if(st === state){
@@ -3152,6 +3184,7 @@ function applyAI(data, st = state){
     tn.textContent = st.aiNote ? "Reading note from AI: " + st.aiNote : "";
     renderCategories();
     renderStatus();
+    renderLanguageExtras(st);
   }
   saveDraft();
 }
@@ -3162,7 +3195,47 @@ function safeName(){
   return "grade-along-" + n + "-" + d;
 }
 
+
+function feedbackLang(){
+  const sel = $("ai-feedback-lang");
+  const v = sel && sel.value;
+  return (v === "es" || v === "paper") ? v : "en";
+}
+function loadFeedbackLang(){
+  let v = "en";
+  try { v = localStorage.getItem(workKey(FEEDBACK_LANG_STORE)) || "en"; } catch(e){}
+  if(v !== "es" && v !== "paper") v = "en";
+  const sel = $("ai-feedback-lang");
+  if(sel) sel.value = v;
+}
+function saveFeedbackLang(){
+  try { localStorage.setItem(workKey(FEEDBACK_LANG_STORE), feedbackLang()); } catch(e){}
+}
+function renderLanguageExtras(st){
+  st = st || state;
+  const sumWrap = $("t-story-summary-wrap");
+  const sum = $("t-story-summary");
+  const title = $("t-story-summary-title");
+  const hasSum = !!(st && (st.storySummary || "").trim());
+  if(sumWrap){
+    sumWrap.hidden = !hasSum;
+    if(title) title.textContent = feedbackLang() === "es" ? "De qué trata el cuento" : "What the story is about";
+    if(sum) sum.textContent = hasSum ? st.storySummary : "";
+  }
+  const faceWrap = $("t-student-facing-wrap");
+  const faceBox = $("t-student-facing-box");
+  const faceText = $("t-student-facing-text");
+  const faceOn = $("t-student-facing-on");
+  const hasFace = !!(st && (st.studentFacingFeedback || "").trim());
+  if(faceWrap){
+    faceWrap.hidden = !hasFace;
+    if(faceText) faceText.textContent = hasFace ? st.studentFacingFeedback : "";
+    if(faceBox) faceBox.hidden = !hasFace || !(faceOn && faceOn.checked);
+  }
+}
+
 migratePasscodeWorkspace();
+loadFeedbackLang();
 loadDraft();
 enforceSchoolRubric();
 renderRubricUI();
@@ -3523,6 +3596,8 @@ $("t-csv").addEventListener("click", () => {
 });
 $("t-clear").addEventListener("click", clearAll);
 $("ai-go").addEventListener("click", gradeWithAI);
+if($("ai-feedback-lang")) $("ai-feedback-lang").addEventListener("change", () => { saveFeedbackLang(); renderLanguageExtras(state); });
+if($("t-student-facing-on")) $("t-student-facing-on").addEventListener("change", () => renderLanguageExtras(state));
 try { $("ai-pass").value = sessionStorage.getItem(PASS_KEY) || ""; } catch(e){}
 $("t-overall").addEventListener("input", () => {
   state.overall = $("t-overall").value;
@@ -3581,8 +3656,7 @@ function applyPublicDemo(){
     const wrap = inp.closest("div") || inp;
     wrap.hidden = true;
   });
-  const back = document.querySelector("a.link-btn[href='../']");
-  if(back) back.textContent = "STORIGEN OS";
+  if(window.wireHostLinks) window.wireHostLinks("demo");
   const badge = $("mode-badge");
   if(badge) badge.textContent = "Public demo";
   const practice = $("practice-view");
@@ -3653,6 +3727,29 @@ applyPublicDemo();
   var go = document.getElementById("gate-go");
   var schoolGo = document.getElementById("gate-school-go");
   var schoolHost = /^(www\.)?gradealong\.com$/i.test(location.hostname);
+  function wireHostLinks(mode){
+    var mark = document.getElementById("ga-home");
+    var back = document.getElementById("ga-back");
+    if(!schoolHost){
+      if(mode === "demo" && back) back.textContent = "STORIGEN OS";
+      return;
+    }
+    if(mark){
+      mark.setAttribute("href", "/");
+      mark.setAttribute("aria-label", "Grade Along home");
+    }
+    if(back){
+      if(mode === "demo"){
+        back.setAttribute("href", "/");
+        back.textContent = "School sign-in";
+      } else {
+        back.setAttribute("href", "/demo");
+        back.textContent = "Back to demo";
+      }
+    }
+  }
+  window.wireHostLinks = wireHostLinks;
+  wireHostLinks("gate");
   var showTeamPass = !schoolHost || /(?:^|[?&])team=1(?:&|$)/.test(location.search);
   if(!showTeamPass){
     form.hidden = true;
@@ -3690,6 +3787,7 @@ applyPublicDemo();
     }
     gaPracticeApp();
     gaTeacherApp();
+    if(!window.GA_DEMO) wireHostLinks("app");
   }
   function schoolBadge(data){
     var name = data && data.school && data.school.name;
