@@ -10,6 +10,13 @@
   ],
   "d1_databases": [
     { "binding": "DB", "database_name": "grade-along-db", "database_id": "03bd8272-5d93-480e-b75a-2652f5149d3a" }
-  ]
+  ],
+  "send_email": [{ "name": "EMAIL" }],
+  "vars": {
+    "INVITE_FROM": "invites@gradealong.com",
+    "INVITE_FROM_NAME": "Arrival House Media · Grade Along",
+    "INVITE_REPLY_TO": "info@arrivalhousemedia.com",
+    "INVITE_SIGNIN_URL": "https://gradealong.com/grade-along/"
+  }
   // Secrets (never commit): wrangler secret put ANTHROPIC_API_KEY ; wrangler secret put TEACHER_PASSCODE ; wrangler secret put SESSION_SECRET
 }

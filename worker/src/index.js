@@ -6,7 +6,15 @@
 // Passcode mode stores nothing. School accounts store first names and approved scores only —
 // never story text, photos or PDFs. Student paper content is never logged.
 
-const ALLOWED_ORIGIN = "https://zeyonteltheauthor.github.io";
+const ALLOWED_ORIGINS = [
+  "https://zeyonteltheauthor.github.io",
+  "https://gradealong.com",
+  "https://www.gradealong.com"
+];
+const ALLOWED_ORIGIN = ALLOWED_ORIGINS[0];
+function originAllowed(origin) {
+  return !!origin && ALLOWED_ORIGINS.includes(origin);
+}
 const MODEL = "claude-sonnet-5-5";
 const MAX_IMAGES = 3;
 const MAX_IMAGE_B64 = 6_000_000;   // ~4.5 MB decoded per image
@@ -106,8 +114,8 @@ function cors(origin) {
     "X-Content-Type-Options": "nosniff",
     "Cache-Control": "no-store"
   };
-  if (origin === ALLOWED_ORIGIN) {
-    h["Access-Control-Allow-Origin"] = ALLOWED_ORIGIN;
+  if (originAllowed(origin)) {
+    h["Access-Control-Allow-Origin"] = origin;
     h["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS";
     h["Access-Control-Allow-Headers"] = "Content-Type, X-Teacher-Passcode, X-Teacher-Session";
     h["Access-Control-Max-Age"] = "600";
@@ -620,6 +628,19 @@ async function handleGrade(request, env, origin) {
 
 // --- School accounts (Phase 1) ------------------------------------------------
 const INVITE_DAYS = 14;
+const TEAM_SIGNIN_URL = "https://zeyonteltheauthor.github.io/storigen-demo/grade-along/";
+const SCHOOL_SIGNIN_URL = "https://gradealong.com/grade-along/";
+const INVITE_SIGNIN_URL = TEAM_SIGNIN_URL;
+function inviteSigninUrl(env) {
+  const raw = cleanStr(env && env.INVITE_SIGNIN_URL, 200);
+  if (raw) return raw.endsWith("/") ? raw : raw + "/";
+  return INVITE_SIGNIN_URL;
+}
+
+const DEFAULT_INVITE_FROM = "invites@gradealong.com";
+const DEFAULT_INVITE_FROM_NAME = "Arrival House Media · Grade Along";
+const DEFAULT_INVITE_REPLY_TO = "info@arrivalhousemedia.com";
+
 const SESSION_DAYS = 30;
 const INVITE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -857,6 +878,90 @@ async function requireSchoolConfigured(env, origin) {
   return null;
 }
 
+
+function inviteFrom(env) {
+  return cleanEmail(env && env.INVITE_FROM) || DEFAULT_INVITE_FROM;
+}
+function inviteFromName(env) {
+  const n = cleanStr(env && env.INVITE_FROM_NAME, 80).replace(/[\r\n]+/g, " ");
+  return n || DEFAULT_INVITE_FROM_NAME;
+}
+function inviteReplyTo(env) {
+  return cleanEmail(env && env.INVITE_REPLY_TO) || DEFAULT_INVITE_REPLY_TO;
+}
+function escapeHtml(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function inviteEmailContent({ toName, schoolName, role, inviteCode, signinUrl }) {
+  const who = (toName || "there").trim() || "there";
+  const school = schoolName || "your school";
+  const roleLabel = role === "admin" ? "administrator" : "teacher";
+  const subject = "Your Grade Along invite for " + school;
+  const link = signinUrl || INVITE_SIGNIN_URL;
+  const text = [
+    "Hello " + who + ",",
+    "",
+    "You have been invited to Grade Along as a " + roleLabel + " for " + school + ".",
+    "",
+    "Open this page and sign in with your work email and the one-time invite code below:",
+    link,
+    "",
+    "Invite code: " + inviteCode,
+    "",
+    "The code expires in 14 days and can be used only once. If it expires, ask your school admin or Arrival House to send a new one.",
+    "",
+    "Grade Along is Arrival House Media's (STORIGEN) writing-assessment tool. The AI drafts scores and comments; you approve or edit every row.",
+    "",
+    "This message is from Arrival House Media (STORIGEN) · Grade Along. Questions? Write to " + DEFAULT_INVITE_REPLY_TO + ".",
+    "You received this email because someone invited you to Grade Along for your school."
+  ].join("\n");
+  const html = [
+    "<p>Hello " + escapeHtml(who) + ",</p>",
+    "<p>You have been invited to Grade Along as a " + escapeHtml(roleLabel) + " for " + escapeHtml(school) + ".</p>",
+    "<p>Open this page and sign in with your work email and the one-time invite code below:</p>",
+    "<p><a href=\"" + escapeHtml(link) + "\">" + escapeHtml(link) + "</a></p>",
+    "<p>Invite code: <strong>" + escapeHtml(inviteCode) + "</strong></p>",
+    "<p>The code expires in 14 days and can be used only once. If it expires, ask your school admin or Arrival House to send a new one.</p>",
+    "<p>Grade Along is Arrival House Media's (STORIGEN) writing-assessment tool. The AI drafts scores and comments; you approve or edit every row.</p>",
+    "<p style=\"color:#555;font-size:13px;\">This message is from Arrival House Media (STORIGEN) · Grade Along. Questions? Write to <a href=\"mailto:" + escapeHtml(DEFAULT_INVITE_REPLY_TO) + "\">" + escapeHtml(DEFAULT_INVITE_REPLY_TO) + "</a>.<br>You received this email because someone invited you to Grade Along for your school.</p>"
+  ].join("");
+  return { subject, text, html };
+}
+
+// Sends a transactional invite. Never includes student names, papers or scores.
+// Returns { sent, error } and never throws, so a mail failure still leaves the on-screen code.
+async function sendInviteEmail(env, details) {
+  const to = cleanEmail(details && details.to);
+  const inviteCode = String((details && details.inviteCode) || "");
+  if (!to || !inviteCode) return { sent: false, error: "Missing email or invite code." };
+  if (!env || !env.EMAIL || typeof env.EMAIL.send !== "function") {
+    return { sent: false, error: "Email sending is not set up yet." };
+  }
+  const { subject, text, html } = inviteEmailContent({
+    toName: details.toName,
+    schoolName: details.schoolName,
+    role: details.role,
+    inviteCode,
+    signinUrl: inviteSigninUrl(env)
+  });
+  try {
+    const toName = cleanStr(details.toName, 80).replace(/[\r\n]+/g, " ");
+    await env.EMAIL.send({
+      from: { email: inviteFrom(env), name: inviteFromName(env) },
+      to: toName ? { email: to, name: toName } : to,
+      replyTo: inviteReplyTo(env),
+      subject,
+      text,
+      html
+    });
+    return { sent: true };
+  } catch (e) {
+    console.log("invite email failed", (e && e.code) || "error");
+    return { sent: false, error: "The invite email could not be sent. Copy the code and send it yourself." };
+  }
+}
+
 async function issueInvite(env, schoolId, teacherId) {
   await dbRun(env, "DELETE FROM invites WHERE teacher_id = ? AND used_at IS NULL", teacherId);
   const code = randomInvite();
@@ -1078,10 +1183,21 @@ async function handleOwnerSchools(request, env, origin) {
   }
   try {
     const created = await createSchoolWithAdmin(env, body);
+    const email = await sendInviteEmail(env, {
+      to: created.admin.email,
+      toName: created.admin.name,
+      schoolName: created.school.name,
+      role: "admin",
+      inviteCode: created.inviteCode
+    });
+    const note = email.sent
+      ? "An invite email was sent to the admin. The code is also shown once below and expires in 14 days."
+      : "Copy the invite code now. It is shown only once and expires in 14 days. The email could not be sent, so share the code with the admin yourself.";
     return json({
       ok: true,
       ...created,
-      note: "Copy the invite code now. It is shown only once and expires in 14 days. Share it with the admin along with the email you entered."
+      email,
+      note
     }, 200, origin);
   } catch (e) {
     return json({ error: e.message || "Could not create the school." }, e.status || 500, origin);
@@ -1161,12 +1277,96 @@ async function handleSchoolTeachers(request, env, origin) {
     );
   }
   const inviteCode = await issueInvite(env, auth.school.id, teacher.id);
+  const mail = await sendInviteEmail(env, {
+    to: teacher.email,
+    toName: teacher.name,
+    schoolName: auth.school.name,
+    role: teacher.role,
+    inviteCode
+  });
+  const note = mail.sent
+    ? "An invite email was sent. The code is also shown once below and expires in 14 days."
+    : "Copy the invite code now. It is shown only once and expires in 14 days. The email could not be sent, so share the code with them yourself.";
   return json({
     ok: true,
     teacher: publicTeacher(teacher),
     inviteCode,
-    note: "Copy the invite code now. It is shown only once and expires in 14 days. Share it with the teacher and the email you entered."
+    email: mail,
+    note
   }, 200, origin);
+}
+
+
+async function resendInviteForTeacher(env, school, teacher) {
+  if (!teacher || !teacher.active) {
+    const err = new Error("That person is not an active teacher at this school.");
+    err.status = 404;
+    throw err;
+  }
+  const inviteCode = await issueInvite(env, school.id, teacher.id);
+  const email = await sendInviteEmail(env, {
+    to: teacher.email,
+    toName: teacher.name,
+    schoolName: school.name,
+    role: teacher.role,
+    inviteCode
+  });
+  const note = email.sent
+    ? "A new invite email was sent. The previous unused code no longer works. The new code is shown once and expires in 14 days."
+    : "A new invite code was created and the previous unused code no longer works. The email could not be sent, so copy the new code and send it yourself.";
+  return { ok: true, teacher: publicTeacher(teacher), school: publicSchool(school), inviteCode, email, note };
+}
+
+async function handleSchoolTeachersResend(request, env, origin) {
+  const blocked = await requireSchoolConfigured(env, origin);
+  if (blocked) return blocked;
+  const limited = await rateLimit(request, env, "school:");
+  if (limited) return limited(origin);
+  const auth = await authorize(request, env);
+  if (!auth.ok) return json({ error: auth.error }, auth.status, origin);
+  const denied = needAdmin(auth);
+  if (denied) return json({ error: denied.error }, denied.status, origin);
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
+  const email = cleanEmail(body.email);
+  const teacherId = cleanStr(body.teacherId, 80);
+  if (!email && !teacherId) return json({ error: "Choose a teacher to resend an invite to." }, 400, origin);
+  const teacher = email
+    ? await dbOne(env, "SELECT * FROM teachers WHERE school_id = ? AND email = ?", auth.school.id, email)
+    : await dbOne(env, "SELECT * FROM teachers WHERE school_id = ? AND id = ?", auth.school.id, teacherId);
+  try {
+    const out = await resendInviteForTeacher(env, auth.school, teacher);
+    return json(out, 200, origin);
+  } catch (e) {
+    return json({ error: e.message || "Could not resend the invite." }, e.status || 500, origin);
+  }
+}
+
+async function handleOwnerResend(request, env, origin) {
+  const blocked = await requireSchoolConfigured(env, origin);
+  if (blocked) return blocked;
+  const limited = await rateLimit(request, env, "owner:");
+  if (limited) return limited(origin);
+  const auth = await authorize(request, env);
+  if (!auth.ok) return json({ error: auth.error }, auth.status, origin);
+  if (auth.kind !== "passcode") return json({ error: "Only Arrival House can resend this invite." }, 403, origin);
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
+  const schoolId = cleanStr(body.schoolId, 80);
+  const email = cleanEmail(body.email);
+  const teacherId = cleanStr(body.teacherId, 80);
+  if (!schoolId || (!email && !teacherId)) return json({ error: "Choose a school and a person to resend an invite to." }, 400, origin);
+  const school = await dbOne(env, "SELECT * FROM schools WHERE id = ?", schoolId);
+  if (!school) return json({ error: "School not found." }, 404, origin);
+  const teacher = email
+    ? await dbOne(env, "SELECT * FROM teachers WHERE school_id = ? AND email = ?", school.id, email)
+    : await dbOne(env, "SELECT * FROM teachers WHERE school_id = ? AND id = ?", school.id, teacherId);
+  try {
+    const out = await resendInviteForTeacher(env, school, teacher);
+    return json(out, 200, origin);
+  } catch (e) {
+    return json({ error: e.message || "Could not resend the invite." }, e.status || 500, origin);
+  }
 }
 
 async function handleSchoolTeachersRemove(request, env, origin) {
@@ -1497,6 +1697,14 @@ async function routeSchool(url, request, env, origin) {
     if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
     return handleSchoolTeachers(request, env, origin);
   }
+  if (path === "/school/teachers/resend") {
+    if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
+    return handleSchoolTeachersResend(request, env, origin);
+  }
+  if (path === "/owner/schools/resend") {
+    if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
+    return handleOwnerResend(request, env, origin);
+  }
   if (path === "/school/teachers/remove") {
     if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
     return handleSchoolTeachersRemove(request, env, origin);
@@ -1534,12 +1742,12 @@ export default {
     const url = new URL(request.url);
     const origin = request.headers.get("Origin") || "";
     if (request.method === "OPTIONS") {
-      return new Response(null, { status: origin === ALLOWED_ORIGIN ? 204 : 403, headers: cors(origin) });
+      return new Response(null, { status: originAllowed(origin) ? 204 : 403, headers: cors(origin) });
     }
     if (url.pathname === "/" && request.method === "GET") {
       return json({ service: "grade-along-api", ok: true, passcodeConfigured: !!env.TEACHER_PASSCODE, schoolAccounts: !!(env.DB && env.SESSION_SECRET) }, 200, origin);
     }
-    if (origin && origin !== ALLOWED_ORIGIN && url.pathname !== "/") return json({ error: "Origin not allowed." }, 403, origin);
+    if (origin && !originAllowed(origin) && url.pathname !== "/") return json({ error: "Origin not allowed." }, 403, origin);
     try {
       const schoolRes = await routeSchool(url, request, env, origin);
       if (schoolRes) return schoolRes;
@@ -1548,25 +1756,25 @@ export default {
     }
     if (url.pathname === "/split") {
       if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
-      if (origin && origin !== ALLOWED_ORIGIN) return json({ error: "Origin not allowed." }, 403, origin);
+      if (origin && !originAllowed(origin)) return json({ error: "Origin not allowed." }, 403, origin);
       try { return await handleSplit(request, env, origin); }
       catch { return json({ error: "Server error." }, 500, origin); }
     }
     if (url.pathname === "/verify") {
       if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
-      if (origin && origin !== ALLOWED_ORIGIN) return json({ error: "Origin not allowed." }, 403, origin);
+      if (origin && !originAllowed(origin)) return json({ error: "Origin not allowed." }, 403, origin);
       try { return await handleVerify(request, env, origin); }
       catch { return json({ error: "Server error." }, 500, origin); }
     }
     if (url.pathname === "/rubric") {
       if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
-      if (origin && origin !== ALLOWED_ORIGIN) return json({ error: "Origin not allowed." }, 403, origin);
+      if (origin && !originAllowed(origin)) return json({ error: "Origin not allowed." }, 403, origin);
       try { return await handleRubric(request, env, origin); }
       catch { return json({ error: "Server error." }, 500, origin); }
     }
     if (url.pathname === "/grade") {
       if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
-      if (origin && origin !== ALLOWED_ORIGIN) return json({ error: "Origin not allowed." }, 403, origin);
+      if (origin && !originAllowed(origin)) return json({ error: "Origin not allowed." }, 403, origin);
       try { return await handleGrade(request, env, origin); }
       catch { return json({ error: "Server error." }, 500, origin); }
     }
@@ -1574,4 +1782,4 @@ export default {
   }
 };
 
-export { parseSplitOutput };
+export { parseSplitOutput, sendInviteEmail, inviteEmailContent, inviteFrom, inviteFromName, inviteReplyTo, inviteSigninUrl, originAllowed, ALLOWED_ORIGINS };

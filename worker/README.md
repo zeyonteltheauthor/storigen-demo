@@ -36,3 +36,12 @@ npx wrangler secret put TEACHER_PASSCODE
 npx wrangler secret put SESSION_SECRET
 npx wrangler deploy
 ```
+
+
+## Invite emails (v16)
+
+- `POST /owner/schools` and `POST /school/teachers` send an invite email when the `EMAIL` binding is configured, and always return the one-time `inviteCode` plus `email: { sent, error }`.
+- `POST /school/teachers/resend` (school admin) and `POST /owner/schools/resend` (Arrival House passcode) issue a new code, invalidate the previous unused code, and email it.
+- Configurable vars: `INVITE_FROM` (default `invites@gradealong.com`), `INVITE_FROM_NAME`, `INVITE_REPLY_TO` (default `info@arrivalhousemedia.com`), `INVITE_SIGNIN_URL`.
+- Emails never include student names, papers or scores.
+- CORS allows `https://zeyonteltheauthor.github.io`, `https://gradealong.com` and `https://www.gradealong.com`.

@@ -2,7 +2,7 @@
    Relative URLs so the worker works under /storigen-demo/ as well as at the root.
    Pages (navigations and .html) are network-first so an open tab always gets the newest version;
    static assets are cache-first. Bump CACHE on every release. */
-var CACHE = 'storigen-os-v15';
+var CACHE = 'storigen-os-v16';
 var ASSETS = [
   './',
   './index.html',
