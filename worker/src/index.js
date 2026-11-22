@@ -305,7 +305,10 @@ async function callClaude(env, content, system = SYSTEM_PROMPT, schema = OUTPUT_
   if (!block) throw new Error("no output");
   let input;
   try { input = JSON.parse(block.text); } catch { throw new Error("bad json"); }
-  return { input, model: data.model };
+  const usage = data.usage && typeof data.usage === "object"
+    ? { input_tokens: Number(data.usage.input_tokens) || 0, output_tokens: Number(data.usage.output_tokens) || 0 }
+    : null;
+  return { input, model: data.model, usage };
 }
 
 // ---------- Custom rubrics (school or district rubrics) ----------
@@ -921,7 +924,7 @@ async function readTestImages(env, content, shape) {
   const prompt = "The student's test is in the photo(s) above, in page order.\nQuestions to read, in order:\n" + listed + "\nReturn one answer object per question, including blanks.";
   content.push({ type: "text", text: prompt });
   const out = await callClaude(env, content, TEST_READ_SYSTEM, testReadSchema(), 4000);
-  return { ...validateTestRead(out.input, shape), model: out.model || MODEL };
+  return { ...validateTestRead(out.input, shape), model: out.model || MODEL, usage: out.usage || null };
 }
 
 async function collectTestImages(body) {
@@ -1004,7 +1007,7 @@ async function handleTestRead(request, env, origin) {
         const slot = await consumePaper(env, auth);
         usageExtra = extraUsage(slot.ok ? slot.usage : (slot.usage || usageView(auth.school)));
       }
-      return json({ ok: true, model: read.model, answers: read.answers, transcriptionNote: read.transcriptionNote, note: "Answers read. The key scores them on this device.", ...extra, ...usageExtra }, 200, origin);
+      return json({ ok: true, model: read.model, answers: read.answers, transcriptionNote: read.transcriptionNote, note: "Answers read. The key scores them on this device.", usage: read.usage || null, ...extra, ...usageExtra }, 200, origin);
     } catch (e) {
       lastErr = e;
       if (e.status && e.status < 500 && e.status !== 429) break;
@@ -1046,7 +1049,8 @@ async function handleDemoTestRead(request, env, origin) {
         transcriptionNote: read.transcriptionNote,
         note: "Answers read. Public demo — not stored. The key scores them on this device.",
         demo: true,
-        remaining: Math.max(0, DEMO_DAILY_LIMIT - slot.count)
+        remaining: Math.max(0, DEMO_DAILY_LIMIT - slot.count),
+        usage: read.usage || null
       }, 200, origin);
     } catch (e) {
       lastErr = e;
