@@ -59,6 +59,8 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 .descriptor b{color:var(--warm);font-weight:700}
 .teacher-cat{border:1px solid var(--line);border-radius:12px;padding:13px;background:#0a1020a8;margin-bottom:10px}
 .teacher-cat h3{font-size:1rem;margin:0 0 4px;color:var(--warm)}
+.version-label{margin:18px 0 0;text-align:center;font-size:.8rem;color:var(--muted);letter-spacing:.04em}
+@media print{.version-label{display:none!important}}
 .principle{position:relative;text-align:center;font-family:var(--display);font-size:12.5px;font-weight:500;letter-spacing:.08em;color:var(--text-2);padding:8px 12px 18px}
 .principle::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px 2px rgba(209,169,84,.6);margin-right:10px;vertical-align:middle}
 @media(max-width:760px){.meta-grid{grid-template-columns:1fr}.modes{width:100%;border-radius:16px}.topbar .badge{white-space:normal}}
@@ -292,6 +294,7 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 <p class="status" id="t-status">Not reviewed. Nothing is sent unless you press Grade with AI.</p>
 </section>
 </div>
+<footer class="version-label" id="ga-version">Grade Along v7</footer>
 </div>
 
 </main>
@@ -1953,6 +1956,29 @@ if(params.get("mode") === "grade" || params.get("mode") === "teacher"){
 }
 })();
 
+</script>
+<script>
+/* Offline + updates: register the site service worker; when a new version takes over an open tab, reload once. */
+(function(){
+  if(!("serviceWorker" in navigator)) return;
+  var hadController = !!navigator.serviceWorker.controller;
+  var reloading = false;
+  navigator.serviceWorker.addEventListener("controllerchange", function(){
+    if(!hadController){ hadController = true; return; }      // first install: page is already fresh
+    if(reloading) return;
+    var KEY = "storigen-sw-reloaded-at", now = Date.now(), last = 0;
+    try { last = +sessionStorage.getItem(KEY) || 0; } catch(e){}
+    if(now - last < 10000) return;                             // never loop
+    try { sessionStorage.setItem(KEY, String(now)); } catch(e){}
+    reloading = true;
+    location.reload();
+  });
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("../sw.js", {updateViaCache: "none"}).then(function(reg){
+      document.addEventListener("visibilitychange", function(){ if(document.visibilityState === "visible") reg.update().catch(function(){}); });
+    }).catch(function(){});
+  });
+})();
 </script>
 <div id="print-root" aria-hidden="true"></div>
 </body>

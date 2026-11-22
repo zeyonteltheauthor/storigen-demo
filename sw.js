@@ -1,6 +1,8 @@
 /* STORIGEN OS demo — offline cache.
-   Relative URLs so the worker works under /storigen-demo/ as well as at the root. */
-var CACHE = 'storigen-os-v6';
+   Relative URLs so the worker works under /storigen-demo/ as well as at the root.
+   Pages (navigations and .html) are network-first so an open tab always gets the newest version;
+   static assets are cache-first. Bump CACHE on every release. */
+var CACHE = 'storigen-os-v7';
 var ASSETS = [
   './',
   './index.html',
@@ -25,7 +27,8 @@ var ASSETS = [
 self.addEventListener('install', function (event) {
   event.waitUntil(
     caches.open(CACHE).then(function (cache) {
-      return cache.addAll(ASSETS);
+      // cache: 'reload' skips the browser HTTP cache so a new release never precaches stale files.
+      return cache.addAll(ASSETS.map(function (u) { return new Request(u, { cache: 'reload' }); }));
     }).then(function () {
       return self.skipWaiting();
     })
@@ -55,6 +58,30 @@ function isWorkerScript(req) {
   }
 }
 
+function isPage(req, url) {
+  return req.mode === 'navigate' || req.destination === 'document' ||
+    url.pathname.endsWith('/') || url.pathname.endsWith('.html');
+}
+
+function putInCache(key, res) {
+  if (res && res.ok && res.type === 'basic') {
+    var copy = res.clone();
+    caches.open(CACHE).then(function (cache) { return cache.put(key, copy); });
+  }
+  return res;
+}
+
+function offlinePage(req) {
+  return caches.match(req, { ignoreSearch: true }).then(function (hit) {
+    if (hit) return hit;
+    return caches.match('./index.html').then(function (page) {
+      return page || caches.match('./');
+    }).then(function (page) {
+      return page || new Response('', { status: 504, statusText: 'Offline' });
+    });
+  });
+}
+
 self.addEventListener('fetch', function (event) {
   var req = event.request;
   if (req.method !== 'GET' || isWorkerScript(req)) return;
@@ -62,21 +89,23 @@ self.addEventListener('fetch', function (event) {
   try { url = new URL(req.url); } catch (e) { return; }
   if (url.origin !== self.location.origin) return;
 
+  if (isPage(req, url)) {
+    // Network-first: newest page when online, cached copy when offline.
+    var key = url.origin + url.pathname;   // one cached copy per page, whatever the ?query
+    event.respondWith(
+      fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }).then(function (res) {
+        return putInCache(key, res);
+      }).catch(function () { return offlinePage(req); })
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(req).then(function (cached) {
       if (cached) return cached;
       return fetch(req).then(function (res) {
-        if (res && res.ok && res.type === 'basic') {
-          var copy = res.clone();
-          caches.open(CACHE).then(function (cache) { return cache.put(req, copy); });
-        }
-        return res;
+        return putInCache(req, res);
       }).catch(function () {
-        if (req.mode === 'navigate') {
-          return caches.match('./index.html').then(function (page) {
-            return page || caches.match('./');
-          });
-        }
         return new Response('', { status: 504, statusText: 'Offline' });
       });
     })

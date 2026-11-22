@@ -798,6 +798,22 @@
   var skyT; window.addEventListener('resize', function () { clearTimeout(skyT); skyT = setTimeout(paintSky, 200); });
 
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(function () {});
+    var hadController = !!navigator.serviceWorker.controller;
+    var reloading = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!hadController) { hadController = true; return; }
+      if (reloading) return;
+      var KEY = 'storigen-sw-reloaded-at', now = Date.now(), last = 0;
+      try { last = +sessionStorage.getItem(KEY) || 0; } catch (e) {}
+      if (now - last < 10000) return;
+      try { sessionStorage.setItem(KEY, String(now)); } catch (e) {}
+      reloading = true;
+      location.reload();
+    });
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(function (reg) {
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') reg.update().catch(function () {});
+      });
+    }).catch(function () {});
   }
 })();

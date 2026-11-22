@@ -26,7 +26,7 @@ In **Grade a paper** (`grade-along/?mode=grade`), the teacher enters the passcod
 
 ## Works offline
 
-After one visit over http(s), the app runs with no network. `sw.js` precaches the page, styles, scripts, fonts, manifest, and icons using relative paths (so it works at `/storigen-demo/`), then serves them cache-first from a versioned cache and deletes older caches on activate. `manifest.webmanifest` makes it installable: name STORIGEN OS, short name STORIGEN, standalone display, ink `#1F2937` and parchment `#F7F4EC`. Icons are a lantern-gold `#D1A954` S on ink.
+After one visit over http(s), the app runs with no network. `sw.js` precaches the page, styles, scripts, fonts, manifest, and icons using relative paths (so it works at `/storigen-demo/`), then serves static assets cache-first and pages (navigations and `.html`) network-first, falling back to the cache offline, so an open tab always gets the newest page. It deletes older caches on activate. When a new version takes control of an open tab, the page reloads once (guarded against loops). Bump `CACHE` in `sw.js` and the **Grade Along vN** label in the teacher footer on each release. `manifest.webmanifest` makes it installable: name STORIGEN OS, short name STORIGEN, standalone display, ink `#1F2937` and parchment `#F7F4EC`. Icons are a lantern-gold `#D1A954` S on ink.
 
 A service worker only registers on http(s), including this folder on a local static server or on GitHub Pages. Opening `index.html` as a file still runs the app; it just cannot install the worker.
 
