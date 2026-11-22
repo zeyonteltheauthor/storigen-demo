@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0A1020">
 <meta name="color-scheme" content="dark">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'unsafe-inline'; font-src data:; img-src data: blob:; frame-src blob: data:; connect-src https://grade-along-api.storigen.workers.dev; form-action 'none'; base-uri 'none'; object-src 'none'; worker-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src data:; img-src data: blob:; frame-src blob: data:; connect-src 'self' https://grade-along-api.storigen.workers.dev; form-action 'none'; base-uri 'none'; object-src 'none'; worker-src 'self' blob:">
 <title>Grade Along | STORIGEN OS</title>
 <meta name="description" content="STORIGEN OS Grade Along: practice samples and a teacher mode where Grade Along AI drafts rubric scores and feedback, and the teacher approves or edits every row. Human first. The teacher decides.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230A1020'/%3E%3Ccircle cx='16' cy='16' r='9' fill='%23D1A954' opacity='.25'/%3E%3Ccircle cx='16' cy='16' r='4.5' fill='%23F2DDA4'/%3E%3C/svg%3E">
@@ -43,6 +43,13 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 .story-field textarea{min-height:220px;resize:vertical;font-family:Georgia,serif;font-size:1.05rem;line-height:1.7}
 .attach-list{display:grid;gap:12px;margin:12px 0 0}
 .attach-item{border:1px solid var(--line);border-radius:12px;padding:10px;background:#0a1020a8}
+.pdf-note{font-size:.88rem;color:var(--sub);margin:0 0 8px}.pdf-note strong{color:var(--warm)}
+.pdf-pages{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.pdf-page{position:relative;display:block;margin:0;border:1px solid var(--line);border-radius:9px;padding:6px;background:#060913;cursor:pointer;font-size:.8rem;color:var(--sub);text-align:center}
+.pdf-page img{display:block;width:100%;height:auto;max-height:none;border-radius:5px;background:#fff;margin-bottom:4px}
+.pdf-page input{margin-right:4px;vertical-align:middle}
+.pdf-page[data-on=true]{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset;color:var(--warm)}
+.slot-note{font-size:.85rem;color:var(--muted);margin:8px 0 0}.slot-note[data-kind=error]{color:#ffb4a8}
 .attach-item img,.attach-item iframe{display:block;width:100%;max-height:420px;border:0;border-radius:8px;background:#060913}
 .attach-name{font-size:.8rem;color:var(--muted);margin:0 0 8px}
 .level-picks{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
@@ -139,7 +146,7 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 
 <div id="teacher-view" hidden>
 <div class="hero"><div class="cap">Grade Along</div><h1>Grade a paper</h1><p>Grade Along AI reads the paper and drafts a level and comment for each rubric row. You approve or edit every row and the feedback. The teacher decides.</p></div>
-<p class="privacy"><strong>Papers stay on this device until you press Grade with AI.</strong> Then only the photos or story text, the first name, and the grade are sent to the Grade Along AI service (Claude by Anthropic, through Cloudflare) to draft scores. Grade Along does not store them. Use first names only. A draft can be saved in this browser only; use Clear all to remove it.</p>
+<p class="privacy"><strong>Papers stay on this device until you press Grade with AI.</strong> Then only the photos (or the PDF pages you tick, turned into pictures here), the story text, the first name, and the grade are sent to the Grade Along AI service (Claude by Anthropic, through Cloudflare) to draft scores. Grade Along does not store them. Use first names only. A draft can be saved in this browser only; use Clear all to remove it.</p>
 <div class="grid">
 <section class="panel" aria-labelledby="paper-heading">
 <div class="titleline"><div><h2 id="paper-heading">Student paper</h2><div class="eyebrow">Private teacher review · not published</div></div></div>
@@ -151,9 +158,10 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 </div>
 <div class="story-field"><label for="t-story">Story text</label><textarea id="t-story" spellcheck="true" placeholder="Paste or type the story here."></textarea></div>
 <div class="attach-field">
-<label for="t-files">Photos of the paper (up to 3 pages are sent to AI; PDFs stay on this device only)</label>
+<label for="t-files">Photos or a scanned PDF of the paper (up to 3 pages are sent to AI)</label>
 <input id="t-files" type="file" accept="image/*,.heic,.heif,application/pdf" multiple>
 <div class="attach-list" id="t-attach-list"></div>
+<p class="slot-note" id="t-slot-note" aria-live="polite"></p>
 </div>
 <div class="ai-box" id="ai-box" aria-labelledby="ai-heading">
 <h3 id="ai-heading">Grade with AI</h3>
@@ -606,12 +614,8 @@ function renderFiles(){
       img.alt = "Scan of " + f.name;
       img.src = f.url;
       item.append(img);
-    } else if((f.type || "") === "application/pdf" || /\.pdf$/i.test(f.name)){
-      const frame = document.createElement("iframe");
-      frame.title = "PDF scan " + f.name;
-      frame.src = f.url;
-      frame.style.minHeight = "360px";
-      item.append(frame);
+    } else if(isPdfFile(f)){
+      item.append(renderPdfPicker(f));
     } else {
       const p = document.createElement("p");
       p.textContent = "Preview is not available for this file type, but it is attached on this device.";
@@ -619,6 +623,7 @@ function renderFiles(){
     }
     list.append(item);
   });
+  renderSlotNote();
 }
 
 function revokeFiles(){
@@ -645,11 +650,13 @@ async function addFiles(fileList){
       size: file.size,
       url: dataUrl || blobUrl,
       blobUrl,
-      dataUrl
+      dataUrl,
+      file
     });
   }
   renderFiles();
   saveDraft();
+  state.files.filter((f) => isPdfFile(f) && !f.pdf).forEach((f) => { preparePdf(f); });
 }
 
 function collectDraft(){
@@ -850,6 +857,179 @@ function isImageFile(f){
   return (f.type || "").startsWith("image/") || /\.(heic|heif|jpe?g|png|webp|gif)$/i.test(f.name || "");
 }
 
+/* ---------- Scanned PDFs: rendered to page pictures on this device with vendored pdf.js ---------- */
+const MAX_AI_IMAGES = 3;
+const PDFJS_BASE = new URL("vendor/pdfjs/", location.href).href;
+let pdfjsPromise = null;
+
+function isPdfFile(f){
+  return (f.type || "") === "application/pdf" || /\.pdf$/i.test(f.name || "");
+}
+
+function loadPdfjs(){
+  if(!pdfjsPromise){
+    pdfjsPromise = import(PDFJS_BASE + "pdf.min.mjs").then((lib) => {
+      lib.GlobalWorkerOptions.workerSrc = PDFJS_BASE + "pdf.worker.min.mjs";
+      return lib;
+    }).catch((e) => { pdfjsPromise = null; throw e; });
+  }
+  return pdfjsPromise;
+}
+
+function dataUrlToBytes(u){
+  const bin = atob(u.slice(u.indexOf(",") + 1));
+  const out = new Uint8Array(bin.length);
+  for(let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+async function openPdf(f){
+  if(f.pdfDoc) return f.pdfDoc;
+  const lib = await loadPdfjs();
+  const data = f.file ? new Uint8Array(await f.file.arrayBuffer()) : dataUrlToBytes(f.dataUrl || "");
+  f.pdfDoc = await lib.getDocument({
+    data,
+    wasmUrl: PDFJS_BASE + "wasm/",
+    isEvalSupported: false,
+    enableXfa: false,
+    stopAtErrors: false
+  }).promise;
+  return f.pdfDoc;
+}
+
+// Render one page to a JPEG data URL, long edge = maxEdge px, on white.
+async function renderPdfPage(doc, n, maxEdge, quality){
+  const page = await doc.getPage(n);
+  const base = page.getViewport({scale: 1});
+  const viewport = page.getViewport({scale: maxEdge / Math.max(base.width, base.height)});
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.floor(viewport.width));
+  c.height = Math.max(1, Math.floor(viewport.height));
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, c.width, c.height);
+  await page.render({canvas: c, canvasContext: ctx, viewport, background: "#ffffff"}).promise;
+  let q = quality, out = c.toDataURL("image/jpeg", q);
+  while(out.length > 4500000 && q > 0.4){ q -= 0.15; out = c.toDataURL("image/jpeg", q); }
+  page.cleanup();
+  c.width = c.height = 0;
+  return out;
+}
+
+// A page is an obvious cover when its text layer says so (scans without text are left to the teacher).
+async function looksLikeCover(doc, n){
+  try{
+    const page = await doc.getPage(n);
+    const tc = await page.getTextContent();
+    const text = tc.items.map((it) => it.str || "").join(" ");
+    return /cover\s*sheet|cover\s*page|title\s*page/i.test(text);
+  } catch(e){ return false; }
+}
+
+function selectedPdfPages(f){
+  return f.pdf && f.pdf.pages ? f.pdf.pages.filter((p) => p.selected) : [];
+}
+
+function aiSlotsUsed(except){
+  const photos = state.files.filter((f) => isImageFile(f)).length;
+  const pages = state.files.filter((f) => isPdfFile(f) && f !== except).reduce((a, f) => a + selectedPdfPages(f).length, 0);
+  return photos + pages;
+}
+
+function renderSlotNote(msg, kind){
+  const el = $("t-slot-note");
+  if(!el) return;
+  const used = aiSlotsUsed();
+  const hasAny = state.files.length > 0;
+  el.dataset.kind = kind || (used > MAX_AI_IMAGES ? "error" : "");
+  el.textContent = msg || (hasAny ? ("Pictures going to AI: " + used + " of " + MAX_AI_IMAGES + "." + (used > MAX_AI_IMAGES ? " Untick pages so no more than 3 are picked." : "")) : "");
+}
+
+async function preparePdf(f){
+  f.pdf = {status: "loading", pages: [], numPages: 0, coverSkipped: []};
+  renderFiles();
+  try{
+    const doc = await openPdf(f);
+    const n = doc.numPages;
+    f.pdf.numPages = n;
+    const thumbs = Math.min(n, 40);
+    for(let i = 1; i <= n; i++){
+      const thumb = i <= thumbs ? await renderPdfPage(doc, i, 320, 0.7) : null;
+      const cover = n > 1 ? await looksLikeCover(doc, i) : false;
+      f.pdf.pages.push({n: i, thumb, cover, selected: false});
+    }
+    const free = Math.max(0, MAX_AI_IMAGES - aiSlotsUsed(f));
+    let picks = f.pdf.pages.filter((p) => !p.cover);
+    if(!picks.length) picks = f.pdf.pages.slice();
+    picks.slice(0, free).forEach((p) => { p.selected = true; });
+    f.pdf.coverSkipped = f.pdf.pages.filter((p) => p.cover).map((p) => p.n);
+    f.pdf.status = "ready";
+  } catch(e){
+    f.pdf.status = "error";
+  }
+  renderFiles();
+}
+
+function pageList(nums){
+  if(!nums.length) return "none";
+  return nums.join(", ");
+}
+
+function renderPdfPicker(f){
+  const box = document.createElement("div");
+  const note = document.createElement("p");
+  note.className = "pdf-note";
+  box.append(note);
+  if(!f.pdf || f.pdf.status === "loading"){
+    note.textContent = "Reading the PDF on this device…";
+    return box;
+  }
+  if(f.pdf.status === "error"){
+    note.textContent = "This PDF could not be opened here. Take a photo or screenshot of each page and add those instead.";
+    return box;
+  }
+  const n = f.pdf.numPages;
+  const picked = selectedPdfPages(f).map((p) => p.n);
+  let msg = "<strong>The PDF stays on this device.</strong> Only the pages you tick are sent to AI, as pictures. ";
+  msg += n === 1 ? "This PDF has 1 page." : ("This PDF has " + n + " pages. ");
+  if(n > 1) msg += "Picked: page" + (picked.length === 1 ? " " : "s ") + pageList(picked) + ". ";
+  if(f.pdf.coverSkipped.length) msg += "Skipped page " + pageList(f.pdf.coverSkipped) + " (looks like a cover sheet). ";
+  if(n > MAX_AI_IMAGES) msg += "Up to 3 pages can be sent; tick the story pages you want graded. ";
+  if(n > 1) msg += "Untick a cover sheet if it is picked — the story pages are all AI needs.";
+  note.innerHTML = msg;
+  const grid = document.createElement("div");
+  grid.className = "pdf-pages";
+  grid.setAttribute("role", "group");
+  grid.setAttribute("aria-label", "Pages of " + f.name + " to send to AI");
+  f.pdf.pages.forEach((p) => {
+    const lab = document.createElement("label");
+    lab.className = "pdf-page";
+    lab.dataset.on = p.selected ? "true" : "false";
+    if(p.thumb){
+      const img = document.createElement("img");
+      img.src = p.thumb;
+      img.alt = "Page " + p.n;
+      lab.append(img);
+    }
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = p.selected;
+    cb.addEventListener("change", () => {
+      if(cb.checked && aiSlotsUsed() >= MAX_AI_IMAGES){
+        cb.checked = false;
+        renderSlotNote("Only 3 pictures can go to AI. Untick another page first.", "error");
+        return;
+      }
+      p.selected = cb.checked;
+      renderFiles();
+    });
+    lab.append(cb, document.createTextNode("Page " + p.n + (p.cover ? " · cover" : "")));
+    grid.append(lab);
+  });
+  box.append(grid);
+  return box;
+}
+
 async function gradeWithAI(){
   const pass = $("ai-pass").value;
   if(!pass){ setAiStatus("Enter the teacher passcode first.", "error"); $("ai-pass").focus(); return; }
@@ -858,24 +1038,43 @@ async function gradeWithAI(){
   const grade = $("t-grade").value.trim();
   const text = $("t-story").value.trim();
   const imgs = state.files.filter(isImageFile);
-  const pdfs = state.files.filter((f) => !isImageFile(f));
-  if(!imgs.length && !text){
-    setAiStatus(pdfs.length ? "AI reads photos or typed text. Add a photo (JPG, PNG, or HEIC) of each page, or paste the story text." : "Add a photo of the paper or paste the story text first.", "error");
+  const pdfs = state.files.filter(isPdfFile);
+  if(pdfs.some((f) => !f.pdf || f.pdf.status === "loading")){
+    setAiStatus("Still reading the PDF. Try again in a moment.", "error");
+    pdfs.filter((f) => !f.pdf).forEach((f) => { preparePdf(f); });
     return;
   }
-  if(imgs.length > 3){ setAiStatus("Up to 3 photos can be sent. Remove extra pages and try again.", "error"); return; }
+  const pdfPages = [];
+  pdfs.forEach((f) => { selectedPdfPages(f).forEach((p) => pdfPages.push({f, n: p.n})); });
+  if(!imgs.length && !pdfPages.length && !text){
+    setAiStatus(pdfs.length ? "Tick at least one PDF page to send, or paste the story text." : "Add a photo or scanned PDF of the paper, or paste the story text first.", "error");
+    return;
+  }
+  if(imgs.length + pdfPages.length > MAX_AI_IMAGES){ setAiStatus("Up to 3 pictures can be sent. Untick PDF pages or remove photos, then try again.", "error"); return; }
   const anyScored = state.scores.some((s) => s) || state.overall.trim();
   if(anyScored && !confirm("Replace the current levels and feedback with a new AI draft?")) return;
 
   const btn = $("ai-go");
   btn.disabled = true;
-  setAiStatus("Preparing photos…");
+  setAiStatus(imgs.length ? "Preparing photos…" : "Preparing pages…");
   const images = [];
   try{
     for(const f of imgs){ images.push(await toJpegBase64(f)); }
   } catch(e){
     btn.disabled = false;
     setAiStatus("This browser could not read one of the photos. On iPhone, try Settings → Camera → Formats → Most Compatible, or take a screenshot of the photo and upload that.", "error");
+    return;
+  }
+  try{
+    for(const {f, n} of pdfPages){
+      setAiStatus("Turning PDF page " + n + " into a picture…");
+      const doc = await openPdf(f);
+      const url = await renderPdfPage(doc, n, 1568, 0.85);
+      images.push(url.replace(/^data:image\/jpeg;base64,/, ""));
+    }
+  } catch(e){
+    btn.disabled = false;
+    setAiStatus("Could not turn the PDF pages into pictures here. Take a photo or screenshot of each page and add those instead.", "error");
     return;
   }
   setAiStatus("Grade Along AI is reading the paper… this can take up to a minute.");
@@ -941,6 +1140,7 @@ $("t-date").value = today();
 loadDraft();
 renderCategories();
 renderFiles();
+state.files.filter((f) => isPdfFile(f) && f.dataUrl).forEach((f) => { preparePdf(f); });
 renderStatus();
 
 ["t-name","t-grade","t-date","t-facilitator","t-story"].forEach((id) => {
