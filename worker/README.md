@@ -6,7 +6,9 @@
 - Header `X-Teacher-Passcode` must match the `TEACHER_PASSCODE` secret (constant-time compare). If unset: 503 `passcode not configured`.
 - Rate limit: `RATE_LIMITER` binding, 20 requests/min per IP (in-memory fallback).
 - Body: `{ firstName, grade, title?, text?, images?: [base64 JPEG, up to 3] }`.
-- Response: `{ ok, model, rows: [{category, score, level, comment} x4], total, totalPossible: 20, overallFeedback, transcriptionNote, note }`.
+- Optional `coverImage` (base64 JPEG of a STORIGEN cover sheet, page 1). Claude reads only `{ firstName, grade, facilitator, date }` from it in a separate call (first name only; never last name or school), and the result is returned as `cover`. The cover is never added to the grading prompt or used for scoring.
+- Cover-only mode: send `{ coverImage }` with no images or text to get `{ ok, cover: { firstName, grade, facilitator, date }, note }`.
+- Response: `{ ok, model, rows: [{category, score, level, comment} x4], total, totalPossible: 20, overallFeedback, transcriptionNote, note , cover? }`.
 - Model: `claude-sonnet-5-5` with structured JSON output (`output_config.format`). Override with a `MODEL` var if needed.
 - No student content is logged or stored.
 

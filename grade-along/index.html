@@ -105,6 +105,18 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 .q-chip[aria-current=true]{border-color:var(--gold);background:#d1a95416;box-shadow:0 0 0 1px var(--gold) inset}
 .q-chip[data-s=approved] span{color:#9fe0c0}.q-chip[data-s=ai] span{color:var(--violet)}.q-chip[data-s=busy] span{color:var(--warm)}.q-chip[data-s=error] span{color:#ffb4a8}
 .queue-progress{margin:10px 0 0;font-size:.9rem;color:var(--warm);min-height:0}.queue-progress:empty{display:none}.queue-progress[data-kind=error]{color:#ffb4a8}
+.queue[data-drop=true]{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}
+.q-drop-hint{font-size:.82rem;color:var(--muted);margin:8px 0 0}
+.bulk-panel{margin-top:12px;border:1px solid var(--gold);border-radius:14px;padding:14px;background:linear-gradient(145deg,#d1a95418,rgba(10,16,32,.6))}
+.bulk-panel h3{margin:0 0 6px;font-size:1.02rem;color:var(--warm);font-family:var(--display)}
+.bulk-panel p{margin:0 0 10px;font-size:.9rem;color:var(--sub)}
+.bulk-row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px}
+.bulk-row input[type=password]{font:inherit;color:var(--ink);background:var(--night);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:42px;min-width:220px}
+.bulk-row .primary{font-size:1.05rem;padding:10px 20px;min-height:48px}
+.bulk-check{display:flex;align-items:center;gap:8px;font-size:.88rem;color:var(--sub);margin:4px 0 10px;font-weight:600}
+.from-cover{display:inline-block;margin-left:6px;font-size:.72rem;font-weight:750;padding:1px 7px;border-radius:999px;border:1px solid var(--violet);color:var(--violet);vertical-align:middle}
+.cover-note{font-size:.85rem;color:var(--warm);margin:0 0 8px}
+.pdf-cover-opt{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--sub);margin:8px 0 0;font-weight:600}
 .queue-warn{margin:10px 0 0;font-size:.85rem;color:#ffd59a;border-left:2px solid var(--gold);padding-left:10px}
 #print-root{display:none}
 #print-root.measuring{display:block;position:absolute;left:-10000px;top:0;visibility:hidden}
@@ -205,15 +217,29 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 
 <div id="teacher-view" hidden>
 <div class="hero"><div class="cap">Grade Along</div><h1>Grade a paper</h1><p>Grade Along AI reads the paper and drafts a level and comment for each rubric row. You approve or edit every row and the feedback. The teacher decides.</p></div>
-<p class="privacy"><strong>Papers stay on this device until you press Grade with AI.</strong> Then only the photos (or the PDF pages you tick, turned into pictures here), the story text, the first name, and the grade are sent to the Grade Along AI service (Claude by Anthropic, through Cloudflare) to draft scores. Grade Along does not store them. Use first names only. Drafts for every student can be saved in this browser only; use Clear all to remove them.</p>
-<section class="queue" aria-labelledby="q-heading">
+<p class="privacy"><strong>Papers stay on this device until you press Grade with AI or Read covers.</strong> Then only the photos (or the PDF pages you tick, turned into pictures here), the story text, the first name, and the grade are sent. When reading a STORIGEN cover sheet, a picture of page 1 is sent too, and only the first name, grade, facilitator, and date are read from it (it is not used for scoring). Everything goes to the Grade Along AI service (Claude by Anthropic, through Cloudflare) to draft scores. Grade Along does not store them. Use first names only. Drafts for every student can be saved in this browser only; use Clear all to remove them.</p>
+<section class="queue" id="queue" aria-labelledby="q-heading">
 <div class="queue-head"><div><h2 id="q-heading" style="display:inline">Students</h2><span class="eyebrow" id="q-count"></span></div>
 <div class="queue-actions">
 <button type="button" class="secondary" id="q-add">+ Add student</button>
+<button type="button" class="secondary" id="q-bulk">Bulk upload (one file per student)</button>
+<input id="q-bulk-files" type="file" accept="image/*,.heic,.heif,application/pdf" multiple hidden>
 <button type="button" class="secondary" id="q-grade-all" hidden>Grade all with AI</button>
 <button type="button" class="secondary" id="q-print-all" hidden>Print all approved</button>
 <button type="button" class="secondary" id="q-remove" hidden>Remove this student</button>
 </div></div>
+<p class="q-drop-hint">Tip: drop a stack of scanned PDFs or photos here — each file becomes its own student.</p>
+<div class="bulk-panel" id="q-bulk-panel" hidden>
+<h3 id="q-bulk-title">Students added</h3>
+<p id="q-bulk-msg"></p>
+<label class="bulk-check"><input type="checkbox" id="q-cover-on" checked> Read first name, grade, facilitator, and date from each cover sheet (page 1)</label>
+<div class="bulk-row">
+<div><label for="q-pass">Teacher passcode</label><input id="q-pass" type="password" autocomplete="off" maxlength="200" placeholder="Kept for this tab only"></div>
+<button type="button" class="primary" id="q-bulk-grade">Grade all with AI</button>
+<button type="button" class="secondary" id="q-read-covers">Read covers only</button>
+<button type="button" class="secondary" id="q-bulk-hide">Hide</button>
+</div>
+</div>
 <div class="queue-list" id="q-list" aria-label="Student papers"></div>
 <p class="queue-progress" id="q-progress" role="status" aria-live="polite"></p>
 <p class="queue-warn" id="q-warn" hidden></p>
@@ -222,10 +248,10 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 <section class="panel" aria-labelledby="paper-heading">
 <div class="titleline"><div><h2 id="paper-heading">Student paper</h2><div class="eyebrow">Private teacher review · not published</div></div></div>
 <div class="meta-grid">
-<div><label for="t-name">Student first name or ID</label><input id="t-name" type="text" autocomplete="off" maxlength="80"></div>
-<div><label for="t-grade">Grade</label><input id="t-grade" type="text" autocomplete="off" maxlength="24" placeholder="e.g. 3"></div>
-<div><label for="t-date">Date</label><input id="t-date" type="date"></div>
-<div><label for="t-facilitator">Facilitator</label><input id="t-facilitator" type="text" autocomplete="name" maxlength="80"></div>
+<div><label for="t-name">Student first name or ID<span class="from-cover" data-field="student" hidden>from cover · check</span></label><input id="t-name" type="text" autocomplete="off" maxlength="80"></div>
+<div><label for="t-grade">Grade<span class="from-cover" data-field="grade" hidden>from cover · check</span></label><input id="t-grade" type="text" autocomplete="off" maxlength="24" placeholder="e.g. 3"></div>
+<div><label for="t-date">Date<span class="from-cover" data-field="date" hidden>from cover · check</span></label><input id="t-date" type="date"></div>
+<div><label for="t-facilitator">Facilitator<span class="from-cover" data-field="facilitator" hidden>from cover · check</span></label><input id="t-facilitator" type="text" autocomplete="name" maxlength="80"></div>
 </div>
 <div class="story-field"><label for="t-story">Story text</label><textarea id="t-story" spellcheck="true" placeholder="Paste or type the story here."></textarea></div>
 <div class="attach-field">
@@ -476,9 +502,13 @@ function blankStudent(){
     aiModel: "",
     aiNote: "",
     busy: false,
-    error: ""
+    error: "",
+    auto: {},          // field -> true when filled from the cover sheet (shown as "from cover · check")
+    soft: {date: true},// field -> true when not typed by the teacher (inherited, from filename, or from cover); a cover may fill it
+    coverRead: false
   };
 }
+const FIELD_IDS = {student: "t-name", grade: "t-grade", date: "t-date", facilitator: "t-facilitator"};
 let students = [blankStudent()];
 let state = students[0];          // the student shown in the form
 let storeWarn = false;
@@ -520,6 +550,30 @@ function fillForm(){
   $("t-date").value = state.date || today();
   $("t-facilitator").value = state.facilitator || "";
   $("t-story").value = state.story || "";
+  renderCoverTags();
+}
+
+function renderCoverTags(){
+  document.querySelectorAll(".from-cover").forEach((t) => { t.hidden = !(state.auto && state.auto[t.dataset.field]); });
+}
+
+// Fill fields from a cover-sheet read. Teacher-typed values always win.
+function applyCover(st, cover){
+  st.coverRead = true;
+  if(!cover) return 0;
+  if(st === state) syncForm();
+  const map = {student: cover.firstName, grade: cover.grade, facilitator: cover.facilitator, date: cover.date};
+  let n = 0;
+  Object.keys(map).forEach((k) => {
+    const v = String(map[k] || "").trim();
+    if(!v) return;
+    const cur = String(st[k] || "").trim();
+    if(cur && !st.soft[k] && !st.auto[k]) return;   // typed by the teacher
+    st[k] = v; st.auto[k] = true; st.soft[k] = true; n++;
+  });
+  if(st === state) fillForm();
+  saveDraft();
+  return n;
 }
 
 function renderCategories(){
@@ -748,38 +802,103 @@ function readAsDataURL(file){
   });
 }
 
+const KEEP_DATAURL_MAX = 1.5 * 1024 * 1024;   // larger files stay as File objects only (not saved for reload)
+async function fileEntry(file, extra){
+  const blobUrl = URL.createObjectURL(file);
+  let dataUrl = null;
+  if(file.size <= KEEP_DATAURL_MAX){
+    try { dataUrl = await readAsDataURL(file); } catch(e){ dataUrl = null; }
+  }
+  return Object.assign({name: file.name, type: file.type, size: file.size, url: blobUrl, blobUrl, dataUrl, file}, extra || {});
+}
+
+// pdf.js work runs one file at a time so 30 PDFs do not all decode at once.
+let prepChain = Promise.resolve();
+function queuePrepare(f, owner){
+  f.pdfReady = prepChain = prepChain.then(() => preparePdfInner(f, owner)).catch(() => {});
+  return f.pdfReady;
+}
+
 async function addFiles(fileList){
   const owner = state;
   for(const file of fileList){
-    const blobUrl = URL.createObjectURL(file);
-    let dataUrl = null;
-    try { dataUrl = await readAsDataURL(file); } catch(e){ dataUrl = null; }
-    owner.files.push({
-      name: file.name,
-      type: file.type,
-      size: file.size,
-      url: dataUrl || blobUrl,
-      blobUrl,
-      dataUrl,
-      file
-    });
+    owner.files.push(await fileEntry(file));
   }
   owner.error = "";
   owner.droppedFiles = 0;
   if(owner === state) renderFiles();
   saveDraft();
-  owner.files.filter((f) => isPdfFile(f) && !f.pdf).forEach((f) => { preparePdf(f, owner); });
+  owner.files.filter((f) => isPdfFile(f) && !f.pdf).forEach((f) => { queuePrepare(f, owner); });
+}
+
+/* ---------- Bulk upload: one file per student ---------- */
+function nameFromFile(name){
+  return String(name || "").replace(/\.[^.]+$/, "").replace(/[_\-]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
+}
+
+function isEmptyStudent(st){
+  return !hasPaper(st) && !st.scores.some(Boolean) && !(st.overall || "").trim() && (!(st.student || "").trim() || st.soft.student);
+}
+
+async function bulkAdd(fileList){
+  if(batchRunning) return;
+  const files = Array.from(fileList || []).filter((f) => isPdfFile(f) || isImageFile(f));
+  if(!files.length) return;
+  files.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: "base"}));
+  syncForm();
+  const tpl = state;
+  const added = [];
+  for(const file of files){
+    let st;
+    if(!added.length && isEmptyStudent(state)){
+      st = state;
+    } else {
+      st = blankStudent();
+      st.grade = tpl.grade; st.date = tpl.date || today(); st.facilitator = tpl.facilitator;
+      st.soft = {grade: true, date: true, facilitator: true};
+      students.push(st);
+    }
+    st.student = nameFromFile(file.name);
+    st.soft.student = true;
+    st.auto = {};
+    st.coverRead = false;
+    st.files.push(await fileEntry(file, {bulk: true}));
+    added.push(st);
+  }
+  state = added[0];
+  showStudent();
+  saveDraft();
+  added.forEach((st) => st.files.filter((f) => isPdfFile(f) && !f.pdf).forEach((f) => { queuePrepare(f, st); }));
+  showBulkPanel(added.length, files.filter(isPdfFile).length);
+  await prepChain;
+  renderQueue();
+  if(students.includes(added[0])) showBulkPanel(added.length, files.filter(isPdfFile).length);
+}
+
+function showBulkPanel(nAdded, nPdf){
+  const panel = $("q-bulk-panel");
+  panel.hidden = false;
+  const multi = students.filter((st) => st.files.some((f) => f.bulk && f.pdf && f.pdf.numPages > 1)).length;
+  $("q-bulk-title").textContent = "Added " + nAdded + " student" + (nAdded === 1 ? "" : "s") + " — one per file";
+  let msg = "Names come from the file names; click a student to fix one. Grade, date, and facilitator were copied from the student you had open. ";
+  if(nPdf) msg += multi ? ("Page 1 of each multi-page PDF is treated as the STORIGEN cover sheet: it is not graded, and the next pages (up to 3) are ticked. Please click through and check the ticks. ") : "Up to 3 pages per PDF are ticked for AI. Please check the ticks. ";
+  msg += "When you are ready, press Grade all with AI. Each student's draft still needs your approval.";
+  $("q-bulk-msg").textContent = msg;
+  if(!$("q-pass").value) $("q-pass").value = $("ai-pass").value;
+  renderQueue();
 }
 
 function serializeStudent(st, withFiles){
   return {
     student: st.student, grade: st.grade, date: st.date, facilitator: st.facilitator, story: st.story,
+    auto: st.auto, soft: st.soft, coverRead: st.coverRead,
     scores: st.scores, feedback: st.feedback, starters: st.starters, approved: st.approved,
     rowStatus: st.rowStatus, aiDraft: st.aiDraft, overall: st.overall, overallStatus: st.overallStatus,
     aiOverall: st.aiOverall, aiModel: st.aiModel, aiNote: st.aiNote,
     files: st.files.map((f) => ({
       name: f.name, type: f.type, size: f.size,
       dataUrl: withFiles ? (f.dataUrl || null) : null,
+      bulk: !!f.bulk, readCover: f.readCover, coverPage: f.coverPage || 0,
       pages: isPdfFile(f) ? (f.pdf && f.pdf.status === "ready" ? selectedPdfPages(f).map((p) => p.n) : (f.savedPages || null)) : null
     }))
   };
@@ -790,7 +909,11 @@ function saveDraft(){
   const current = students.indexOf(state);
   let warn = false;
   try{
-    let raw = JSON.stringify({v: 2, current, students: students.map((st) => serializeStudent(st, true))});
+    // Skip the big copy entirely when the pictures clearly will not fit.
+    const fileBytes = students.reduce((a, st) => a + st.files.reduce((b, f) => b + (f.dataUrl ? f.dataUrl.length : 0), 0), 0);
+    const withFiles = fileBytes <= MAX_STORE_BYTES;
+    let raw = JSON.stringify({v: 2, current, students: students.map((st) => serializeStudent(st, withFiles))});
+    if(!withFiles || students.some((st) => st.files.some((f) => !f.dataUrl))) warn = true;
     if(raw.length > MAX_STORE_BYTES){
       warn = true;
       raw = JSON.stringify({v: 2, current, students: students.map((st) => serializeStudent(st, false))});
@@ -818,11 +941,15 @@ function restoreStudent(d){
   st.overall = d.overall || "";
   st.overallStatus = ["ai","approved","edited"].includes(d.overallStatus) ? d.overallStatus : "";
   st.aiOverall = d.aiOverall || ""; st.aiModel = d.aiModel || ""; st.aiNote = d.aiNote || "";
+  const flags = (o) => { const r = {}; if(o && typeof o === "object") Object.keys(FIELD_IDS).forEach((k) => { if(o[k] === true) r[k] = true; }); return r; };
+  st.auto = flags(d.auto);
+  st.soft = d.soft ? flags(d.soft) : {};
+  st.coverRead = !!d.coverRead;
   let dropped = 0;
   if(Array.isArray(d.files)){
     d.files.forEach((f) => {
       if(f && f.dataUrl){
-        st.files.push({name: f.name || "scan", type: f.type || "", size: f.size || 0, url: f.dataUrl, blobUrl: null, dataUrl: f.dataUrl, savedPages: Array.isArray(f.pages) ? f.pages : null});
+        st.files.push({name: f.name || "scan", type: f.type || "", size: f.size || 0, url: f.dataUrl, blobUrl: null, dataUrl: f.dataUrl, savedPages: Array.isArray(f.pages) ? f.pages : null, bulk: !!f.bulk, readCover: typeof f.readCover === "boolean" ? f.readCover : undefined, coverPage: f.coverPage | 0});
       } else if(f){ dropped++; }
     });
   }
@@ -868,6 +995,7 @@ function clearAll(){
   $("ai-status").textContent = "";
   $("ai-transcript").hidden = true;
   $("q-progress").textContent = "";
+  $("q-bulk-panel").hidden = true;
   $("t-files").value = "";
   fillForm();
   try { localStorage.removeItem(QUEUE_STORE); localStorage.removeItem(STORE); } catch(e){}
@@ -922,6 +1050,10 @@ function renderQueue(){
   $("q-print-all").hidden = !many;
   $("q-remove").hidden = !many;
   $("q-grade-all").disabled = batchRunning;
+  $("q-bulk-grade").disabled = batchRunning;
+  $("q-read-covers").disabled = batchRunning;
+  $("q-read-covers").hidden = !students.some(needsCover);
+  $("q-bulk").disabled = batchRunning;
   $("q-print-all").disabled = approvedN === 0;
   $("q-remove").disabled = batchRunning;
   $("ai-go").disabled = batchRunning || state.busy;
@@ -950,9 +1082,14 @@ function showStudent(){
   renderStatus();
 }
 
+function releasePdfs(st){
+  st.files.forEach((f) => { if(f.pdfDoc && !f.pdfBusy){ try { f.pdfDoc.destroy(); } catch(e){} f.pdfDoc = null; } });
+}
+
 function switchTo(i){
   if(students[i] === state) return;
   syncForm();
+  releasePdfs(state);
   state = students[i];
   showStudent();
   saveDraft();
@@ -977,6 +1114,7 @@ function removeStudent(){
   if(!confirm("Remove " + displayName(state) + " and their scores from this session?")) return;
   const i = students.indexOf(state);
   state.files.forEach((f) => { if(f.blobUrl) URL.revokeObjectURL(f.blobUrl); });
+  releasePdfs(state);
   students.splice(i, 1);
   state = students[Math.max(0, i - 1)];
   showStudent();
@@ -1294,8 +1432,7 @@ function renderSlotNote(msg, kind){
 }
 
 function preparePdf(f, owner = state){
-  f.pdfReady = preparePdfInner(f, owner);
-  return f.pdfReady;
+  return queuePrepare(f, owner);
 }
 
 async function preparePdfInner(f, owner){
@@ -1305,12 +1442,16 @@ async function preparePdfInner(f, owner){
     const doc = await openPdf(f);
     const n = doc.numPages;
     f.pdf.numPages = n;
-    const thumbs = Math.min(n, 40);
+    // Thumbnails are drawn later, only when this student is on screen.
     for(let i = 1; i <= n; i++){
-      const thumb = i <= thumbs ? await renderPdfPage(doc, i, 320, 0.7) : null;
-      const cover = n > 1 ? await looksLikeCover(doc, i) : false;
-      f.pdf.pages.push({n: i, thumb, cover, selected: false});
+      const cover = n > 1 && i <= 3 ? await looksLikeCover(doc, i) : false;
+      f.pdf.pages.push({n: i, thumb: null, cover, selected: false});
     }
+    // In a bulk upload, page 1 of a multi-page PDF is the STORIGEN cover sheet.
+    if(f.bulk && n > 1){ f.pdf.pages[0].cover = true; if(!f.coverPage) f.coverPage = 1; }
+    const firstCover = f.pdf.pages.find((p) => p.cover);
+    if(firstCover && !f.coverPage) f.coverPage = firstCover.n;
+    if(f.readCover === undefined) f.readCover = !!(f.coverPage && n > 1);
     if(Array.isArray(f.savedPages)){
       f.pdf.pages.forEach((p) => { p.selected = f.savedPages.includes(p.n); });
     } else {
@@ -1325,7 +1466,28 @@ async function preparePdfInner(f, owner){
     f.pdf.status = "error";
   }
   if(owner === state) renderFiles();
+  else releasePdfs(owner);
+  renderQueue();
 }
+
+// Draw page thumbnails for the student on screen, one at a time.
+async function ensureThumbs(f){
+  if(!f.pdf || f.pdf.status !== "ready" || f.thumbing) return;
+  const todo = f.pdf.pages.filter((p) => !p.thumb && p.n <= 40);
+  if(!todo.length) return;
+  f.thumbing = true;
+  try{
+    const doc = await openPdf(f);
+    for(const p of todo){
+      if(!state.files.includes(f)) break;
+      p.thumb = await renderPdfPage(doc, p.n, 320, 0.7);
+      const img = document.querySelector('img[data-thumb="' + f.uid + "-" + p.n + '"]');
+      if(img){ img.src = p.thumb; img.hidden = false; }
+    }
+  } catch(e){ /* thumbnails are optional */ }
+  f.thumbing = false;
+}
+let uidSeq = 1;
 
 function pageList(nums){
   if(!nums.length) return "none";
@@ -1350,7 +1512,7 @@ function renderPdfPicker(f){
   let msg = "<strong>The PDF stays on this device.</strong> Only the pages you tick are sent to AI, as pictures. ";
   msg += n === 1 ? "This PDF has 1 page." : ("This PDF has " + n + " pages. ");
   if(n > 1) msg += "Picked: page" + (picked.length === 1 ? " " : "s ") + pageList(picked) + ". ";
-  if(f.pdf.coverSkipped.length) msg += "Skipped page " + pageList(f.pdf.coverSkipped) + " (looks like a cover sheet). ";
+  if(f.pdf.coverSkipped.length) msg += f.bulk && f.coverPage === 1 ? "Skipped page 1 (treated as the STORIGEN cover sheet — please check). " : ("Skipped page " + pageList(f.pdf.coverSkipped) + " (looks like a cover sheet). ");
   if(n > MAX_AI_IMAGES) msg += "Up to 3 pages can be sent; tick the story pages you want graded. ";
   if(n > 1) msg += "Untick a cover sheet if it is picked — the story pages are all AI needs.";
   note.innerHTML = msg;
@@ -1358,14 +1520,16 @@ function renderPdfPicker(f){
   grid.className = "pdf-pages";
   grid.setAttribute("role", "group");
   grid.setAttribute("aria-label", "Pages of " + f.name + " to send to AI");
+  if(!f.uid) f.uid = uidSeq++;
   f.pdf.pages.forEach((p) => {
     const lab = document.createElement("label");
     lab.className = "pdf-page";
     lab.dataset.on = p.selected ? "true" : "false";
-    if(p.thumb){
+    if(p.n <= 40){
       const img = document.createElement("img");
-      img.src = p.thumb;
+      img.dataset.thumb = f.uid + "-" + p.n;
       img.alt = "Page " + p.n;
+      if(p.thumb) img.src = p.thumb; else img.hidden = true;
       lab.append(img);
     }
     const cb = document.createElement("input");
@@ -1386,7 +1550,78 @@ function renderPdfPicker(f){
     grid.append(lab);
   });
   box.append(grid);
+  if(n > 1){
+    const opt = document.createElement("label");
+    opt.className = "pdf-cover-opt";
+    const cc = document.createElement("input");
+    cc.type = "checkbox";
+    cc.checked = !!f.readCover;
+    cc.addEventListener("change", () => {
+      f.readCover = cc.checked;
+      if(!f.coverPage) f.coverPage = 1;
+      if(cc.checked) state.coverRead = false;
+      renderQueue();
+      saveDraft();
+    });
+    opt.append(cc, document.createTextNode("Read first name, grade, facilitator, and date from page " + (f.coverPage || 1) + " (cover sheet)" + (state.coverRead && f.readCover ? " · done" : "")));
+    box.append(opt);
+  }
+  setTimeout(() => ensureThumbs(f), 0);
   return box;
+}
+
+function coverFile(st){
+  return st.files.find((f) => isPdfFile(f) && f.readCover && f.coverPage && (!f.pdf || f.pdf.status !== "error") && (!f.pdf || f.pdf.numPages > 1));
+}
+function needsCover(st){
+  return !st.coverRead && !!coverFile(st) && $("q-cover-on").checked !== false;
+}
+
+async function coverJpeg(st){
+  const f = coverFile(st);
+  if(f.pdfReady) await f.pdfReady;
+  f.pdfBusy = true;
+  try{
+    const doc = await openPdf(f);
+    const url = await renderPdfPage(doc, f.coverPage || 1, 1200, 0.8);
+    return url.replace(/^data:image\/jpeg;base64,/, "");
+  } finally {
+    f.pdfBusy = false;
+    if(st !== state) releasePdfs(st);
+  }
+}
+
+async function postAI(body, pass){
+  let res, data = null;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 120000);
+  try{
+    res = await fetch(AI_URL, {
+      method: "POST",
+      headers: {"Content-Type": "application/json", "X-Teacher-Passcode": pass},
+      body: JSON.stringify(body),
+      signal: ctrl.signal
+    });
+    try { data = await res.json(); } catch(e){}
+  } catch(e){
+    throw aiError((e && e.name === "AbortError") ? "The AI took too long. Try again, or grade by hand." : "Could not reach the AI service. Check the connection and try again.");
+  } finally {
+    clearTimeout(timer);
+  }
+  if(!res.ok || !data || !data.ok){
+    if(res.status === 401){ try { sessionStorage.removeItem(PASS_KEY); } catch(e){} }
+    throw aiError((data && data.error) || ("The AI service returned an error (" + res.status + ")."), res.status);
+  }
+  return data;
+}
+
+// Cover-only request: returns {firstName, grade, facilitator, date}.
+async function readCoverFor(st, pass){
+  let img;
+  try { img = await coverJpeg(st); }
+  catch(e){ throw aiError("Could not turn the cover page into a picture here."); }
+  const data = await postAI({coverImage: img}, pass);
+  return data.cover || null;
 }
 
 function aiError(msg, status){
@@ -1396,7 +1631,7 @@ function aiError(msg, status){
 }
 
 // Prepare one student's pictures/text and ask the Worker for a draft. Throws an Error with a teacher-friendly message.
-async function requestDraft(st, pass, onStatus){
+async function requestDraft(st, pass, onStatus, withCover){
   const firstName = ((st.student || "").trim().split(/\s+/)[0] || "");
   const grade = (st.grade || "").trim();
   const text = (st.story || "").trim();
@@ -1422,35 +1657,23 @@ async function requestDraft(st, pass, onStatus){
   try{
     for(const {f, n} of pdfPages){
       onStatus("Turning PDF page " + n + " into a picture…");
-      const doc = await openPdf(f);
-      const url = await renderPdfPage(doc, n, 1568, 0.85);
-      images.push(url.replace(/^data:image\/jpeg;base64,/, ""));
+      f.pdfBusy = true;
+      try{
+        const doc = await openPdf(f);
+        const url = await renderPdfPage(doc, n, 1568, 0.85);
+        images.push(url.replace(/^data:image\/jpeg;base64,/, ""));
+      } finally { f.pdfBusy = false; }
     }
   } catch(e){
     throw aiError("Could not turn the PDF pages into pictures here. Take a photo or screenshot of each page and add those instead.");
   }
+  let coverImage;
+  if(withCover && needsCover(st)){
+    try { coverImage = await coverJpeg(st); } catch(e){ coverImage = undefined; }
+  }
+  if(st !== state) releasePdfs(st);
   onStatus("Grade Along AI is reading the paper… this can take up to a minute.");
-  let res, data = null;
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 120000);
-  try{
-    res = await fetch(AI_URL, {
-      method: "POST",
-      headers: {"Content-Type": "application/json", "X-Teacher-Passcode": pass},
-      body: JSON.stringify({firstName, grade, text: text || undefined, images: images.length ? images : undefined}),
-      signal: ctrl.signal
-    });
-    try { data = await res.json(); } catch(e){}
-  } catch(e){
-    throw aiError((e && e.name === "AbortError") ? "The AI took too long. Try again, or grade by hand." : "Could not reach the AI service. Check the connection and try again.");
-  } finally {
-    clearTimeout(timer);
-  }
-  if(!res.ok || !data || !data.ok){
-    if(res.status === 401){ try { sessionStorage.removeItem(PASS_KEY); } catch(e){} }
-    throw aiError((data && data.error) || ("The AI service returned an error (" + res.status + ")."), res.status);
-  }
-  return data;
+  return postAI({firstName, grade, text: text || undefined, images: images.length ? images : undefined, coverImage}, pass);
 }
 
 function getPass(statusFn){
@@ -1472,9 +1695,10 @@ async function gradeWithAI(){
   st.busy = true; st.error = "";
   renderQueue();
   try{
-    const data = await requestDraft(st, pass, (m) => { if(st === state) setAiStatus(m); });
+    const data = await requestDraft(st, pass, (m) => { if(st === state) setAiStatus(m); }, true);
     applyAI(data, st);
-    if(st === state) setAiStatus("AI draft ready — " + data.total + " / 20. Review each row: approve it or edit the level and comment.");
+    const filled = data.cover !== undefined ? applyCover(st, data.cover) : 0;
+    if(st === state) setAiStatus("AI draft ready — " + data.total + " / 20. Review each row: approve it or edit the level and comment." + (filled ? " Student details were filled from the cover sheet — please check them." : ""));
   } catch(e){
     if(st === state) setAiStatus(e.message + (e.status && e.status !== 401 ? " You can still grade this paper by hand." : ""), "error");
   } finally {
@@ -1485,12 +1709,55 @@ async function gradeWithAI(){
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const MIN_GAP_MS = 3500;   // keeps a batch under the Worker's 20 requests/minute limit
+let lastAiStart = 0;
+
+// Every batch request (cover reads and grading) starts at least MIN_GAP_MS apart; one retry after a minute on 429.
+async function paced(call, prog, label){
+  let attempt = 0;
+  while(true){
+    const wait = lastAiStart + MIN_GAP_MS - Date.now();
+    if(wait > 0) await sleep(wait);
+    lastAiStart = Date.now();
+    try { return await call(); }
+    catch(e){
+      if(e.status === 429 && attempt === 0){
+        attempt++;
+        prog(label + ": the AI is busy, waiting a minute before trying again…");
+        await sleep(60000);
+        continue;
+      }
+      throw e;
+    }
+  }
+}
+
+function batchProg(m, kind){ const p = $("q-progress"); p.textContent = m; p.dataset.kind = kind || ""; }
+
+function batchPass(){
+  if($("q-pass").value && !$("ai-pass").value) $("ai-pass").value = $("q-pass").value;
+  return getPass(batchProg);
+}
+
+async function coverStep(st, pass, label){
+  batchProg(label + ": reading the cover sheet…");
+  try{
+    const cover = await paced(() => readCoverFor(st, pass), batchProg, label);
+    applyCover(st, cover);
+  } catch(e){
+    if(e.status === 401) throw e;
+    st.coverRead = true;   // do not keep retrying; the teacher can type the details
+  }
+}
 
 async function gradeAll(){
   if(batchRunning) return;
   syncForm();
-  const prog = (m, kind) => { const p = $("q-progress"); p.textContent = m; p.dataset.kind = kind || ""; };
-  const pass = getPass(prog);
+  if(students.some((st) => st.files.some((f) => isPdfFile(f) && (!f.pdf || f.pdf.status === "loading")))){
+    batchProg("Opening the PDFs on this device…");
+    await prepChain;
+  }
+  const prog = batchProg;
+  const pass = batchPass();
   if(!pass) return;
   const targets = students.filter((st) => hasPaper(st) && !st.approved && !st.rowStatus.some(Boolean) && !allScored(st));
   if(!targets.length){
@@ -1499,39 +1766,26 @@ async function gradeAll(){
   }
   batchRunning = true;
   renderQueue();
-  let done = 0, failed = 0, lastStart = 0;
+  let done = 0, failed = 0;
   for(let k = 0; k < targets.length; k++){
     const st = targets[k];
-    const label = "Student " + (k + 1) + " of " + targets.length + " (" + displayName(st) + ")";
-    const wait = lastStart + MIN_GAP_MS - Date.now();
-    if(wait > 0) await sleep(wait);
+    const label = () => "Student " + (k + 1) + " of " + targets.length + " (" + displayName(st) + ")";
     st.busy = true; st.error = "";
     renderQueue();
-    let attempt = 0;
-    while(true){
-      lastStart = Date.now();
-      try{
-        const data = await requestDraft(st, pass, (m) => prog(label + ": " + m));
-        applyAI(data, st);
-        done++;
-        break;
-      } catch(e){
-        if(e.status === 429 && attempt === 0){
-          attempt++;
-          prog(label + ": the AI is busy, waiting a minute before trying again…");
-          await sleep(60000);
-          continue;
-        }
-        st.error = e.status === 401 ? "Wrong passcode" : "Not graded";
-        failed++;
-        if(e.status === 401){
-          st.busy = false;
-          batchRunning = false;
-          renderQueue();
-          prog("Wrong teacher passcode. Fix it and press Grade all again.", "error");
-          return;
-        }
-        break;
+    try{
+      if(needsCover(st)) await coverStep(st, pass, label());
+      const data = await paced(() => requestDraft(st, pass, (m) => prog(label() + ": " + m), false), prog, label());
+      applyAI(data, st);
+      done++;
+    } catch(e){
+      st.error = e.status === 401 ? "Wrong passcode" : "Not graded";
+      failed++;
+      if(e.status === 401){
+        st.busy = false;
+        batchRunning = false;
+        renderQueue();
+        prog("Wrong teacher passcode. Fix it and press Grade all again.", "error");
+        return;
       }
     }
     st.busy = false;
@@ -1539,7 +1793,37 @@ async function gradeAll(){
   }
   batchRunning = false;
   renderQueue();
-  prog("Done: " + done + " drafted" + (failed ? ", " + failed + " could not be graded (try them one at a time)" : "") + ". Click each student to review and approve their rows.", failed ? "error" : "");
+  if(students.includes(state)) fillForm();
+  prog("Done: " + done + " drafted" + (failed ? ", " + failed + " could not be graded (try them one at a time)" : "") + ". Click each student to review and approve their rows, and check any details marked “from cover”.", failed ? "error" : "");
+}
+
+async function readCoversAll(){
+  if(batchRunning) return;
+  syncForm();
+  if(students.some((st) => st.files.some((f) => isPdfFile(f) && (!f.pdf || f.pdf.status === "loading")))){
+    batchProg("Opening the PDFs on this device…");
+    await prepChain;
+  }
+  const pass = batchPass();
+  if(!pass) return;
+  const targets = students.filter(needsCover);
+  if(!targets.length){ batchProg("No cover sheets left to read."); return; }
+  batchRunning = true;
+  renderQueue();
+  try{
+    for(let k = 0; k < targets.length; k++){
+      const st = targets[k];
+      st.busy = true; renderQueue();
+      try { await coverStep(st, pass, "Cover " + (k + 1) + " of " + targets.length); }
+      finally { st.busy = false; renderQueue(); }
+    }
+    batchProg("Read " + targets.length + " cover sheet" + (targets.length === 1 ? "" : "s") + ". Details marked “from cover · check” can be edited; anything you type wins.");
+  } catch(e){
+    batchProg(e.status === 401 ? "Wrong teacher passcode. Fix it and try again." : e.message, "error");
+  } finally {
+    batchRunning = false;
+    renderQueue();
+  }
 }
 
 function applyAI(data, st = state){
@@ -1580,20 +1864,51 @@ loadDraft();
 fillForm();
 renderCategories();
 renderFiles();
-students.forEach((st) => st.files.filter((f) => isPdfFile(f) && f.dataUrl).forEach((f) => { preparePdf(f, st); }));
+students.forEach((st) => st.files.filter((f) => isPdfFile(f) && f.dataUrl).forEach((f) => { queuePrepare(f, st); }));
 renderStatus();
 
 ["t-name","t-grade","t-date","t-facilitator","t-story"].forEach((id) => {
   $(id).addEventListener("input", () => {
+    const fld = Object.keys(FIELD_IDS).find((k) => FIELD_IDS[k] === id);
+    if(fld){ state.auto[fld] = false; state.soft[fld] = false; renderCoverTags(); }
     if(id !== "t-story" || state.error) state.error = "";
     saveDraft();
     if(state.approved) renderStatus();
   });
 });
 $("t-files").addEventListener("change", (e) => {
-  addFiles(e.target.files || []);
+  const picked = Array.from(e.target.files || []);
   e.target.value = "";
+  if(picked.filter(isPdfFile).length >= 2 && confirm("You picked " + picked.length + " files. Make each file its own student?\n\nOK = one student per file (recommended)\nCancel = attach them all to " + displayName(state))){
+    bulkAdd(picked);
+  } else {
+    addFiles(picked);
+  }
 });
+$("q-bulk").addEventListener("click", () => $("q-bulk-files").click());
+$("q-bulk-files").addEventListener("change", (e) => {
+  const picked = Array.from(e.target.files || []);
+  e.target.value = "";
+  bulkAdd(picked);
+});
+$("q-bulk-grade").addEventListener("click", gradeAll);
+$("q-read-covers").addEventListener("click", readCoversAll);
+$("q-bulk-hide").addEventListener("click", () => { $("q-bulk-panel").hidden = true; });
+$("q-cover-on").addEventListener("change", renderQueue);
+$("q-pass").addEventListener("input", () => { $("ai-pass").value = $("q-pass").value; });
+$("ai-pass").addEventListener("input", () => { $("q-pass").value = $("ai-pass").value; });
+{
+  const q = $("queue");
+  let depth = 0;
+  q.addEventListener("dragenter", (e) => { if(e.dataTransfer && Array.from(e.dataTransfer.types || []).includes("Files")){ depth++; q.dataset.drop = "true"; e.preventDefault(); } });
+  q.addEventListener("dragover", (e) => { if(e.dataTransfer && Array.from(e.dataTransfer.types || []).includes("Files")){ e.preventDefault(); e.dataTransfer.dropEffect = "copy"; } });
+  q.addEventListener("dragleave", () => { depth = Math.max(0, depth - 1); if(!depth) q.dataset.drop = "false"; });
+  q.addEventListener("drop", (e) => {
+    e.preventDefault(); depth = 0; q.dataset.drop = "false";
+    const files = Array.from((e.dataTransfer && e.dataTransfer.files) || []);
+    if(files.length) bulkAdd(files);
+  });
+}
 $("t-approve").addEventListener("click", () => {
   if(!allScored() || state.approved) return;
   state.approved = true;
