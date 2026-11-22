@@ -4,7 +4,9 @@
 
 `POST /verify` — checks `X-Teacher-Passcode` only and returns 200 `{ ok: true }` or 401 (same CORS and rate limit). Used by the Grade Along page gate.
 
-`POST /grade` — drafts Storigen Wonders rubric scores and feedback for Grade Along. The teacher approves or edits every row.
+`POST /rubric` — body `{ images: [base64 JPEG, up to 4 pages], text? }`. Claude reads a school or district rubric into `{ ok, rubric: { name, min, max, rows: [{ title, description, levels: { n: { label, text } } }] }, notes }` for the teacher to review and edit before saving. Same passcode, CORS and rate limit (key `rubric:`). Nothing is stored.
+
+`POST /grade` — drafts rubric scores and feedback for Grade Along. The teacher approves or edits every row. By default it uses the Storigen Wonders rubric, unchanged. An optional `rubric` in the body (same shape as `/rubric` returns) is validated server-side: 1–10 rows, whole-number scale from 0 to 10 with min below max, capped text (name 100, title 120, description 500, level label 40, level text 400) and at most 40,000 characters of JSON. The draft is then scored against that rubric, with a per-row score enum. The response then has one row per rubric row, `totalPossible = rows × max`, and `rubric: { name, min, max, rows }`.
 
 - CORS: only `https://zeyonteltheauthor.github.io`.
 - Header `X-Teacher-Passcode` must match the `TEACHER_PASSCODE` secret (constant-time compare). If unset: 503 `passcode not configured`.

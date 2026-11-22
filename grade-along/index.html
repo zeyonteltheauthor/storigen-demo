@@ -77,6 +77,35 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 .split-tile b{display:block;font-size:.78rem;color:var(--warm);min-height:1.2em}
 .split-summary{font-size:.88rem;color:var(--text-2)}
 .split-actions{display:flex;flex-wrap:wrap;gap:8px;position:sticky;bottom:0;padding:10px 0 2px;background:linear-gradient(transparent,var(--surface) 30%)}
+.rubric-bar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.rubric-bar label{margin:0 0 4px}
+.rubric-bar select{font:inherit;color:var(--ink);background:var(--night);border:1px solid var(--line);border-radius:8px;padding:6px 10px;min-height:38px;max-width:100%}
+.rubric-bar button{min-height:38px;padding:6px 12px;font-size:.9rem}
+.row-desc{margin:0 0 6px;font-size:.85rem;color:var(--muted)}
+.rubric-modal .split-card{max-width:900px}
+.rb-list{display:grid;gap:10px;margin:12px 0}
+.rb-item{border:1px solid var(--line);border-radius:12px;padding:12px;background:#0a1020a8}
+.rb-item[data-on=true]{border-color:var(--gold)}
+.rb-item h3{margin:0 0 2px;font-size:1rem;color:var(--warm)}
+.rb-item p{margin:0 0 8px!important;font-size:.85rem!important}
+.rb-acts,.rb-row-acts{display:flex;flex-wrap:wrap;gap:6px}
+.rb-acts button,.rb-row-acts button{min-height:34px;padding:4px 10px;font-size:.85rem}
+.rb-row-acts{margin-top:8px}
+.rb-badge{font-size:.68rem;font-weight:750;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--gold);color:var(--gold);border-radius:999px;padding:0 6px;margin-left:8px;vertical-align:middle}
+.rb-note{border-left:2px solid var(--gold);padding:8px 10px;background:#d1a95414;border-radius:0 8px 8px 0}
+.rb-form label{display:block;margin:10px 0 4px}
+.rb-form input,.rb-form textarea,.rb-form select{width:100%;font:inherit;color:var(--ink);background:var(--night);border:1px solid var(--line);border-radius:8px;padding:7px 10px;min-height:40px}
+.rb-form textarea{min-height:54px;resize:vertical;font-size:.92rem}
+.rb-scale{display:flex;flex-wrap:wrap;gap:12px}.rb-scale>div{min-width:150px}
+.rb-h{font-size:.95rem;margin:12px 0 0;color:var(--warm)}
+.rb-labels{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0 8px}
+.rb-row{border:1px solid var(--line);border-radius:12px;padding:6px 12px 12px;margin:12px 0;background:#0a1020a8}
+.rb-row legend{color:var(--warm);font-weight:700;padding:0 6px}
+.rb-lvl{display:grid;grid-template-columns:130px 1fr;gap:8px;align-items:start}
+.rb-form .rb-lvl-n{margin:16px 0 0;font-size:.85rem;color:var(--sub)}
+.rb-total{color:var(--warm)!important;font-weight:650;margin:10px 0 0!important}
+.rb-hint{font-size:.8rem!important;color:var(--muted)!important}
+@media(max-width:560px){.rb-lvl{grid-template-columns:1fr}.rb-form .rb-lvl-n{margin:8px 0 0}}
 .growth-bar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .growth-bar label{margin:0 0 4px}
 .growth-bar select,.assess-field select{font:inherit;color:var(--ink);background:var(--night);border:1px solid var(--line);border-radius:8px;padding:6px 10px;min-height:38px}
@@ -243,7 +272,7 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 </form>
 <p class="gate-msg" id="gate-msg" role="status" aria-live="polite"></p>
 <p class="gate-note">The passcode is kept in this tab only and cleared when you close it or press Lock. Papers, names, and scores are never stored on the site; drafts stay in this browser on this device only.</p>
-<p class="version-label">Grade Along v11</p>
+<p class="version-label">Grade Along v12</p>
 </section>
 </main>
 <template id="ga-app">
@@ -289,7 +318,7 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 
 <div id="teacher-view" hidden>
 <div class="hero"><div class="cap">Grade Along</div><h1>Grade a paper</h1><p>Grade Along AI reads the paper and drafts a level and comment for each rubric row. You approve or edit every row and the feedback. The teacher decides.</p></div>
-<p class="privacy"><strong>Papers stay on this device until you press Grade with AI or Read covers.</strong> Then only the photos (or the PDF pages you tick, turned into pictures here), the story text, the first name, and the grade are sent. When reading a STORIGEN cover sheet, a picture of page 1 is sent too, and only the first name, grade, facilitator, and date are read from it (it is not used for scoring). Everything goes to the Grade Along AI service (Claude by Anthropic, through Cloudflare) to draft scores. Grade Along does not store them. Use first names only. Drafts for every student can be saved in this browser only; use Clear all to remove them.</p>
+<p class="privacy"><strong>Papers stay on this device until you press Grade with AI or Read covers.</strong> Then only the photos (or the PDF pages you tick, turned into pictures here), the story text, the first name, and the grade are sent. When reading a STORIGEN cover sheet, a picture of page 1 is sent too, and only the first name, grade, facilitator, and date are read from it (it is not used for scoring). Everything goes to the Grade Along AI service (Claude by Anthropic, through Cloudflare) to draft scores. With a school or district rubric, its rows and descriptions are sent too, and Import from a document sends pictures of the rubric pages. Grade Along does not store them. Use first names only. Drafts for every student can be saved in this browser only; use Clear all to remove them.</p>
 <section class="queue" id="queue" aria-labelledby="q-heading">
 <div class="queue-head"><div><h2 id="q-heading" style="display:inline">Students</h2><span class="eyebrow" id="q-count"></span></div>
 <div class="queue-actions">
@@ -318,6 +347,11 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 <div class="queue-list" id="q-list" aria-label="Student papers"></div>
 <p class="queue-progress" id="q-progress" role="status" aria-live="polite"></p>
 <p class="queue-warn" id="q-warn" hidden></p>
+<div class="rubric-bar" id="rubric-bar">
+<div><label for="q-rubric">Rubric for this session</label><select id="q-rubric"></select></div>
+<button type="button" class="secondary" id="q-rubrics">Manage rubrics</button>
+<p class="growth-status" id="rubric-status"></p>
+</div>
 <div class="growth-bar" id="growth-bar">
 <div><label for="q-assess">This session is</label><select id="q-assess"><option value="pre">Pre-writing (start of program)</option><option value="post">Post-writing (end of program)</option></select></div>
 <button type="button" class="secondary" id="q-save-scores">Save class scores</button>
@@ -351,7 +385,7 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 <div class="ai-box" id="ai-box" aria-labelledby="ai-heading">
 <h3 id="ai-heading">Grade with AI</h3>
 <span class="ai-note">AI drafts, teacher decides.</span>
-<p>Grade Along AI drafts a level and a comment for each of the four rows, plus overall feedback, using the Storigen Wonders rubric. It uses the first name, grade, photos (up to 3) and/or the story text above.</p>
+<p>Grade Along AI drafts a level and a comment for <span id="ai-rubric-note">each of the four rows, plus overall feedback, using the Storigen Wonders rubric</span>. It uses the first name, grade, photos (up to 3) and/or the story text above.</p>
 <div class="ai-row">
 <div><label for="ai-pass">Teacher passcode</label><input id="ai-pass" type="password" autocomplete="off" maxlength="200" placeholder="Kept for this tab only"></div>
 <button type="button" class="primary" id="ai-go">Grade with AI</button>
@@ -361,7 +395,7 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 </div>
 </section>
 <section class="panel" aria-labelledby="t-review">
-<div class="titleline"><div><h2 id="t-review">Storigen Wonders rubric</h2><div class="eyebrow">Four categories · levels 1–5 · total out of 20</div></div><div class="scorebox"><output id="t-total" aria-live="polite">— / 20</output><span id="t-score-state">Pick a level in each category</span></div></div>
+<div class="titleline"><div><h2 id="t-review">Storigen Wonders rubric</h2><div class="eyebrow" id="t-review-sub">Four categories · levels 1–5 · total out of 20</div></div><div class="scorebox"><output id="t-total" aria-live="polite">— / 20</output><span id="t-score-state">Pick a level in each category</span></div></div>
 <div id="t-categories"></div>
 <div class="overall" id="t-overall-wrap">
 <div class="row-head"><h3>Overall feedback</h3><span class="row-tag" id="t-overall-tag" hidden></span></div>
@@ -380,7 +414,7 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 <p class="status" id="t-status">Not reviewed. Nothing is sent unless you press Grade with AI.</p>
 </section>
 </div>
-<footer class="version-label" id="ga-version">Grade Along v11</footer>
+<footer class="version-label" id="ga-version">Grade Along v12</footer>
 </div>
 
 </main>
@@ -525,7 +559,7 @@ get('preview-warning').hidden=true;
 <script>
 /* Teacher grading: runs only after the passcode is verified. */
 function gaTeacherApp(){
-const WONDERS = [
+const DEFAULT_ROWS = [
   {
     id: "lenses",
     name: "Application of the Seven Lenses",
@@ -571,6 +605,18 @@ const WONDERS = [
     }
   }
 ];
+
+const DEFAULT_RUBRIC = {id: "storigen-wonders", name: "Storigen Wonders Rubric", min: 1, max: 5, builtin: true, rows: DEFAULT_ROWS};
+const RUBRIC_STORE = "storigen-os-grade-along-rubrics";
+const RUBRIC_URL = "https://grade-along-api.storigen.workers.dev/rubric";
+const RL = {name: 100, rows: 10, title: 120, desc: 500, label: 40, text: 400, maxLevel: 10, chars: 30000};   // same limits as the Worker
+let RUB = DEFAULT_RUBRIC;      // the rubric this session grades with
+let WONDERS = RUB.rows;        // its rows: {name, desc?, levels: {n: {label, text}}}
+function scoreOk(x){ return Number.isInteger(x) && x >= RUB.min && x <= RUB.max; }
+function maxTotal(r = RUB){ return r.rows.length * r.max; }
+function levelOf(cat, n){ return (cat.levels && cat.levels[n]) || {label: "", text: ""}; }
+function levelName(cat, n){ return levelOf(cat, n).label || ("Level " + n); }
+function rubricSummary(r = RUB){ return r.rows.length + (r.rows.length === 1 ? " row" : " rows") + " · levels " + r.min + "–" + r.max + " · total out of " + maxTotal(r); }
 
 const STORE = "storigen-os-grade-along-teacher-draft";
 const MAX_STORE_BYTES = 4 * 1024 * 1024;
@@ -619,13 +665,13 @@ function aiPending(st = state){
 }
 
 function starterFor(i, score){
-  if(!score) return "";
-  const lvl = WONDERS[i].levels[score];
-  return lvl.label + " — " + lvl.text;
+  if(score == null) return "";
+  const lvl = levelOf(WONDERS[i], score);
+  return (lvl.label ? lvl.label + " — " : "") + lvl.text;
 }
 
 function allScored(st = state){
-  return st.scores.every((s) => s >= 1 && s <= 5);
+  return st.scores.length === WONDERS.length && st.scores.every(scoreOk);
 }
 
 function total(st = state){
@@ -694,16 +740,17 @@ function renderCategories(){
       head.append(tag);
     }
     wrap.append(head);
+    if(cat.desc) wrap.append(el("p", "row-desc", cat.desc));
     const picks = document.createElement("div");
     picks.className = "level-picks";
     picks.setAttribute("role", "group");
     picks.setAttribute("aria-label", cat.name + " level");
-    for(let n=1;n<=5;n++){
+    for(let n=RUB.min;n<=RUB.max;n++){
       const btn = document.createElement("button");
       btn.type = "button";
       btn.textContent = String(n);
       btn.setAttribute("aria-pressed", state.scores[i]===n ? "true" : "false");
-      btn.title = n + " — " + cat.levels[n].label;
+      btn.title = n + (levelOf(cat, n).label ? " — " + levelOf(cat, n).label : "");
       btn.addEventListener("click", () => setScore(i, n));
       picks.append(btn);
     }
@@ -711,9 +758,9 @@ function renderCategories(){
     const desc = document.createElement("p");
     desc.className = "descriptor";
     desc.id = "t-desc-"+i;
-    if(state.scores[i]){
-      const lvl = cat.levels[state.scores[i]];
-      desc.innerHTML = "<b>" + state.scores[i] + " — " + lvl.label + ".</b> " + lvl.text;
+    if(state.scores[i] != null){
+      const lvl = levelOf(cat, state.scores[i]);
+      desc.append(el("b", null, state.scores[i] + (lvl.label ? " — " + lvl.label : "") + "."), document.createTextNode(" " + (lvl.text || "No description for this level.")));
     } else {
       desc.textContent = "Pick a level to see what it means.";
     }
@@ -752,7 +799,7 @@ function renderCategories(){
       if(d && state.rowStatus[i] === "edited"){
         const was = document.createElement("p");
         was.className = "ai-was";
-        was.textContent = "AI drafted level " + d.score + " (" + cat.levels[d.score].label + ").";
+        was.textContent = "AI drafted level " + d.score + " (" + levelName(cat, d.score) + ").";
         wrap.append(was);
       }
     }
@@ -778,7 +825,7 @@ function setScore(i, n){
 
 function renderStatus(){
   const tot = total();
-  $("t-total").textContent = tot === null ? "— / 20" : (tot + " / 20");
+  $("t-total").textContent = (tot === null ? "—" : tot) + " / " + maxTotal();
   $("t-score-state").textContent = tot === null ? "Pick a level in each category" : (state.approved ? "Approved review" : "Draft score");
   $("t-approve").disabled = !allScored() || state.approved || aiPending();
   renderOverall();
@@ -811,15 +858,17 @@ function payloadFor(st){
   const cats = WONDERS.map((cat, i) => ({
     category: cat.name,
     score: st.scores[i],
-    level: st.scores[i] ? cat.levels[st.scores[i]].label : "",
-    descriptor: st.scores[i] ? cat.levels[st.scores[i]].text : "",
+    level: st.scores[i] != null ? levelOf(cat, st.scores[i]).label : "",
+    descriptor: st.scores[i] != null ? levelOf(cat, st.scores[i]).text : "",
     feedback: st.feedback[i],
     review: reviewText(st.rowStatus[i], "Teacher scored"),
     aiDraft: st.aiDraft[i]
   }));
   return {
     tool: "STORIGEN OS Grade Along",
-    rubric: "Storigen Wonders Rubric",
+    rubric: RUB.name,
+    rubricId: RUB.id,
+    scale: {min: RUB.min, max: RUB.max},
     student: (st.student || "").trim(),
     grade: (st.grade || "").trim(),
     date: st.date || "",
@@ -828,7 +877,7 @@ function payloadFor(st){
     attachments: st.files.map((f) => ({name: f.name, type: f.type, size: f.size})),
     categories: cats,
     total: total(st),
-    totalPossible: 20,
+    totalPossible: maxTotal(),
     overallFeedback: st.overall,
     overallReview: reviewText(st.overallStatus, "Teacher written"),
     aiModel: st.aiModel || null,
@@ -935,7 +984,7 @@ function nameFromFile(name){
 }
 
 function isEmptyStudent(st){
-  return !hasPaper(st) && !st.scores.some(Boolean) && !(st.overall || "").trim() && (!(st.student || "").trim() || st.soft.student);
+  return !hasPaper(st) && !st.scores.some((x) => x != null) && !(st.overall || "").trim() && (!(st.student || "").trim() || st.soft.student);
 }
 
 // Phone pickers sometimes hand over files with no type and no ".pdf" in the name; look at the first bytes.
@@ -1068,16 +1117,16 @@ function saveDraft(){
     // Skip the big copy entirely when the pictures clearly will not fit.
     const fileBytes = students.reduce((a, st) => a + st.files.reduce((b, f) => b + (f.dataUrl ? f.dataUrl.length : 0), 0), 0);
     const withFiles = fileBytes <= MAX_STORE_BYTES;
-    let raw = JSON.stringify({v: 2, current, assess: sessionAssess, students: students.map((st) => serializeStudent(st, withFiles))});
+    let raw = JSON.stringify({v: 2, current, assess: sessionAssess, rubric: RUB.builtin ? null : Object.assign({id: RUB.id}, rubricForApi(RUB)), students: students.map((st) => serializeStudent(st, withFiles))});
     if(!withFiles || students.some((st) => st.files.some((f) => !f.dataUrl))) warn = true;
     if(raw.length > MAX_STORE_BYTES){
       warn = true;
-      raw = JSON.stringify({v: 2, current, assess: sessionAssess, students: students.map((st) => serializeStudent(st, false))});
+      raw = JSON.stringify({v: 2, current, assess: sessionAssess, rubric: RUB.builtin ? null : Object.assign({id: RUB.id}, rubricForApi(RUB)), students: students.map((st) => serializeStudent(st, false))});
     }
     try { localStorage.setItem(QUEUE_STORE, raw); }
     catch(e){
       warn = true;
-      localStorage.setItem(QUEUE_STORE, JSON.stringify({v: 2, current, assess: sessionAssess, students: students.map((st) => serializeStudent(st, false))}));
+      localStorage.setItem(QUEUE_STORE, JSON.stringify({v: 2, current, assess: sessionAssess, rubric: RUB.builtin ? null : Object.assign({id: RUB.id}, rubricForApi(RUB)), students: students.map((st) => serializeStudent(st, false))}));
     }
   } catch(e){ /* private mode: keep working in memory */ }
   storeWarn = warn && students.some((st) => st.files.length);
@@ -1122,6 +1171,7 @@ function loadDraft(){
     if(raw){
       const q = JSON.parse(raw);
       if(q && Array.isArray(q.students) && q.students.length){
+        if(q.rubric){ try { const r = normalizeRubric(q.rubric); r.id = r.id || newRubricId(); RUB = r; WONDERS = r.rows; } catch(e){} }
         students = q.students.map(restoreStudent);
         sessionAssess = q.assess === "post" ? "post" : "pre";
         state = students[Math.min(Math.max(0, q.current | 0), students.length - 1)];
@@ -1175,10 +1225,10 @@ function hasPaper(st){
 
 function studentStatus(st){
   if(st.busy) return {s: "busy", t: "Grading…"};
-  if(st.approved) return {s: "approved", t: "Approved ✓ · " + total(st) + " / 20"};
+  if(st.approved) return {s: "approved", t: "Approved ✓ · " + total(st) + " / " + maxTotal()};
   if(st.error) return {s: "error", t: st.error};
   if(aiPending(st)) return {s: "ai", t: "AI draft · review it"};
-  if(allScored(st)) return {s: "draft", t: "Draft · " + total(st) + " / 20"};
+  if(allScored(st)) return {s: "draft", t: "Draft · " + total(st) + " / " + maxTotal()};
   if(st.droppedFiles && !hasPaper(st)) return {s: "error", t: "Re-add paper"};
   return hasPaper(st) ? {s: "ready", t: "Ready to grade"} : {s: "empty", t: "No paper yet"};
 }
@@ -1204,6 +1254,7 @@ function renderQueue(){
     if(a === "post"){
       const g = growthFor(st);
       if(!g) sub.append(el("span", "q-flag", " · no pre match"));
+      else if(g.mismatch) sub.append(el("span", "q-flag", " · different rubric"));
       else if(g.change != null) sub.append(el("span", "q-up", " · " + (g.change > 0 ? "+" : "") + g.change + " growth"));
     }
     b.append(nm, sub);
@@ -1217,6 +1268,7 @@ function renderQueue(){
   $("q-print-all").hidden = !many;
   $("q-remove").hidden = !many;
   $("q-grade-all").disabled = batchRunning;
+  if($("q-rubric")) $("q-rubric").disabled = batchRunning;
   $("q-bulk-grade").disabled = batchRunning;
   $("q-read-covers").disabled = batchRunning;
   $("q-read-covers").hidden = !students.some(needsCover);
@@ -1314,7 +1366,7 @@ function buildReport(st){
   const brand = el("div", "r-brand");
   brand.append(el("span", "r-dot"), document.createTextNode("STORIGEN "));
   brand.append(el("b", null, "OS"), document.createTextNode(" · GRADE ALONG"));
-  left.append(brand, el("div", "r-title", "Score Report · " + (effAssess(st) === "post" ? "Post-writing" : "Pre-writing")), el("div", "r-sub", "Storigen Wonders Rubric · four categories, levels 1–5"));
+  left.append(brand, el("div", "r-title", "Score Report · " + (effAssess(st) === "post" ? "Post-writing" : "Pre-writing")), el("div", "r-sub", RUB.builtin ? "Storigen Wonders Rubric · four categories, levels 1–5" : RUB.name + " · " + WONDERS.length + (WONDERS.length === 1 ? " row" : " rows") + ", levels " + RUB.min + "–" + RUB.max));
   head.append(left);
   if(!st.approved) head.append(el("span", "r-draft", "Draft · not yet approved"));
   r.append(head);
@@ -1326,7 +1378,7 @@ function buildReport(st){
   });
   const tot = el("div", "r-total");
   const t = total(st);
-  tot.append(el("span", "r-num", t == null ? "—" : String(t)), el("span", "r-of", "out of 20"), el("span", "r-cap", "Total score"));
+  tot.append(el("span", "r-num", t == null ? "—" : String(t)), el("span", "r-of", "out of " + maxTotal()), el("span", "r-cap", "Total score"));
   top.append(meta, tot);
   r.append(top);
 
@@ -1343,7 +1395,7 @@ function buildReport(st){
     c1.append(stat);
     const c2 = el("td", "r-lvl");
     const sc = st.scores[i];
-    c2.append(el("b", null, sc ? String(sc) : "–"), el("span", null, sc ? cat.levels[sc].label : "Not scored"));
+    c2.append(el("b", null, sc != null ? String(sc) : "–"), el("span", null, sc != null ? levelOf(cat, sc).label : "Not scored"));
     const c3 = el("td", "r-fb", (st.feedback[i] || "").trim() || "—");
     tr.append(c1, c2, c3);
     tb.append(tr);
@@ -1352,7 +1404,8 @@ function buildReport(st){
   r.append(table);
 
   const g = effAssess(st) === "post" ? growthFor(st) : null;
-  if(g) r.append(growthTable(g));
+  if(g && !g.mismatch) r.append(growthTable(g));
+  else if(g) r.append(el("p", "r-note", "Different rubric: this student's pre-writing scores used “" + (g.pre.rubricName || "another rubric") + "”, so they are not compared with this report."));
 
   if((st.overall || "").trim()){
     const ov = el("section", "r-overall");
@@ -1364,7 +1417,7 @@ function buildReport(st){
     r.append(ov);
   }
   const foot = el("footer", "r-foot");
-  foot.append(el("span", null, "Storigen Wonders Rubric · AI-drafted, teacher-approved"), el("b", null, "STORIGEN OS · Arrival House Media"));
+  foot.append(el("span", null, RUB.name + " · AI-drafted, teacher-approved"), el("b", null, "STORIGEN OS · Arrival House Media"));
   r.append(foot);
   return r;
 }
@@ -1420,26 +1473,31 @@ function normGrade(v){
 }
 function scoreRecord(st, source){
   const first = (st.student || "").trim().split(/\s+/)[0] || "";
-  const sc = st.scores.map((x) => (x >= 1 && x <= 5 ? x : null));
+  const sc = st.scores.map((x) => (scoreOk(x) ? x : null));
   return {
     id: "", firstName: first, grade: (st.grade || "").trim(), facilitator: (st.facilitator || "").trim(),
     date: st.date || "", assessment: effAssess(st), scores: sc,
-    total: sc.every((x) => x) ? sc.reduce((a, b) => a + b, 0) : null, approved: !!st.approved, source
+    total: sc.every((x) => x != null) ? sc.reduce((a, b) => a + b, 0) : null, approved: !!st.approved,
+    rubricId: RUB.id, rubricName: RUB.name, outOf: maxTotal(), source
   };
 }
 function cleanRecord(r, source){
   if(!r || typeof r !== "object") return null;
-  const scores = (Array.isArray(r.scores) ? r.scores : []).slice(0, 4).map((x) => { const n = parseInt(x, 10); return n >= 1 && n <= 5 ? n : null; });
-  while(scores.length < 4) scores.push(null);
+  const scores = (Array.isArray(r.scores) ? r.scores : []).slice(0, RL.rows).map((x) => { if(x === "" || x == null) return null; const n = Number(x); return Number.isInteger(n) && n >= 0 && n <= RL.maxLevel ? n : null; });
+  if(!scores.length) return null;
+  // Files from v11 and earlier have no rubric fields: they are Storigen Wonders scores.
+  const rName = String(r.rubricName || "").slice(0, RL.name);
+  const rId = typeof r.rubricId === "string" && r.rubricId ? r.rubricId.slice(0, 60) : (!rName || /^storigen wonders/i.test(rName) ? DEFAULT_RUBRIC.id : "");
   const first = String(r.firstName || r.student || "").trim().split(/\s+/)[0].slice(0, 40);
   if(!first) return null;
   const a = String(r.assessment || "pre").toLowerCase().startsWith("post") ? "post" : "pre";
   const rec = {
     firstName: first, grade: String(r.grade || "").slice(0, 24), facilitator: String(r.facilitator || "").slice(0, 80),
     date: /^\d{4}-\d{2}-\d{2}$/.test(r.date || "") ? r.date : "", assessment: a, scores,
-    total: scores.every((x) => x) ? scores.reduce((x, y) => x + y, 0) : null, approved: r.approved !== false, source
+    total: scores.every((x) => x != null) ? scores.reduce((x, y) => x + y, 0) : null, approved: r.approved !== false,
+    rubricId: rId, rubricName: rName || (rId === DEFAULT_RUBRIC.id ? DEFAULT_RUBRIC.name : ""), outOf: Number(r.outOf) > 0 ? Number(r.outOf) : (rId === DEFAULT_RUBRIC.id ? 20 : null), source
   };
-  rec.id = source[0] + ":" + normName(rec.firstName) + "|" + normGrade(rec.grade) + "|" + rec.date + "|" + rec.scores.join("");
+  rec.id = source[0] + ":" + normName(rec.firstName) + "|" + normGrade(rec.grade) + "|" + rec.date + "|" + rec.scores.join("-") + "|" + rec.rubricId;
   return rec;
 }
 function readJSON(key, fallback){ try { const v = JSON.parse(localStorage.getItem(key) || "null"); return v == null ? fallback : v; } catch(e){ return fallback; } }
@@ -1451,7 +1509,7 @@ function prePool(){
   const out = [], seen = new Set();
   loadedPre().concat(deviceHistory()).forEach((r) => {
     if(r.assessment !== "pre" || r.total == null) return;
-    const k = normName(r.firstName) + "|" + normGrade(r.grade) + "|" + r.date + "|" + r.scores.join("");
+    const k = normName(r.firstName) + "|" + normGrade(r.grade) + "|" + r.date + "|" + r.scores.join("-") + "|" + r.rubricId + "|" + r.rubricName;
     if(seen.has(k)) return;
     seen.add(k); out.push(r);
   });
@@ -1462,7 +1520,7 @@ function autoMatch(st, pool){
   if(!n) return null;
   const hits = pool.filter((r) => normName(r.firstName) === n && normGrade(r.grade) === g);
   if(!hits.length) return null;
-  hits.sort((a, b) => (a.source === b.source ? 0 : a.source === "file" ? -1 : 1) || String(b.date).localeCompare(String(a.date)));
+  hits.sort((a, b) => (sameRubric(b) - sameRubric(a)) || (a.source === b.source ? 0 : a.source === "file" ? -1 : 1) || String(b.date).localeCompare(String(a.date)));
   return hits[0];
 }
 function matchFor(st, pool = prePool()){
@@ -1473,11 +1531,17 @@ function matchFor(st, pool = prePool()){
   }
   return autoMatch(st, pool);
 }
+// Pre and post are compared only when both were scored with the same rubric (same id or name, same rows).
+function sameRubric(rec, r = RUB){
+  const idOk = rec.rubricId && r.id ? rec.rubricId === r.id : (!!rec.rubricName && rec.rubricName.toLowerCase() === r.name.toLowerCase());
+  return idOk && rec.scores.length === r.rows.length;
+}
 function growthFor(st, pool){
   const pre = matchFor(st, pool);
   if(!pre) return null;
-  const rows = WONDERS.map((cat, i) => ({name: cat.name, pre: pre.scores[i], post: st.scores[i] || null}));
-  rows.forEach((r) => { r.change = r.pre && r.post ? r.post - r.pre : null; });
+  if(!sameRubric(pre)) return {pre, mismatch: true};
+  const rows = WONDERS.map((cat, i) => ({name: cat.name, pre: pre.scores[i] ?? null, post: st.scores[i] ?? null}));
+  rows.forEach((r) => { r.change = r.pre != null && r.post != null ? r.post - r.pre : null; });
   const post = total(st);
   return {pre, rows, preTotal: pre.total, postTotal: post, change: post != null && pre.total != null ? post - pre.total : null};
 }
@@ -1496,18 +1560,18 @@ function growthTable(g){
   const tb = el("tbody");
   g.rows.forEach((r, i) => {
     const tr = el("tr");
-    tr.append(el("td", null, (i + 1) + ". " + r.name), el("td", "num", r.pre ? String(r.pre) : "—"), el("td", "num", r.post ? String(r.post) : "—"), changeCell(r.change));
+    tr.append(el("td", null, (i + 1) + ". " + r.name), el("td", "num", r.pre != null ? String(r.pre) : "—"), el("td", "num", r.post != null ? String(r.post) : "—"), changeCell(r.change));
     tb.append(tr);
   });
   const tr = el("tr");
-  tr.append(el("td", null, "Total (out of 20)"), el("td", "num", g.preTotal == null ? "—" : String(g.preTotal)), el("td", "num", g.postTotal == null ? "—" : String(g.postTotal)), changeCell(g.change));
+  tr.append(el("td", null, "Total (out of " + maxTotal() + ")"), el("td", "num", g.preTotal == null ? "—" : String(g.preTotal)), el("td", "num", g.postTotal == null ? "—" : String(g.postTotal)), changeCell(g.change));
   tb.append(tr);
   t.append(tb);
   sec.append(t);
   return sec;
 }
 function recordLabel(r){
-  return r.firstName + " · gr " + (r.grade || "?") + " · " + (r.date ? niceDate(r.date) : "no date") + " · " + r.total + "/20 · " + (r.source === "file" ? "loaded file" : "this device");
+  return r.firstName + " · gr " + (r.grade || "?") + " · " + (r.date ? niceDate(r.date) : "no date") + " · " + r.total + "/" + (r.outOf || "?") + " · " + (r.source === "file" ? "loaded file" : "this device") + (sameRubric(r) ? "" : " · different rubric");
 }
 function renderAssess(){
   if(!$("t-assess")) return;
@@ -1527,8 +1591,10 @@ function renderAssess(){
     const on = el("option", null, "No pre scores for this student"); on.value = "none"; sel.append(on);
     sel.value = state.preMatch && (state.preMatch === "none" || pool.some((r) => r.id === state.preMatch)) ? state.preMatch : "";
     const m = matchFor(state, pool);
-    flag.dataset.ok = m ? "true" : "false";
-    flag.textContent = m ? ("Compared with pre scores: " + recordLabel(m) + ".") :
+    const diff = m && !sameRubric(m);
+    flag.dataset.ok = m && !diff ? "true" : "false";
+    flag.textContent = diff ? ("Different rubric: the matched pre scores (" + m.firstName + ") used “" + (m.rubricName || "another rubric") + "”, but this session uses “" + RUB.name + "”. Pre and post are only compared when both use the same rubric.") :
+      m ? ("Compared with pre scores: " + recordLabel(m) + ".") :
       (state.preMatch === "none" ? "No pre comparison for this student." :
         (pool.length ? "No pre scores matched this first name and grade. Pick the right student above." : "No pre scores yet. Press Load pre scores and pick the file you saved after the pre-writing session."));
   }
@@ -1541,11 +1607,13 @@ function renderGrowthBar(){
   const nDev = (readJSON(HISTORY_STORE, []) || []).length;
   const posts = students.filter((x) => effAssess(x) === "post");
   const pool = posts.length ? prePool() : [];
-  const matched = posts.filter((x) => matchFor(x, pool)).length;
+  const gs = posts.map((x) => growthFor(x, pool));
+  const matched = gs.filter((g) => g && !g.mismatch).length;
+  const diffN = gs.filter((g) => g && g.mismatch).length;
   st.replaceChildren();
   const parts = [];
   if(nFile) parts.push("Pre scores loaded: " + nFile + " student" + (nFile === 1 ? "" : "s") + (file.name ? " from " + file.name : ""));
-  if(posts.length) parts.push(matched + " of " + posts.length + " post student" + (posts.length === 1 ? "" : "s") + " matched");
+  if(posts.length) parts.push(matched + " of " + posts.length + " post student" + (posts.length === 1 ? "" : "s") + " matched" + (diffN ? " (" + diffN + " flagged: different rubric)" : ""));
   parts.push("Saved in this browser on this device only: " + nDev + " approved score" + (nDev === 1 ? "" : "s") + " (other devices can't see them)");
   st.append(document.createTextNode(parts.join(" · ") + "."));
   if(nFile){ const b = el("button", null, "Remove loaded pre scores"); b.type = "button"; b.addEventListener("click", () => { try { localStorage.removeItem(PRE_FILE_STORE); } catch(e){} renderAssess(); renderQueue(); }); st.append(b); }
@@ -1559,9 +1627,9 @@ function rememberScores(list){
     if(!allScored(st)) return;
     const r = scoreRecord(st, "device");
     if(!r.firstName) return;
-    const key = (x) => normName(x.firstName) + "|" + normGrade(x.grade) + "|" + x.assessment + "|" + x.date;
+    const key = (x) => normName(x.firstName) + "|" + normGrade(x.grade) + "|" + x.assessment + "|" + x.date + "|" + (x.rubricId || DEFAULT_RUBRIC.id);
     const i = hist.findIndex((x) => key(x) === key(r));
-    const keep = {firstName: r.firstName, grade: r.grade, facilitator: r.facilitator, date: r.date, assessment: r.assessment, scores: r.scores, total: r.total, approved: r.approved};
+    const keep = {firstName: r.firstName, grade: r.grade, facilitator: r.facilitator, date: r.date, assessment: r.assessment, scores: r.scores, total: r.total, approved: r.approved, rubricId: r.rubricId, rubricName: r.rubricName, outOf: r.outOf};
     if(i >= 0) hist[i] = keep; else hist.push(keep);
   });
   while(hist.length > 500) hist.shift();
@@ -1576,7 +1644,7 @@ function saveClassScores(){
   if(notApproved && !confirm(notApproved + " of " + done.length + " students are not approved yet. Save their current scores anyway?")) return;
   const recs = done.map((st) => { const r = scoreRecord(st, "file"); delete r.id; delete r.source; return r; });
   const a = sessionAssess;
-  const out = {tool: "STORIGEN OS Grade Along", kind: "class-scores", version: 1, rubric: "Storigen Wonders Rubric",
+  const out = {tool: "STORIGEN OS Grade Along", kind: "class-scores", version: 2, rubric: RUB.name, rubricId: RUB.id, scale: {min: RUB.min, max: RUB.max}, outOf: maxTotal(),
     rows: WONDERS.map((c) => c.name), exported: new Date().toISOString(), note: "First names and scores only. No story text or images.", students: recs};
   download("grade-along-class-scores-" + a + "-" + today() + ".json", JSON.stringify(out, null, 2), "application/json");
   rememberScores(done);
@@ -1601,14 +1669,17 @@ async function loadPreFile(file){
     const text = (await file.text()).replace(/^\uFEFF/, "");
     if(text.trim().startsWith("{")){
       const j = JSON.parse(text);
-      recs = (Array.isArray(j.students) ? j.students : []).map((r) => cleanRecord(r, "file"));
+      const top = {rubricId: typeof j.rubricId === "string" ? j.rubricId : undefined, rubricName: typeof j.rubric === "string" ? j.rubric : undefined, outOf: j.outOf};
+      recs = (Array.isArray(j.students) ? j.students : []).map((r) => cleanRecord(Object.assign({}, top, r), "file"));
     } else {
       const rows = parseCSV(text);
       const h = rows.shift().map((x) => x.trim().toLowerCase());
       const col = (name) => h.indexOf(name);
-      const scoreCols = h.map((x, i) => (/— score$|- score$/.test(x) ? i : -1)).filter((i) => i >= 0).slice(0, 4);
+      const scoreCols = h.map((x, i) => (/— score$|- score$/.test(x) ? i : -1)).filter((i) => i >= 0).slice(0, RL.rows);
+      const opt = (r, name) => (col(name) >= 0 ? r[col(name)] : undefined);
       recs = rows.map((r) => cleanRecord({firstName: r[col("student")], grade: r[col("grade")], facilitator: r[col("facilitator")], date: r[col("date")],
-        assessment: col("assessment") >= 0 ? r[col("assessment")] : "pre", scores: scoreCols.map((i) => r[i])}, "file"));
+        assessment: col("assessment") >= 0 ? r[col("assessment")] : "pre", scores: scoreCols.map((i) => r[i]),
+        rubricId: opt(r, "rubric id"), rubricName: opt(r, "rubric"), outOf: opt(r, "out of")}, "file"));
     }
   } catch(e){ recs = []; }
   recs = recs.filter((r) => r && r.total != null);
@@ -1617,26 +1688,30 @@ async function loadPreFile(file){
   const use = pre.length ? pre : recs;
   if(!pre.length && !confirm("This file is marked Post-writing, not Pre-writing. Use its scores as the pre scores anyway?")) return;
   use.forEach((r) => { r.assessment = "pre"; });
-  writeJSON(PRE_FILE_STORE, {name: file.name.slice(0, 80), loaded: new Date().toISOString(), records: use.map((r) => ({firstName: r.firstName, grade: r.grade, facilitator: r.facilitator, date: r.date, assessment: "pre", scores: r.scores}))});
+  writeJSON(PRE_FILE_STORE, {name: file.name.slice(0, 80), loaded: new Date().toISOString(), records: use.map((r) => ({firstName: r.firstName, grade: r.grade, facilitator: r.facilitator, date: r.date, assessment: "pre", scores: r.scores, rubricId: r.rubricId, rubricName: r.rubricName, outOf: r.outOf}))});
   if(sessionAssess !== "post" && students.every((st) => !st.assess) && confirm("Pre scores loaded for " + use.length + " students. Set this session to Post-writing?")){ sessionAssess = "post"; saveDraft(); }
   const pool = prePool();
   const posts = students.filter((st) => effAssess(st) === "post" && (st.student || "").trim());
   const unmatched = posts.filter((st) => !matchFor(st, pool)).map(displayName);
-  batchProg("Loaded pre scores for " + use.length + " students." + (posts.length ? " Matched " + (posts.length - unmatched.length) + " of " + posts.length + (unmatched.length ? ". No match yet: " + unmatched.join(", ") + " — open each and pick from Pre scores to compare." : ".") : ""), unmatched.length ? "error" : "");
+  const differ = posts.filter((st) => { const g = growthFor(st, pool); return g && g.mismatch; }).map(displayName);
+  const otherRubric = use.filter((r) => !sameRubric(r)).length;
+  batchProg("Loaded pre scores for " + use.length + " students." + (posts.length ? " Matched " + (posts.length - unmatched.length - differ.length) + " of " + posts.length + (unmatched.length ? ". No match yet: " + unmatched.join(", ") + " — open each and pick from Pre scores to compare" : "") + (differ.length ? ". Different rubric (not compared): " + differ.join(", ") : "") + "." : "") + (otherRubric && !differ.length ? " Note: " + otherRubric + " of these used a different rubric from this session (“" + RUB.name + "”), so they can't be compared." : ""), unmatched.length || differ.length || otherRubric ? "error" : "");
   renderAssess();
   renderQueue();
 }
 function buildGrowthSummary(){
   const pool = prePool();
   const posts = students.filter((st) => effAssess(st) === "post");
-  const rows = posts.map((st) => ({st, g: growthFor(st, pool)})).filter((x) => x.g && x.g.postTotal != null && x.g.preTotal != null);
+  const all = posts.map((st) => ({st, g: growthFor(st, pool)}));
+  const rows = all.filter((x) => x.g && !x.g.mismatch && x.g.postTotal != null && x.g.preTotal != null);
+  const differ = all.filter((x) => x.g && x.g.mismatch).map((x) => displayName(x.st));
   const unmatched = posts.filter((st) => !matchFor(st, pool)).map(displayName);
   const r = el("article", "report");
   const head = el("header", "r-head");
   const left = el("div");
   const brand = el("div", "r-brand");
   brand.append(el("span", "r-dot"), document.createTextNode("STORIGEN "), el("b", null, "OS"), document.createTextNode(" · GRADE ALONG"));
-  left.append(brand, el("div", "r-title", "Class Growth Summary"), el("div", "r-sub", "Pre-writing vs Post-writing · Storigen Wonders Rubric (out of 20)"));
+  left.append(brand, el("div", "r-title", "Class Growth Summary"), el("div", "r-sub", "Pre-writing vs Post-writing · " + RUB.name + " (out of " + maxTotal() + ")"));
   head.append(left);
   if(rows.some((x) => !x.st.approved)) head.append(el("span", "r-draft", "Includes unapproved drafts"));
   r.append(head);
@@ -1668,17 +1743,18 @@ function buildGrowthSummary(){
   const th2 = el("thead"); th2.append(h2); t2.append(th2);
   const tb2 = el("tbody");
   WONDERS.forEach((cat, i) => {
-    const pa = avg(rows.map((x) => x.g.rows[i].pre).filter(Boolean)), po = avg(rows.map((x) => x.g.rows[i].post).filter(Boolean));
+    const pa = avg(rows.map((x) => x.g.rows[i].pre).filter((v) => v != null)), po = avg(rows.map((x) => x.g.rows[i].post).filter((v) => v != null));
     const row = el("tr");
     row.append(el("td", null, (i + 1) + ". " + cat.name), el("td", "num", pa == null ? "—" : String(pa)), el("td", "num", po == null ? "—" : String(po)), changeCell(pa == null || po == null ? null : Math.round((po - pa) * 10) / 10));
     tb2.append(row);
   });
   const row = el("tr");
-  row.append(el("td", null, "Total (out of 20)"), el("td", "num", preAvg == null ? "—" : String(preAvg)), el("td", "num", postAvg == null ? "—" : String(postAvg)), changeCell(preAvg == null ? null : Math.round((postAvg - preAvg) * 10) / 10));
+  row.append(el("td", null, "Total (out of " + maxTotal() + ")"), el("td", "num", preAvg == null ? "—" : String(preAvg)), el("td", "num", postAvg == null ? "—" : String(postAvg)), changeCell(preAvg == null ? null : Math.round((postAvg - preAvg) * 10) / 10));
   tb2.append(row); t2.append(tb2); sec.append(t2); r.append(sec);
   const notes = [];
   if(rows.some((x) => !x.st.approved)) notes.push("* Not yet approved by the teacher.");
   if(unmatched.length) notes.push("Not compared (no pre scores matched): " + unmatched.join(", ") + ".");
+  if(differ.length) notes.push("Not compared (different rubric — pre scores used another rubric): " + differ.join(", ") + ".");
   notes.forEach((n) => r.append(el("p", "r-note", n)));
   const foot = el("footer", "r-foot");
   foot.append(el("span", null, "Pre scores from the teacher's saved file or this device · AI-drafted, teacher-approved"), el("b", null, "STORIGEN OS · Arrival House Media"));
@@ -1686,17 +1762,312 @@ function buildGrowthSummary(){
   return r;
 }
 
+/* ---------- Rubrics: built-in Storigen Wonders + school/district rubrics kept in this browser ---------- */
+function cstr(v, max){ return typeof v === "string" || typeof v === "number" ? String(v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "").trim().slice(0, max) : ""; }
+function newRubricId(){ return "r-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8); }
+function rubricForApi(r){ return {name: r.name, min: r.min, max: r.max, rows: r.rows.map((row) => ({title: row.name, description: row.desc || "", levels: row.levels}))}; }
+function rubricFile(r){ return {tool: "STORIGEN OS Grade Along", kind: "rubric", version: 1, exported: new Date().toISOString(), rubric: Object.assign({id: r.id}, rubricForApi(r))}; }
+// Accepts a rubric file, a saved rubric, or the AI's reading of a document. Throws a teacher-friendly Error.
+function normalizeRubric(raw){
+  if(!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("This is not a rubric.");
+  if(raw.kind === "rubric" && raw.rubric) raw = raw.rubric;
+  const min = Number(raw.min ?? raw.scaleMin), max = Number(raw.max ?? raw.scaleMax);
+  if(!Number.isInteger(min) || !Number.isInteger(max) || min < 0 || max > RL.maxLevel || max <= min) throw new Error("The scale must be whole numbers from 0 to 10, with the lowest level below the highest.");
+  const rowsIn = Array.isArray(raw.rows) ? raw.rows : [];
+  if(!rowsIn.length || rowsIn.length > RL.rows) throw new Error("A rubric needs 1 to 10 rows.");
+  const labels = raw.labels && typeof raw.labels === "object" ? raw.labels : {};
+  const rows = rowsIn.map((r, i) => {
+    if(!r || typeof r !== "object") throw new Error("Row " + (i + 1) + " is not valid.");
+    const name = cstr(r.title ?? r.name, RL.title).replace(/\s*[\r\n]+\s*/g, " ");
+    if(!name) throw new Error("Row " + (i + 1) + " needs a title.");
+    const src = r.levels, levels = {};
+    for(let n = min; n <= max; n++){
+      const v = Array.isArray(src) ? src.find((x) => x && Number(x.score) === n) : (src && typeof src === "object" ? src[n] : undefined);
+      levels[n] = {label: cstr((v && typeof v === "object" && v.label) || labels[n] || "", RL.label).replace(/[\r\n]+/g, " "), text: cstr(typeof v === "string" ? v : v && v.text, RL.text)};
+    }
+    return {name, desc: cstr(r.description ?? r.desc, RL.desc), levels};
+  });
+  const name = cstr(raw.name, RL.name).replace(/[\r\n]+/g, " ");
+  if(!name) throw new Error("The rubric needs a name.");
+  const id = typeof raw.id === "string" && /^[\w-]{1,60}$/.test(raw.id) ? raw.id : "";
+  const out = {id, name, min, max, rows};
+  if(JSON.stringify(rubricForApi(out)).length > RL.chars) throw new Error("The rubric has too much text. Shorten some descriptors.");
+  return out;
+}
+function rubricLibrary(){
+  const a = readJSON(RUBRIC_STORE, []);
+  return (Array.isArray(a) ? a : []).map((r) => {
+    try { const n = normalizeRubric(r); if(!n.id || n.id === DEFAULT_RUBRIC.id) return null; n.updated = typeof r.updated === "string" ? r.updated : ""; return n; } catch(e){ return null; }
+  }).filter(Boolean);
+}
+function saveLibrary(list){ return writeJSON(RUBRIC_STORE, list.map((r) => Object.assign({id: r.id, updated: r.updated || ""}, rubricForApi(r)))); }
+function allRubrics(){ return [DEFAULT_RUBRIC].concat(rubricLibrary()); }
+function findRubric(id){ return allRubrics().find((r) => r.id === id) || null; }
+function rubricShapeSame(a, b){ return a.min === b.min && a.max === b.max && a.rows.length === b.rows.length; }
+function studentsWithWork(){ return students.filter((st) => st.scores.some((x) => x != null) || st.rowStatus.some(Boolean) || st.feedback.some((f) => (f || "").trim())); }
+// Point the session at a rubric. reset: clear every student's levels and row feedback.
+function setRubric(r, reset){
+  RUB = r; WONDERS = r.rows;
+  students.forEach((st) => {
+    const fit = (arr, fill) => WONDERS.map((_, i) => (reset || !arr || arr[i] === undefined ? fill : arr[i]));
+    st.scores = fit(st.scores, null).map((x) => (scoreOk(x) ? x : null));
+    st.feedback = fit(st.feedback, ""); st.starters = fit(st.starters, ""); st.rowStatus = fit(st.rowStatus, ""); st.aiDraft = fit(st.aiDraft, null);
+    if(reset) st.approved = false;
+  });
+  renderRubricUI();
+}
+function refreshAfterRubric(){ saveDraft(); renderCategories(); renderStatus(); renderAssess(); }
+function useRubric(id){
+  if(id === RUB.id){ renderRubricUI(); return true; }
+  const r = findRubric(id);
+  if(!r || batchRunning){ renderRubricUI(); return false; }
+  const busy = studentsWithWork();
+  if(busy.length && !confirm("Switch this session to “" + r.name + "”? Levels and row feedback for " + busy.length + " student" + (busy.length === 1 ? "" : "s") + " will be cleared (overall feedback stays). Print or save anything you need first.")){ renderRubricUI(); return false; }
+  setRubric(r, true);
+  refreshAfterRubric();
+  batchProg("This session now uses “" + r.name + "” (" + rubricSummary(r) + ").");
+  return true;
+}
+// A saved or imported rubric that the session is using right now: keep scores if the shape is the same.
+function applyToSession(r){
+  if(RUB.id !== r.id) return true;
+  const same = rubricShapeSame(RUB, r);
+  const busy = studentsWithWork();
+  if(!same && busy.length && !confirm("This changes the rows or the scale of the rubric this session is using. Levels and row feedback for " + busy.length + " student" + (busy.length === 1 ? "" : "s") + " will be cleared. Continue?")) return false;
+  setRubric(r, !same);
+  refreshAfterRubric();
+  return true;
+}
+function renderRubricUI(){
+  const sel = $("q-rubric");
+  if(sel){
+    sel.replaceChildren();
+    const list = allRubrics();
+    if(!list.some((r) => r.id === RUB.id)) list.push(RUB);   // removed from this browser's list: the session keeps its copy
+    list.forEach((r) => { const o = el("option", null, r.name + (r.builtin ? " (built in)" : "")); o.value = r.id; sel.append(o); });
+    sel.value = RUB.id;
+    sel.disabled = batchRunning;
+  }
+  const s = $("rubric-status");
+  if(s) s.textContent = rubricSummary() + (RUB.builtin ? " · STORIGEN default." : " · Rubrics are saved in this browser on this device only; use Manage rubrics → Export to share one.");
+  $("t-review").textContent = RUB.builtin ? "Storigen Wonders rubric" : RUB.name;
+  $("t-review-sub").textContent = RUB.builtin ? "Four categories · levels 1–5 · total out of 20" : rubricSummary();
+  $("ai-rubric-note").textContent = RUB.builtin ? "each of the four rows, plus overall feedback, using the Storigen Wonders rubric" : "each of the " + WONDERS.length + " row" + (WONDERS.length === 1 ? "" : "s") + ", plus overall feedback, using “" + RUB.name + "”";
+}
+
+let rubricModal = null;
+function rubricKey(e){ if(e.key === "Escape") closeRubrics(); }
+function closeRubrics(){ if(rubricModal){ rubricModal.remove(); rubricModal = null; document.removeEventListener("keydown", rubricKey); $("q-rubrics").focus(); } }
+function mkBtn(text, cls, fn){ const b = el("button", cls, text); b.type = "button"; b.addEventListener("click", fn); return b; }
+function rubricShell(title){
+  if(rubricModal){ rubricModal.remove(); rubricModal = null; }
+  else document.addEventListener("keydown", rubricKey);
+  const m = el("div", "split-modal rubric-modal");
+  m.setAttribute("role", "dialog"); m.setAttribute("aria-modal", "true"); m.setAttribute("aria-label", title);
+  const card = el("div", "split-card");
+  m.append(card); document.body.append(m); rubricModal = m;
+  return card;
+}
+function storedPass(){ return $("ai-pass").value || (() => { try { return sessionStorage.getItem(PASS_KEY) || ""; } catch(e){ return ""; } })(); }
+
+function openRubrics(msg, kind){
+  const card = rubricShell("Rubrics");
+  card.append(el("h2", null, "Rubrics"));
+  card.append(el("p", null, "Pick the rubric each session grades with. Build your school's or district's rubric, read one from a PDF or photo, or import a rubric file another teacher shared. Rubrics are saved in this browser on this device only — use Export to share a file with your team."));
+  const acts = el("div", "split-controls");
+  const inF = el("input"); inF.type = "file"; inF.accept = ".json,application/json"; inF.hidden = true; inF.id = "rb-file";
+  const inD = el("input"); inD.type = "file"; inD.accept = "application/pdf,.pdf,image/*,.heic,.heif"; inD.multiple = true; inD.hidden = true; inD.id = "rb-doc";
+  inF.addEventListener("change", () => { const f = inF.files[0]; inF.value = ""; if(f) importRubricFile(f); });
+  inD.addEventListener("change", () => { const fs = Array.from(inD.files || []); inD.value = ""; if(fs.length) importRubricDoc(fs, status); });
+  acts.append(mkBtn("+ New rubric", "primary", () => openEditor(blankRubric(), true)), mkBtn("Import from a document (PDF or photo)", "secondary", () => inD.click()), mkBtn("Import rubric file (.json)", "secondary", () => inF.click()), inF, inD);
+  const status = el("p", "split-status", msg || ""); status.id = "rb-status"; status.dataset.kind = kind || ""; status.setAttribute("role", "status"); status.setAttribute("aria-live", "polite");
+  card.append(acts, status);
+  const list = el("div", "rb-list");
+  allRubrics().forEach((r) => {
+    const it = el("article", "rb-item"); it.dataset.on = r.id === RUB.id ? "true" : "false";
+    const h = el("h3", null, r.name);
+    if(r.builtin) h.append(el("span", "rb-badge", "Built in"));
+    if(r.id === RUB.id) h.append(el("span", "rb-badge", "This session"));
+    it.append(h, el("p", null, rubricSummary(r) + " · " + r.rows.map((x) => x.name).join(" · ")));
+    const a = el("div", "rb-acts");
+    const use = mkBtn(r.id === RUB.id ? "In use" : "Use for this session", "secondary", () => { if(useRubric(r.id)) openRubrics("This session now uses “" + r.name + "”."); });
+    use.disabled = r.id === RUB.id || batchRunning;
+    a.append(use);
+    if(!r.builtin) a.append(mkBtn("Edit", "secondary", () => openEditor(r, false)));
+    a.append(mkBtn("Duplicate", "secondary", () => { const c = JSON.parse(JSON.stringify(r)); c.id = ""; c.builtin = false; c.name = (r.name + " (copy)").slice(0, RL.name); openEditor(c, true); }));
+    a.append(mkBtn("Export", "secondary", () => { download("rubric-" + (r.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 50) || "custom") + ".json", JSON.stringify(rubricFile(r), null, 2), "application/json"); setMsg(status, "Exported “" + r.name + "”. Send that file to other teachers; they press Import rubric file."); }));
+    if(!r.builtin) a.append(mkBtn("Delete", "secondary", () => {
+      if(r.id === RUB.id){ setMsg(status, "This session is using “" + r.name + "”. Switch the session to another rubric first.", "error"); return; }
+      if(!confirm("Delete “" + r.name + "” from this browser? Files you exported are not affected.")) return;
+      saveLibrary(rubricLibrary().filter((x) => x.id !== r.id)); renderRubricUI(); openRubrics("Deleted “" + r.name + "”.");
+    }));
+    it.append(a);
+    list.append(it);
+  });
+  card.append(list);
+  const foot = el("div", "split-actions"); foot.append(mkBtn("Close", "secondary", closeRubrics)); card.append(foot);
+  (card.querySelector("button") || card).focus();
+}
+function setMsg(p, m, kind){ p.textContent = m; p.dataset.kind = kind || ""; }
+
+function blankRubric(){ return {id: "", name: "", min: 1, max: 4, rows: [0, 1, 2].map(() => ({name: "", desc: "", levels: {}}))}; }
+function openEditor(src, isNew, note){
+  const w = {id: src.id || "", name: src.name || "", min: src.min, max: src.max, labels: {}, rows: src.rows.map((row) => ({name: row.name || "", desc: row.desc || "", texts: {}}))};
+  for(let n = 0; n <= RL.maxLevel; n++){
+    const l = src.rows.map((row) => row.levels && row.levels[n] && row.levels[n].label).find(Boolean);
+    if(l) w.labels[n] = l;
+  }
+  src.rows.forEach((row, i) => { Object.keys(row.levels || {}).forEach((n) => { w.rows[i].texts[n] = (row.levels[n] && row.levels[n].text) || ""; }); });
+  const card = rubricShell(isNew ? "New rubric" : "Edit rubric");
+  const field = (label, value, onInput, opts) => {
+    const id = "rb-" + Math.random().toString(36).slice(2, 9);
+    const lab = el("label", null, label); lab.htmlFor = id;
+    const inp = el(opts && opts.area ? "textarea" : "input"); inp.id = id; inp.value = value || "";
+    if(opts && opts.max) inp.maxLength = opts.max;
+    if(opts && opts.ph) inp.placeholder = opts.ph;
+    inp.addEventListener("input", () => onInput(inp.value));
+    return [lab, inp];
+  };
+  function render(focusSel){
+    card.replaceChildren();
+    card.append(el("h2", null, isNew ? "New rubric" : "Edit rubric"));
+    if(note) card.append(el("p", "rb-note", note));
+    const form = el("div", "rb-form");
+    form.append(...field("Rubric name", w.name, (v) => { w.name = v; }, {max: RL.name, ph: "e.g. Grade 4 Opinion Writing Rubric"}));
+    const sc = el("div", "rb-scale");
+    const mkSel = (label, from, to, val, on) => {
+      const d = el("div"); const id = "rb-s-" + label.replace(/\W/g, "");
+      const lab = el("label", null, label); lab.htmlFor = id;
+      const s = el("select"); s.id = id;
+      for(let n = from; n <= to; n++){ const o = el("option", null, String(n)); o.value = String(n); s.append(o); }
+      s.value = String(val);
+      s.addEventListener("change", () => { on(parseInt(s.value, 10)); render("#" + id); });
+      d.append(lab, s); return d;
+    };
+    sc.append(mkSel("Lowest level", 0, 1, w.min, (v) => { w.min = v; if(w.max <= w.min) w.max = w.min + 1; }), mkSel("Highest level", 2, RL.maxLevel, w.max, (v) => { w.max = v; }));
+    form.append(sc);
+    const tot = el("p", "rb-total", "Total out of " + (w.rows.length * w.max) + " (" + w.rows.length + " row" + (w.rows.length === 1 ? "" : "s") + " × " + w.max + ", computed automatically)");
+    form.append(tot);
+    form.append(el("h3", "rb-h", "Level names (optional, shared by every row)"));
+    const lv = el("div", "rb-labels");
+    for(let n = w.max; n >= w.min; n--){ const [lab, inp] = field("Level " + n, w.labels[n], (v) => { w.labels[n] = v; }, {max: RL.label, ph: n === w.max ? "e.g. Advanced" : n === w.min ? "e.g. Beginning" : ""}); const d = el("div"); d.append(lab, inp); lv.append(d); }
+    form.append(lv);
+    w.rows.forEach((row, i) => {
+      const fs = el("fieldset", "rb-row");
+      fs.append(el("legend", null, "Row " + (i + 1)));
+      fs.append(...field("Title", row.name, (v) => { row.name = v; }, {max: RL.title, ph: "e.g. Reasons and evidence"}));
+      fs.append(...field("What it measures (optional)", row.desc, (v) => { row.desc = v; }, {max: RL.desc, area: true}));
+      for(let n = w.max; n >= w.min; n--){
+        const d = el("div", "rb-lvl");
+        const [lab, inp] = field(n + (w.labels[n] ? " · " + w.labels[n] : ""), row.texts[n], (v) => { row.texts[n] = v; }, {max: RL.text, area: true, ph: "What level " + n + " looks like"});
+        lab.className = "rb-lvl-n";
+        d.append(lab, inp); fs.append(d);
+      }
+      const ra = el("div", "rb-row-acts");
+      const up = mkBtn("Move up", "secondary", () => { w.rows.splice(i - 1, 0, w.rows.splice(i, 1)[0]); render(); }); up.disabled = i === 0;
+      const dn = mkBtn("Move down", "secondary", () => { w.rows.splice(i + 1, 0, w.rows.splice(i, 1)[0]); render(); }); dn.disabled = i === w.rows.length - 1;
+      const rm = mkBtn("Remove row", "secondary", () => { if((row.name || Object.values(row.texts).some(Boolean)) && !confirm("Remove row " + (i + 1) + (row.name ? " (" + row.name + ")" : "") + "?")) return; w.rows.splice(i, 1); render(); }); rm.disabled = w.rows.length <= 1;
+      ra.append(up, dn, rm); fs.append(ra);
+      form.append(fs);
+    });
+    const add = mkBtn("+ Add row", "secondary", () => { w.rows.push({name: "", desc: "", texts: {}}); render(".rb-row:last-of-type input"); });
+    add.disabled = w.rows.length >= RL.rows;
+    form.append(add, el("p", "rb-hint", w.rows.length >= RL.rows ? "A rubric can have up to 10 rows." : "1 to 10 rows."));
+    card.append(form);
+    const status = el("p", "split-status"); status.id = "rb-status"; status.setAttribute("role", "status"); status.setAttribute("aria-live", "polite");
+    const foot = el("div", "split-actions");
+    foot.append(mkBtn("Save rubric", "primary", () => save(status)), mkBtn("Cancel", "secondary", () => { if(confirm("Leave without saving this rubric?")) openRubrics(); }));
+    card.append(status, foot);
+    const f = focusSel ? card.querySelector(focusSel) : card.querySelector("input");
+    if(f) f.focus();
+  }
+  function save(status){
+    const levels = (row) => { const o = {}; for(let n = w.min; n <= w.max; n++) o[n] = {label: w.labels[n] || "", text: row.texts[n] || ""}; return o; };
+    let r;
+    try { r = normalizeRubric({id: w.id, name: w.name, min: w.min, max: w.max, rows: w.rows.map((row) => ({title: row.name, description: row.desc, levels: levels(row)}))}); }
+    catch(e){ setMsg(status, e.message, "error"); return; }
+    let blank = 0;
+    r.rows.forEach((row) => { for(let n = r.min; n <= r.max; n++) if(!row.levels[n].text) blank++; });
+    if(blank && !confirm(blank + " level description" + (blank === 1 ? " is" : "s are") + " blank. Grade Along AI will judge those levels by their place on the scale. Save anyway?")) return;
+    r.id = w.id || newRubricId(); r.updated = new Date().toISOString();
+    const lib = rubricLibrary();
+    const i = lib.findIndex((x) => x.id === r.id);
+    if(!applyToSession(r)) return;
+    if(i >= 0) lib[i] = r; else lib.push(r);
+    if(!saveLibrary(lib)){ setMsg(status, "Could not save: this browser's storage is full. Export the rubric to keep a copy.", "error"); return; }
+    renderRubricUI();
+    openRubrics("Saved “" + r.name + "” (" + rubricSummary(r) + ")." + (RUB.id === r.id ? "" : " Press Use for this session to grade with it."));
+  }
+  render();
+}
+
+async function importRubricFile(file){
+  let r;
+  try { r = normalizeRubric(JSON.parse((await file.text()).replace(/^\uFEFF/, ""))); }
+  catch(e){ openRubrics("Could not import that file: " + (e instanceof SyntaxError ? "it is not a rubric file." : e.message), "error"); return; }
+  if(r.id === DEFAULT_RUBRIC.id){ openRubrics("That file is the built-in Storigen Wonders Rubric, which is already here."); return; }
+  r.id = r.id || newRubricId(); r.updated = new Date().toISOString();
+  const lib = rubricLibrary();
+  const i = lib.findIndex((x) => x.id === r.id);
+  if(i >= 0){
+    if(JSON.stringify(rubricForApi(lib[i])) === JSON.stringify(rubricForApi(r))){ openRubrics("“" + r.name + "” is already saved here."); return; }
+    if(!confirm("You already have a version of “" + lib[i].name + "”. Replace it with the one in this file?")) { openRubrics(); return; }
+    if(!applyToSession(r)){ openRubrics(); return; }
+    lib[i] = r;
+  } else lib.push(r);
+  if(!saveLibrary(lib)){ openRubrics("Could not save: this browser's storage is full.", "error"); return; }
+  renderRubricUI();
+  openRubrics("Imported “" + r.name + "” (" + rubricSummary(r) + ")." + (RUB.id === r.id ? "" : " Press Use for this session to grade with it."));
+}
+
+async function importRubricDoc(files, status){
+  const pass = storedPass();
+  if(!pass){ setMsg(status, "Enter the teacher passcode in the Grade with AI box first.", "error"); return; }
+  const images = [];
+  let pages = 0;
+  try{
+    for(const file of files){
+      const kind = await sniffKind(file);
+      if(kind === "pdf"){
+        const f = {file, name: file.name, type: "application/pdf"};
+        const doc = await openPdf(f);
+        pages += doc.numPages;
+        for(let n = 1; n <= doc.numPages && images.length < 4; n++){
+          setMsg(status, "Turning rubric page " + n + " into a picture on this device…");
+          images.push((await renderPdfPage(doc, n, 1568, 0.85)).replace(/^data:image\/jpeg;base64,/, ""));
+        }
+        try { doc.destroy(); } catch(e){}
+      } else if(kind === "image"){
+        pages++;
+        if(images.length >= 4) continue;
+        const url = URL.createObjectURL(file);
+        try { images.push(await toJpegBase64({blobUrl: url})); } finally { URL.revokeObjectURL(url); }
+      }
+    }
+  } catch(e){ setMsg(status, "Could not read that file here. Try a photo or screenshot of the rubric instead.", "error"); return; }
+  if(!images.length){ setMsg(status, "Pick a PDF or a photo of the rubric.", "error"); return; }
+  setMsg(status, "Grade Along AI is reading the rubric… this can take up to a minute.");
+  let data;
+  try { data = await postAI({images}, pass, RUBRIC_URL); }
+  catch(e){ if(rubricModal) setMsg(status, e.message, "error"); return; }
+  let r;
+  try { r = normalizeRubric(data.rubric); }
+  catch(e){ setMsg(status, "The AI could not read a complete rubric from that document. Try a clearer picture, or build it with + New rubric.", "error"); return; }
+  r.id = "";
+  openEditor(r, true, "Read from your document by Grade Along AI" + (pages > 4 ? " (first 4 pages only)" : "") + ". Check every row and level against the original and fix anything that is off. Nothing is saved until you press Save rubric." + (data.notes ? " AI note: " + data.notes : ""));
+}
+
 function csvAll(){
   syncForm();
-  const head = ["Student", "Grade", "Date", "Facilitator", "Assessment"];
+  const head = ["Student", "Grade", "Date", "Facilitator", "Assessment", "Rubric", "Rubric ID"];
   WONDERS.forEach((cat, i) => { const n = i + 1; head.push(n + ". " + cat.name + " — score", n + " level", n + " feedback", n + " review"); });
   head.push("Total", "Out of", "Overall feedback", "Overall review", "Approved");
   const rows = [head];
   students.forEach((st) => {
     const d = payloadFor(st);
-    const row = [d.student, d.grade, d.date, d.facilitator, effAssess(st) === "post" ? "Post" : "Pre"];
+    const row = [d.student, d.grade, d.date, d.facilitator, effAssess(st) === "post" ? "Post" : "Pre", RUB.name, RUB.id];
     d.categories.forEach((c) => row.push(c.score ?? "", c.level, c.feedback, c.review));
-    row.push(d.total ?? "", 20, d.overallFeedback, d.overallReview, d.approved ? "yes" : "no");
+    row.push(d.total ?? "", maxTotal(), d.overallFeedback, d.overallReview, d.approved ? "yes" : "no");
     rows.push(row);
   });
   return rows.map((r) => r.map(csvEscape).join(",")).join("\n");
@@ -2195,7 +2566,7 @@ function createSplitStudents(f, owner, groups){
   const idx = students.indexOf(owner);
   owner.files = owner.files.filter((x) => x !== f);
   releasePdfs({files: [f]});
-  const reuse = !hasPaper(owner) && !owner.scores.some(Boolean) && !owner.approved;
+  const reuse = !hasPaper(owner) && !owner.scores.some((x) => x != null) && !owner.approved;
   const made = [];
   groups.forEach(([a, b], k) => {
     let st;
@@ -2334,7 +2705,10 @@ async function requestDraft(st, pass, onStatus, withCover){
   }
   if(st !== state) releasePdfs(st);
   onStatus("Grade Along AI is reading the paper… this can take up to a minute.");
-  return postAI({firstName, grade, text: text || undefined, images: images.length ? images : undefined, coverImage}, pass);
+  const rid = RUB.id;
+  const data = await postAI({firstName, grade, text: text || undefined, images: images.length ? images : undefined, coverImage, rubric: RUB.builtin ? undefined : rubricForApi(RUB)}, pass);
+  if(RUB.id !== rid || (data.rows || []).length !== WONDERS.length) throw aiError("The rubric changed while this paper was being graded. Grade it again.");
+  return data;
 }
 
 function getPass(statusFn){
@@ -2350,7 +2724,7 @@ async function gradeWithAI(){
   const pass = getPass(setAiStatus);
   if(!pass) return;
   if(!hasPaper(state)){ setAiStatus("Add a photo or scanned PDF of the paper, or paste the story text first.", "error"); return; }
-  const anyScored = state.scores.some((s) => s) || state.overall.trim();
+  const anyScored = state.scores.some((s) => s != null) || state.overall.trim();
   if(anyScored && !confirm("Replace the current levels and feedback with a new AI draft?")) return;
   const st = state;
   st.busy = true; st.error = "";
@@ -2359,7 +2733,7 @@ async function gradeWithAI(){
     const data = await requestDraft(st, pass, (m) => { if(st === state) setAiStatus(m); }, true);
     applyAI(data, st);
     const filled = data.cover !== undefined ? applyCover(st, data.cover) : 0;
-    if(st === state) setAiStatus("AI draft ready — " + data.total + " / 20. Review each row: approve it or edit the level and comment." + (filled ? " Student details were filled from the cover sheet — please check them." : ""));
+    if(st === state) setAiStatus("AI draft ready — " + data.total + " / " + maxTotal() + ". Review each row: approve it or edit the level and comment." + (filled ? " Student details were filled from the cover sheet — please check them." : ""));
   } catch(e){
     if(st === state) setAiStatus(e.message + (e.status && e.status !== 401 ? " You can still grade this paper by hand." : ""), "error");
   } finally {
@@ -2491,7 +2865,7 @@ function applyAI(data, st = state){
   WONDERS.forEach((cat, i) => {
     const r = (data.rows || [])[i];
     const score = r && Number(r.score);
-    if(!(score >= 1 && score <= 5)) return;
+    if(!scoreOk(score)) return;
     st.scores[i] = score;
     st.feedback[i] = String(r.comment || "");
     st.starters[i] = "";
@@ -2522,6 +2896,7 @@ function safeName(){
 }
 
 loadDraft();
+renderRubricUI();
 fillForm();
 renderCategories();
 renderFiles();
@@ -2585,6 +2960,8 @@ $("q-assess").addEventListener("change", () => { sessionAssess = $("q-assess").v
 $("t-assess").addEventListener("change", () => { state.assess = $("t-assess").value; state.preMatch = ""; renderAssess(); saveDraft(); });
 $("t-match").addEventListener("change", () => { state.preMatch = $("t-match").value; renderAssess(); saveDraft(); });
 $("q-save-scores").addEventListener("click", saveClassScores);
+$("q-rubric").addEventListener("change", () => { useRubric($("q-rubric").value); });
+$("q-rubrics").addEventListener("click", () => openRubrics());
 $("q-load-pre").addEventListener("click", () => $("q-load-file").click());
 $("q-load-file").addEventListener("change", (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ""; if(f) loadPreFile(f); });
 $("q-print-growth").addEventListener("click", () => { syncForm(); printReports([buildGrowthSummary()]); });
