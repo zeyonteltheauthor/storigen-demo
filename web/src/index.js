@@ -9,6 +9,9 @@ export default {
     if (url.pathname === "/" || url.pathname === "") {
       return Response.redirect(new URL("/grade-along/", url).href, 302);
     }
+    if (url.pathname === "/demo" || url.pathname === "/demo/") {
+      return Response.redirect(new URL("/grade-along/?demo", url).href, 302);
+    }
     const upstream = UPSTREAM + url.pathname + url.search;
     const init = {
       method: request.method,

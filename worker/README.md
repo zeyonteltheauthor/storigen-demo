@@ -45,3 +45,7 @@ npx wrangler deploy
 - Configurable vars: `INVITE_FROM` (default `invites@gradealong.com`), `INVITE_FROM_NAME`, `INVITE_REPLY_TO` (default `info@arrivalhousemedia.com`), `INVITE_SIGNIN_URL`.
 - Emails never include student names, papers or scores.
 - CORS allows `https://zeyonteltheauthor.github.io`, `https://gradealong.com` and `https://www.gradealong.com`.
+
+
+## Public demo (`POST /demo/grade`)
+Unauthenticated. Reuses the existing RATE_LIMITER with a `demo:` key prefix and caps about 3 papers per IP per calendar day (America/New_York) via the Cache API (a count only — never the paper). Same body shape as `/grade` (text and/or photos, optional rubric). No session, no D1 writes, no school usage consumption. CORS matches the other routes.

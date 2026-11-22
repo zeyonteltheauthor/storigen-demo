@@ -269,6 +269,16 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 .r-overall p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
 .r-foot{margin-top:auto;padding-top:.6em;border-top:1px solid #E5DCC6;display:flex;justify-content:space-between;gap:10px;font-size:.74em;color:#6B7280}
 .r-foot b{color:#8A6D2C;font-weight:700}
+
+.demo-banner{background:#2a1d08;border-bottom:2px solid var(--gold);color:var(--parch);padding:12px clamp(14px,4vw,54px);text-align:center}
+.demo-banner p{margin:0 auto;max-width:1280px;font-size:1rem;line-height:1.45}
+.demo-banner strong{color:var(--gold-hi)}
+.demo-banner a{color:var(--gold-hi);font-weight:700}
+.demo-samples{margin:0 0 16px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:rgba(16,26,47,.65)}
+.demo-samples label{display:block;margin:8px 0 6px;color:var(--gold);font-weight:650}
+.demo-samples label:first-child{margin-top:0}
+.demo-samples select{width:100%;max-width:32rem;font:inherit;color:var(--ink);background:var(--night);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:42px}
+.demo-samples .demo-hint{margin:8px 0 0;color:var(--sub);font-size:.9rem}
 @media print{
   @page{size:letter;margin:.5in}
   html:has(body.print-report){background:#fff!important;color-scheme:light}
@@ -320,7 +330,7 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 <p class="gate-msg" id="gate-msg" role="status" aria-live="polite"></p>
 <p class="gate-note">The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only, and each signed-in account has its own.</p>
 <p class="gate-note">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
-<p class="version-label">Grade Along v16</p>
+<p class="version-label">Grade Along v17</p>
 <p class="gate-powered">Powered by STORIGEN · Arrival House Media</p>
 </section>
 </main>
@@ -498,7 +508,7 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 <div id="owner-schools"></div>
 <p class="school-legal">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
 </section>
-<footer class="version-label" id="ga-version">Grade Along v16</footer>
+<footer class="version-label" id="ga-version">Grade Along v17</footer>
 </div>
 
 </main>
@@ -691,6 +701,31 @@ const DEFAULT_ROWS = [
 ];
 
 const DEFAULT_RUBRIC = {id: "storigen-wonders", name: "Storigen Wonders Rubric", min: 1, max: 5, builtin: true, rows: DEFAULT_ROWS};
+const DEMO_SNAPSHOT_RUBRIC = {
+  id: "demo-narrative-snapshot",
+  name: "Sample · Grade 3 narrative snapshot",
+  min: 1, max: 4, builtin: false, sample: true,
+  rows: [
+    {id:"goal", name:"Goal and choice", levels:{
+      4:{label:"Strong", text:"A clear goal and a meaningful choice are easy to follow."},
+      3:{label:"Clear", text:"A goal is present and a choice or action moves the story."},
+      2:{label:"Emerging", text:"A goal or a choice is hinted at but not fully developed."},
+      1:{label:"Beginning", text:"The goal or choice is hard to find."}
+    }},
+    {id:"detail", name:"Concrete detail", levels:{
+      4:{label:"Strong", text:"Specific details make the moment easy to picture."},
+      3:{label:"Clear", text:"A few concrete details support the events."},
+      2:{label:"Emerging", text:"The events are mostly told, with little detail."},
+      1:{label:"Beginning", text:"Almost no concrete detail is present."}
+    }},
+    {id:"clarity", name:"Clarity", levels:{
+      4:{label:"Strong", text:"Sentences are clear and easy to read throughout."},
+      3:{label:"Clear", text:"The writing is generally clear; a few errors do not block meaning."},
+      2:{label:"Emerging", text:"Errors or gaps sometimes slow the reader."},
+      1:{label:"Beginning", text:"The writing is hard to follow."}
+    }}
+  ]
+};
 const RUBRIC_STORE = "storigen-os-grade-along-rubrics";
 const RUBRIC_URL = "https://grade-along-api.storigen.workers.dev/rubric";
 const RL = {name: 100, rows: 10, title: 120, desc: 500, label: 40, text: 400, maxLevel: 10, chars: 30000};   // same limits as the Worker
@@ -742,11 +777,14 @@ const PRE_FILE_STORE = "storigen-os-grade-along-pre-loaded";
 const HISTORY_STORE = "storigen-os-grade-along-history";
 const WORKSPACE_MIGRATED = "storigen-os-grade-along-workspace-migrated-v14";
 const LOCAL_BASES = [RUBRIC_STORE, STORE, QUEUE_STORE, PRE_FILE_STORE, HISTORY_STORE];
-const AI_URL = "https://grade-along-api.storigen.workers.dev/grade";
+const AI_URL = window.GA_DEMO
+  ? "https://grade-along-api.storigen.workers.dev/demo/grade"
+  : "https://grade-along-api.storigen.workers.dev/grade";
 const PASS_KEY = "storigen-grade-along-passcode";
 const SESSION_STORE = "storigen-grade-along-session";
 const API_BASE = "https://grade-along-api.storigen.workers.dev";
 function workspaceId(){
+  if(window.GA_DEMO) return "demo";
   const s = window.GA_SCHOOL;
   if(s && s.school && s.school.id && s.user && s.user.id) return "school:" + s.school.id + ":" + s.user.id;
   return "passcode";
@@ -1949,6 +1987,7 @@ function allRubrics(){
   if(teachersLockedToSchool()) return schoolRubricList();
   const out = [DEFAULT_RUBRIC];
   const seen = new Set([DEFAULT_RUBRIC.id]);
+  if(window.GA_DEMO){ out.push(DEMO_SNAPSHOT_RUBRIC); seen.add(DEMO_SNAPSHOT_RUBRIC.id); }
   schoolRubricList().concat(rubricLibrary()).forEach((r) => {
     if(!r.id || seen.has(r.id)) return;
     seen.add(r.id);
@@ -2052,7 +2091,11 @@ function openRubrics(msg, kind){
   const inD = el("input"); inD.type = "file"; inD.accept = "application/pdf,.pdf,image/*,.heic,.heif"; inD.multiple = true; inD.hidden = true; inD.id = "rb-doc";
   inF.addEventListener("change", () => { const f = inF.files[0]; inF.value = ""; if(f) importRubricFile(f); });
   inD.addEventListener("change", () => { const fs = Array.from(inD.files || []); inD.value = ""; if(fs.length) importRubricDoc(fs, status); });
-  if(!locked) acts.append(mkBtn("+ New rubric", "primary", () => openEditor(blankRubric(), true)), mkBtn("Import from a document (PDF or photo)", "secondary", () => inD.click()), mkBtn("Import rubric file (.json)", "secondary", () => inF.click()), inF, inD);
+  if(!locked){
+    acts.append(mkBtn("+ New rubric", "primary", () => openEditor(blankRubric(), true)));
+    if(!window.GA_DEMO) acts.append(mkBtn("Import from a document (PDF or photo)", "secondary", () => inD.click()));
+    acts.append(mkBtn("Import rubric file (.json)", "secondary", () => inF.click()), inF, inD);
+  }
   const status = el("p", "split-status", msg || ""); status.id = "rb-status"; status.dataset.kind = kind || ""; status.setAttribute("role", "status"); status.setAttribute("aria-live", "polite");
   card.append(acts, status);
   const list = el("div", "rb-list");
@@ -2060,6 +2103,7 @@ function openRubrics(msg, kind){
     const it = el("article", "rb-item"); it.dataset.on = r.id === RUB.id ? "true" : "false";
     const h = el("h3", null, r.name);
     if(r.builtin) h.append(el("span", "rb-badge", "Built in"));
+    if(r.sample) h.append(el("span", "rb-badge", "Sample"));
     if(r.school) h.append(el("span", "rb-badge", "School"));
     if(r.id === RUB.id) h.append(el("span", "rb-badge", "This session"));
     it.append(h, el("p", null, rubricSummary(r) + " · " + r.rows.map((x) => x.name).join(" · ")));
@@ -2612,6 +2656,7 @@ function splitGroups(starts, total){
 }
 
 async function openSplit(f, owner){
+  if(window.GA_DEMO){ setAiStatus("The public demo grades one paper at a time. Tick the pages you want, or paste the story text.", "error"); return; }
   if(batchRunning || document.querySelector(".split-modal")) return;
   const pass = $("ai-pass").value || $("q-pass").value || (() => { try { return sessionStorage.getItem(PASS_KEY) || ""; } catch(e){ return ""; } })();
   const modal = el("div", "split-modal");
@@ -2826,6 +2871,7 @@ async function coverJpeg(st){
 
 function authHeaders(pass){
   const h = {"Content-Type": "application/json"};
+  if(window.GA_DEMO) return h;
   const tok = window.GA_SCHOOL && window.GA_SCHOOL.token;
   if(tok) h["X-Teacher-Session"] = tok;
   else if(pass) h["X-Teacher-Passcode"] = pass;
@@ -2932,6 +2978,7 @@ async function requestDraft(st, pass, onStatus, withCover){
 }
 
 function getPass(statusFn){
+  if(window.GA_DEMO) return "demo";
   const pass = $("ai-pass").value;
   if(!pass){ statusFn("Enter the teacher passcode first.", "error"); $("ai-pass").focus(); return null; }
   try { sessionStorage.setItem(PASS_KEY, pass); } catch(e){}
@@ -3203,6 +3250,10 @@ function saveRubricToSchool(r, status, after){
   });
 }
 function renderSchoolBar(){
+  if(window.GA_DEMO){
+    ["school-bar","school-admin","owner-panel"].forEach((id) => { const n = $(id); if(n) n.hidden = true; });
+    return;
+  }
   const bar = $("school-bar");
   const meter = $("school-meter");
   const admin = $("school-admin");
@@ -3495,8 +3546,92 @@ const params = new URLSearchParams(location.search);
 if(params.get("mode") === "grade" || params.get("mode") === "teacher"){
   setMode("teacher");
 }
-wireSchoolUi();
+const DEMO_PAPERS = [
+  {id:"bus", name:"Maya · The Last Bus Ticket (Grade 3, English)", student:"Maya", grade:"3", title:"The Last Bus Ticket",
+   text:"Maya wanted to get to the library before it closed. In her pocket was the last bus ticket.\n\nAt the stop, a boy held a broken umbrella. His paper bridge was getting wet. Maya looked down the road. Her bus was coming.\n\nShe could get on, or she could help him save the bridge. She put her ticket away and held the umbrella over his project.\n\nThe boy took the bridge into the library. Maya followed him. They was both late, but the librarian held the door for them."},
+  {id:"pencil", name:"Jalen · The Missing Pencil (Grade 2, English)", student:"Jalen", grade:"2", title:"The Missing Pencil",
+   text:"Jalen needed a pencil to finish his drawing.\n\nHe looked in his desk. It was not there.\n\nHe asked Sam if he could borrow one. Sam said yes.\n\nJalen finished the picture and gave the pencil back."},
+  {id:"bridge", name:"Ana · El puente de papel (Grade 3, Spanish)", student:"Ana", grade:"3", title:"El puente de papel",
+   text:"El viernes Ana queria llevar su puente de papel a la feria antes de las cuatro.\n\nCuando empezo la lluvia, la caja se mojo y una esquina del puente se doblo.\n\nEn vez de regresar a casa, Ana puso el puente en una bolsa y tomo el camino cubierto.\n\nLlego antes de las cuatro y su amiga le ayudo a enderezar la esquina. Ana sonrio cuando pusieron el puente en la mesa."},
+  {id:"lantern", name:"Nia · The Light in the Window (Grade 3, English)", student:"Nia", grade:"3", title:"The Light in the Window",
+   text:"On the morning of the school story fair, Nia carried a paper lantern in a shoebox. She had painted its sides yellow so they would glow like the window in her favorite book. Her little brother, Eli, had drawn a crooked star on the bottom. Nia put that side down. She wanted to win the ribbon for the best display, and she did not think crooked stars won ribbons.\n\nBy lunch, rain was drumming on the cafeteria roof. When Nia went to set up, she found water dripping onto her table. One side of the lantern had sagged. She tried to stand it up, but each time she moved her hand, it folded again. Across the room, Eli was squatting under a table with the book she had promised to read with him. He had not looked up once.\n\nNia could move to the dry end of the room and ask for a new sheet of paper. Instead, she carried the lantern to Eli and asked him to hold the bottom while she taped the torn side. He turned it so the star faced out. “That’s your window,” he said. “I put it there so you could find me in the story.”\n\nWhen the lights went down, the flashlight inside the lantern sent a crooked star across both of their hands. Nia set the shoebox lid beneath it and opened the book. The judges had not come to her table yet, but Eli had finally looked up. She started reading before the star could slide off his thumb."},
+  {id:"upload", name:"Upload or paste your own paper", student:"", grade:"", title:"", text:""}
+];
+
+function applyPublicDemo(){
+  if(!window.GA_DEMO) return;
+  document.body.classList.add("ga-demo");
+  if(!$("demo-banner")){
+    const banner = document.createElement("div");
+    banner.id = "demo-banner";
+    banner.className = "demo-banner";
+    banner.setAttribute("role", "status");
+    banner.innerHTML = '<p><strong>Demo, schools get full accounts.</strong> Try Grade Along with a sample paper or your own. This preview does not sign you in and has no school, teacher, admin, or owner tools. Schools can write to <a href="mailto:info@arrivalhousemedia.com">info@arrivalhousemedia.com</a> for a full account.</p>';
+    const header = document.querySelector("header.topbar");
+    if(header) header.after(banner);
+    else document.body.prepend(banner);
+  }
+  ["school-bar","school-admin","owner-panel","ga-lock","mode-practice","q-read-covers"].forEach((id) => { const n = $(id); if(n) n.hidden = true; });
+  const coverOn = $("q-cover-on");
+  if(coverOn){ coverOn.checked = false; const wrap = coverOn.closest("label") || coverOn; wrap.hidden = true; }
+  document.querySelectorAll(".school-panel").forEach((n) => { n.hidden = true; });
+  ["ai-pass","q-pass"].forEach((id) => {
+    const inp = $(id);
+    if(!inp) return;
+    const wrap = inp.closest("div") || inp;
+    wrap.hidden = true;
+  });
+  const back = document.querySelector("a.link-btn[href='../']");
+  if(back) back.textContent = "STORIGEN OS";
+  const badge = $("mode-badge");
+  if(badge) badge.textContent = "Public demo";
+  const practice = $("practice-view");
+  if(practice) practice.hidden = true;
+  const teacher = $("teacher-view");
+  if(teacher) teacher.hidden = false;
+  const modeT = $("mode-teacher");
+  const modeP = $("mode-practice");
+  if(modeT) modeT.setAttribute("aria-pressed","true");
+  if(modeP){ modeP.setAttribute("aria-pressed","false"); modeP.hidden = true; }
+  const modes = document.querySelector(".modes");
+  if(modes) modes.hidden = true;
+  const heroP = document.querySelector("#teacher-view .hero p");
+  if(heroP) heroP.textContent = "Pick a sample paper or upload your own. Grade Along AI drafts a level and comment for each rubric row. You approve or edit every row. This public demo grades about 3 papers per day from your network, and nothing is stored on the server.";
+  const privacy = document.querySelector("#teacher-view .privacy");
+  if(privacy) privacy.innerHTML = '<strong>This is a public demo.</strong> Sample names and papers are fictional. If you upload your own paper, only the photos or text you send are used to draft scores. They are not stored on the server and are not attached to a school account. You can grade about 3 papers per day.';
+  const hero = document.querySelector("#teacher-view .hero");
+  if(hero && !$("demo-samples")){
+    const box = document.createElement("div");
+    box.id = "demo-samples";
+    box.className = "demo-samples";
+    const paperOpts = DEMO_PAPERS.map((s) => '<option value="' + s.id + '">' + s.name + "</option>").join("");
+    box.innerHTML = '<label for="demo-sample">Sample paper (fictional)</label><select id="demo-sample">' + paperOpts + "</select>"
+      + '<p class="demo-hint">Choose a sample, or pick “Upload or paste your own paper” and add a photo, a PDF, or the story text below. Use the rubric list to switch between the built-in Storigen Wonders rubric and the sample Grade 3 narrative snapshot. Drafts are not saved on the server.</p>';
+    hero.after(box);
+    $("demo-sample").addEventListener("change", () => loadDemoSample($("demo-sample").value));
+  }
+  if(!(state.story || "").trim() && !hasPaper(state)) loadDemoSample("bus");
 }
+
+function loadDemoSample(id){
+  const sample = DEMO_PAPERS.find((s) => s.id === id) || DEMO_PAPERS[0];
+  syncForm();
+  state.student = sample.student;
+  state.grade = sample.grade;
+  state.story = sample.text;
+  state.soft = {date: true};
+  state.auto = {};
+  showStudent();
+  if(!sample.text){
+    const story = $("t-story");
+    if(story){ story.placeholder = "Paste your own story, or add a photo or PDF of the paper below."; story.focus(); }
+  }
+}
+
+wireSchoolUi();
+applyPublicDemo();
+}
+
 </script>
 <script>
 /* Gate: the app markup lives in <template id="ga-app"> and its code runs only after the Worker
@@ -3641,6 +3776,13 @@ wireSchoolUi();
     forget();
     location.replace(location.pathname + location.search);
   });
+  var isDemo = /(?:^|[?&])demo(?:&|=|$)/.test(location.search) || /(?:^|\/)demo\/?$/.test(location.pathname);
+  if(isDemo){
+    window.GA_DEMO = true;
+    window.GA_SCHOOL = null;
+    mount("Public demo");
+    return;
+  }
   var savedSession = ls(function(){ return localStorage.getItem(SESSION_STORE); });
   var savedPass = ss(function(){ return sessionStorage.getItem(PASS_KEY); });
   if(savedSession) trySession(savedSession, true);

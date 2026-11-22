@@ -626,6 +626,136 @@ async function handleGrade(request, env, origin) {
   return json({ error: status === 429 ? "The AI service is busy. Try again in a minute." : "The AI could not draft this paper. Try again, or grade it by hand." }, 502, origin);
 }
 
+// Public demo grading: no session, no school features, no server-side storage.
+// About 3 papers per IP per calendar day (America/New_York), plus the existing
+// RATE_LIMITER under a "demo:" prefix for short bursts. Only a count is kept,
+// never the paper or scores.
+const DEMO_DAILY_LIMIT = 3;
+const memDemoCounts = new Map();
+const DEMO_LIMIT_MSG = "This public demo grades up to 3 papers per day. Schools get full accounts — write to info@arrivalhousemedia.com.";
+
+function demoDayStamp(now = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/New_York",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(now);
+}
+
+function demoLimitId(ip, day) {
+  return String(ip || "unknown") + ":" + day;
+}
+
+async function readDemoCount(ip, day) {
+  const id = demoLimitId(ip, day);
+  try {
+    if (typeof caches !== "undefined" && caches.default) {
+      const req = new Request("https://demo-limit.gradealong.invalid/" + encodeURIComponent(ip || "unknown") + "/" + day);
+      const hit = await caches.default.match(req);
+      if (hit) {
+        const n = parseInt(await hit.text(), 10);
+        return { count: Number.isFinite(n) ? n : 0, req, via: "cache", id };
+      }
+      return { count: 0, req, via: "cache", id };
+    }
+  } catch { /* memory fallback */ }
+  return { count: memDemoCounts.get(id) || 0, req: null, via: "memory", id };
+}
+
+async function bumpDemoCount(slot) {
+  const next = (slot.count || 0) + 1;
+  slot.count = next;
+  if (slot.via === "cache" && slot.req && typeof caches !== "undefined" && caches.default) {
+    try {
+      await caches.default.put(slot.req, new Response(String(next), {
+        headers: { "Cache-Control": "max-age=172800", "Content-Type": "text/plain;charset=utf-8" }
+      }));
+      return next;
+    } catch { /* memory fallback */ }
+  }
+  memDemoCounts.set(slot.id, next);
+  return next;
+}
+
+async function handleDemoGrade(request, env, origin) {
+  if (!env.ANTHROPIC_API_KEY) return json({ error: "AI key not configured" }, 503, origin);
+  const limited = await rateLimit(request, env, "demo:");
+  if (limited) return limited(origin);
+
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  const day = demoDayStamp();
+  const slot = await readDemoCount(ip, day);
+  if (slot.count >= DEMO_DAILY_LIMIT) return json({ error: DEMO_LIMIT_MSG }, 429, origin);
+
+  const len = Number(request.headers.get("Content-Length") || 0);
+  if (len > MAX_BODY) return json({ error: "Upload too large. Use up to 3 smaller photos." }, 413, origin);
+
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
+
+  const firstName = cleanStr(body.firstName, 40).split(/\s+/)[0] || "the student";
+  const grade = cleanStr(String(body.grade ?? ""), 12) || "2–3";
+  const title = cleanStr(body.title, 200);
+  const text = cleanStr(body.text, MAX_TEXT);
+  const images = Array.isArray(body.images) ? body.images.slice(0, MAX_IMAGES + 1) : [];
+  if (images.length > MAX_IMAGES) return json({ error: "Up to 3 photos per paper." }, 400, origin);
+
+  let rub = null;
+  if (body.rubric != null) {
+    let size = 0;
+    try { size = JSON.stringify(body.rubric).length; } catch { size = Infinity; }
+    if (size > RUBRIC_LIMITS.json) return json({ error: "The rubric is too long. Shorten the descriptors and try again." }, 413, origin);
+    try { rub = cleanRubric(body.rubric, true); }
+    catch (e) { return json({ error: e.rubric ? e.message : "The rubric is not valid." }, 400, origin); }
+  }
+
+  const content = [];
+  for (const raw of images) {
+    if (typeof raw !== "string") return json({ error: "Bad image." }, 400, origin);
+    const b64 = raw.replace(/^data:image\/jpeg;base64,/, "");
+    if (!/^[A-Za-z0-9+/=\s]+$/.test(b64.slice(0, 200)) || b64.length > MAX_IMAGE_B64) {
+      return json({ error: "Each photo must be a JPEG under about 4 MB." }, 400, origin);
+    }
+    content.push({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: b64 } });
+  }
+  if (!content.length && !text) {
+    return json({ error: "Add a photo of the paper or paste the story text." }, 400, origin);
+  }
+
+  // Count this attempt before the model call. Never write the paper, name, or scores.
+  await bumpDemoCount(slot);
+
+  let prompt = `Student first name: ${firstName}\nGrade: ${grade}\n`;
+  if (title) prompt += `Story title: ${title}\n`;
+  if (content.length) prompt += `The student's handwritten paper is in the ${content.length} photo(s) above, in page order. Read it carefully.\n`;
+  if (text) prompt += `${content.length ? "Teacher-typed text of the story (use it to help read the photos):" : "Story text:"}\n<student_story>\n${text}\n</student_story>\n`;
+  prompt += rub ? `Draft the ${rub.rows.length} rubric row(s), overall feedback, and transcription note as JSON.` : "Draft the four rubric rows, total, overall feedback, and transcription note as JSON.";
+  content.push({ type: "text", text: prompt });
+
+  let lastErr;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const out = rub ? await callClaude(env, content, customSystem(rub), customSchema(rub)) : await callClaude(env, content);
+      const draft = rub ? validateCustomDraft(out.input, rub) : validateDraft(out.input);
+      return json({
+        ok: true,
+        model: out.model || MODEL,
+        ...draft,
+        note: "AI draft. Public demo — not stored. Approve or edit every row.",
+        demo: true,
+        remaining: Math.max(0, DEMO_DAILY_LIMIT - slot.count)
+      }, 200, origin);
+    } catch (e) {
+      lastErr = e;
+      if (e.status && e.status < 500 && e.status !== 429) break;
+    }
+  }
+  const status = lastErr && lastErr.status;
+  console.log("demo grade failed", status || (lastErr && lastErr.message)); // no student content
+  return json({ error: status === 429 ? "The AI service is busy. Try again in a minute." : "The AI could not draft this paper. Try again, or grade it by hand." }, 502, origin);
+}
+
 // --- School accounts (Phase 1) ------------------------------------------------
 const INVITE_DAYS = 14;
 const TEAM_SIGNIN_URL = "https://zeyonteltheauthor.github.io/storigen-demo/grade-along/";
@@ -1772,6 +1902,12 @@ export default {
       try { return await handleRubric(request, env, origin); }
       catch { return json({ error: "Server error." }, 500, origin); }
     }
+    if (url.pathname === "/demo/grade") {
+      if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
+      if (origin && !originAllowed(origin)) return json({ error: "Origin not allowed." }, 403, origin);
+      try { return await handleDemoGrade(request, env, origin); }
+      catch { return json({ error: "Server error." }, 500, origin); }
+    }
     if (url.pathname === "/grade") {
       if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
       if (origin && !originAllowed(origin)) return json({ error: "Origin not allowed." }, 403, origin);
@@ -1782,4 +1918,4 @@ export default {
   }
 };
 
-export { parseSplitOutput, sendInviteEmail, inviteEmailContent, inviteFrom, inviteFromName, inviteReplyTo, inviteSigninUrl, originAllowed, ALLOWED_ORIGINS };
+export { parseSplitOutput, sendInviteEmail, inviteEmailContent, inviteFrom, inviteFromName, inviteReplyTo, inviteSigninUrl, originAllowed, ALLOWED_ORIGINS, demoDayStamp, DEMO_DAILY_LIMIT, DEMO_LIMIT_MSG, readDemoCount, bumpDemoCount };
