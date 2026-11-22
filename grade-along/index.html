@@ -59,6 +59,24 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 .descriptor b{color:var(--warm);font-weight:700}
 .teacher-cat{border:1px solid var(--line);border-radius:12px;padding:13px;background:#0a1020a8;margin-bottom:10px}
 .teacher-cat h3{font-size:1rem;margin:0 0 4px;color:var(--warm)}
+.split-offer{margin-top:10px;padding:10px 12px;border:1px dashed var(--gold);border-radius:10px;background:#d1a95410}
+.split-offer p{margin:0 0 8px;font-size:.88rem;color:var(--sub)}
+.q-split-list{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.split-modal{position:fixed;inset:0;z-index:60;background:#060913ee;overflow:auto;padding:clamp(10px,3vw,30px)}
+.split-card{max-width:1100px;margin:0 auto;background:linear-gradient(145deg,var(--raised),var(--surface) 62%);border:1px solid var(--gold);border-radius:16px;padding:clamp(14px,2.5vw,24px)}
+.split-card h2{margin:0 0 6px;font-size:1.25rem;font-family:var(--display);color:var(--warm)}
+.split-card p{margin:0 0 10px;color:var(--sub);font-size:.92rem}
+.split-status{color:var(--warm)!important;font-weight:650}.split-status[data-kind=error]{color:#ffb4a8!important}
+.split-controls{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin:10px 0}
+.split-controls input{width:80px;font:inherit;color:var(--ink);background:var(--night);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:42px}
+.split-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;margin:12px 0}
+.split-tile{appearance:none;font:inherit;cursor:pointer;text-align:center;border:1px solid var(--line);border-radius:10px;background:var(--night);color:var(--sub);padding:6px;font-size:.78rem;position:relative}
+.split-tile img{display:block;width:100%;height:auto;border-radius:5px;background:#fff;margin-bottom:4px;min-height:60px}
+.split-tile[data-start=true]{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset;color:var(--warm)}
+.split-tile[data-g="1"]{background:#18233b}
+.split-tile b{display:block;font-size:.78rem;color:var(--warm);min-height:1.2em}
+.split-summary{font-size:.88rem;color:var(--text-2)}
+.split-actions{display:flex;flex-wrap:wrap;gap:8px;position:sticky;bottom:0;padding:10px 0 2px;background:linear-gradient(transparent,var(--surface) 30%)}
 .gate-wrap{display:flex;justify-content:center;padding:clamp(28px,8vh,90px) 0 40px}
 .gate{width:min(100%,460px);background:linear-gradient(145deg,var(--raised),var(--surface) 62%);border:1px solid var(--line);border-radius:18px;padding:clamp(20px,4vw,32px);box-shadow:0 16px 38px #06091360}
 .gate h1{font-size:clamp(1.6rem,4vw,2.1rem);line-height:1.15;margin:.3rem 0 .6rem;font-family:var(--display)}
@@ -201,7 +219,7 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 </form>
 <p class="gate-msg" id="gate-msg" role="status" aria-live="polite"></p>
 <p class="gate-note">The passcode is kept in this tab only and cleared when you close it or press Lock. Papers, names, and scores are never stored on the site; drafts stay in this browser on this device only.</p>
-<p class="version-label">Grade Along v9</p>
+<p class="version-label">Grade Along v10</p>
 </section>
 </main>
 <template id="ga-app">
@@ -263,6 +281,7 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 <h3 id="q-bulk-title">Students added</h3>
 <p id="q-bulk-msg"></p>
 <p class="bulk-tip" id="q-bulk-tip" hidden></p>
+<div class="q-split-list" id="q-split-list"></div>
 <label class="bulk-check"><input type="checkbox" id="q-cover-on" checked> Read first name, grade, facilitator, and date from each cover sheet (page 1)</label>
 <div class="bulk-row">
 <div><label for="q-pass">Teacher passcode</label><input id="q-pass" type="password" autocomplete="off" maxlength="200" placeholder="Kept for this tab only"></div>
@@ -324,7 +343,7 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 <p class="status" id="t-status">Not reviewed. Nothing is sent unless you press Grade with AI.</p>
 </section>
 </div>
-<footer class="version-label" id="ga-version">Grade Along v9</footer>
+<footer class="version-label" id="ga-version">Grade Along v10</footer>
 </div>
 
 </main>
@@ -962,9 +981,21 @@ function showBulkPanel(nAdded, nPdf){
     msg += n > 1 ? "Tap each student in the list below to check their pages. " : "";
     msg += "When you are ready, press Grade all with AI. Each student's draft still needs your approval.";
   }
+  const splitList = $("q-split-list");
+  splitList.replaceChildren();
+  students.forEach((st) => st.files.forEach((f) => {
+    if(!canSplit(f)) return;
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "primary";
+    b.textContent = "Split “" + nameFromFile(f.name).slice(0, 40) + "” (" + f.pdf.numPages + " pages) into students";
+    b.addEventListener("click", () => { switchTo(students.indexOf(st)); openSplit(f, st); });
+    splitList.append(b);
+  }));
+  if(splitList.children.length) msg = "A scan with more than 3 pages may hold a whole class. Press Split to make one student per paper (each paper starts with a cover sheet). " + msg;
   $("q-bulk-msg").textContent = msg;
   const tip = $("q-bulk-tip");
-  tip.hidden = bulkSession.files > 1;
+  tip.hidden = bulkSession.files > 1 || splitList.children.length > 0;
   tip.textContent = "Only 1 file came through. Phone file pickers often take one file per tap. On Android, press and hold the first file, then tap the others, then tap Select or Open. On iPhone or iPad, tap Select (top right) first, then tap each file, then Open. You can also press + Add more files as many times as you like — each file you add becomes another student.";
   if(!$("q-pass").value) $("q-pass").value = $("ai-pass").value;
   renderQueue();
@@ -980,7 +1011,7 @@ function serializeStudent(st, withFiles){
     files: st.files.map((f) => ({
       name: f.name, type: f.type, size: f.size,
       dataUrl: withFiles ? (f.dataUrl || null) : null,
-      bulk: !!f.bulk, readCover: f.readCover, coverPage: f.coverPage || 0,
+      bulk: !!f.bulk, readCover: f.readCover, coverPage: f.coverPage || 0, pageRange: f.pageRange || null,
       pages: isPdfFile(f) ? (f.pdf && f.pdf.status === "ready" ? selectedPdfPages(f).map((p) => p.n) : (f.savedPages || null)) : null
     }))
   };
@@ -1031,7 +1062,7 @@ function restoreStudent(d){
   if(Array.isArray(d.files)){
     d.files.forEach((f) => {
       if(f && f.dataUrl){
-        st.files.push({name: f.name || "scan", type: f.type || "", size: f.size || 0, url: f.dataUrl, blobUrl: null, dataUrl: f.dataUrl, savedPages: Array.isArray(f.pages) ? f.pages : null, bulk: !!f.bulk, readCover: typeof f.readCover === "boolean" ? f.readCover : undefined, coverPage: f.coverPage | 0});
+        st.files.push({name: f.name || "scan", type: f.type || "", size: f.size || 0, url: f.dataUrl, blobUrl: null, dataUrl: f.dataUrl, savedPages: Array.isArray(f.pages) ? f.pages : null, bulk: !!f.bulk, readCover: typeof f.readCover === "boolean" ? f.readCover : undefined, coverPage: f.coverPage | 0, pageRange: Array.isArray(f.pageRange) && f.pageRange.length === 2 ? [f.pageRange[0] | 0, f.pageRange[1] | 0] : null});
       } else if(f){ dropped++; }
     });
   }
@@ -1522,15 +1553,19 @@ async function preparePdfInner(f, owner){
   if(owner === state) renderFiles();
   try{
     const doc = await openPdf(f);
-    const n = doc.numPages;
+    f.pdf.docPages = doc.numPages;
+    // A student split from a class scan owns only a range of the scan's pages (original page numbers are kept).
+    const first = f.pageRange ? Math.max(1, f.pageRange[0] | 0) : 1;
+    const last = f.pageRange ? Math.min(doc.numPages, f.pageRange[1] | 0) : doc.numPages;
+    const n = Math.max(0, last - first + 1);
     f.pdf.numPages = n;
     // Thumbnails are drawn later, only when this student is on screen.
-    for(let i = 1; i <= n; i++){
-      const cover = n > 1 && i <= 3 ? await looksLikeCover(doc, i) : false;
+    for(let i = first; i <= last; i++){
+      const cover = n > 1 && i - first < 3 && !f.pageRange ? await looksLikeCover(doc, i) : false;
       f.pdf.pages.push({n: i, thumb: null, cover, selected: false});
     }
-    // In a bulk upload, page 1 of a multi-page PDF is the STORIGEN cover sheet.
-    if(f.bulk && n > 1){ f.pdf.pages[0].cover = true; if(!f.coverPage) f.coverPage = 1; }
+    // In a bulk upload or a split, the first page of a multi-page paper is the STORIGEN cover sheet.
+    if(f.bulk && n > 1){ f.pdf.pages[0].cover = true; if(!f.coverPage) f.coverPage = f.pdf.pages[0].n; }
     const firstCover = f.pdf.pages.find((p) => p.cover);
     if(firstCover && !f.coverPage) f.coverPage = firstCover.n;
     if(f.readCover === undefined) f.readCover = !!(f.coverPage && n > 1);
@@ -1555,7 +1590,7 @@ async function preparePdfInner(f, owner){
 // Draw page thumbnails for the student on screen, one at a time.
 async function ensureThumbs(f){
   if(!f.pdf || f.pdf.status !== "ready" || f.thumbing) return;
-  const todo = f.pdf.pages.filter((p) => !p.thumb && p.n <= 40);
+  const todo = f.pdf.pages.slice(0, 40).filter((p) => !p.thumb);
   if(!todo.length) return;
   f.thumbing = true;
   try{
@@ -1603,11 +1638,11 @@ function renderPdfPicker(f){
   grid.setAttribute("role", "group");
   grid.setAttribute("aria-label", "Pages of " + f.name + " to send to AI");
   if(!f.uid) f.uid = uidSeq++;
-  f.pdf.pages.forEach((p) => {
+  f.pdf.pages.forEach((p, pi) => {
     const lab = document.createElement("label");
     lab.className = "pdf-page";
     lab.dataset.on = p.selected ? "true" : "false";
-    if(p.n <= 40){
+    if(pi < 40){
       const img = document.createElement("img");
       img.dataset.thumb = f.uid + "-" + p.n;
       img.alt = "Page " + p.n;
@@ -1648,8 +1683,217 @@ function renderPdfPicker(f){
     opt.append(cc, document.createTextNode("Read first name, grade, facilitator, and date from page " + (f.coverPage || 1) + " (cover sheet)" + (state.coverRead && f.readCover ? " · done" : "")));
     box.append(opt);
   }
+  if(canSplit(f)){
+    const off = document.createElement("div");
+    off.className = "split-offer";
+    const t = document.createElement("p");
+    t.textContent = "This scan has " + n + " pages. If it holds several students' papers (each starting with a cover sheet), split it into one student per paper.";
+    const sb = document.createElement("button");
+    sb.type = "button";
+    sb.className = "primary split-btn";
+    sb.textContent = "Split this scan into students";
+    const owner = state;
+    sb.addEventListener("click", () => openSplit(f, owner));
+    off.append(t, sb);
+    box.append(off);
+  }
   setTimeout(() => ensureThumbs(f), 0);
   return box;
+}
+
+/* ---------- Split a combined class scan into one student per paper ---------- */
+const SPLIT_URL = AI_URL.replace(/\/grade$/, "/split");
+const SPLIT_BATCH = 20;
+function canSplit(f){
+  return isPdfFile(f) && !f.pageRange && f.pdf && f.pdf.status === "ready" && f.pdf.numPages > MAX_AI_IMAGES;
+}
+
+function splitGroups(starts, total){
+  const s = Array.from(new Set(starts.filter((n) => n >= 1 && n <= total))).sort((a, b) => a - b);
+  if(s[0] !== 1) s.unshift(1);
+  return s.map((a, k) => [a, (k + 1 < s.length ? s[k + 1] : total + 1) - 1]);
+}
+
+async function openSplit(f, owner){
+  if(batchRunning || document.querySelector(".split-modal")) return;
+  const pass = $("ai-pass").value || $("q-pass").value || (() => { try { return sessionStorage.getItem(PASS_KEY) || ""; } catch(e){ return ""; } })();
+  const modal = el("div", "split-modal");
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
+  modal.setAttribute("aria-labelledby", "split-title");
+  const card = el("div", "split-card");
+  const h = el("h2", "", "Split into students");
+  h.id = "split-title";
+  const intro = el("p", "", "Each cover sheet starts a new student; their story pages run up to the next cover. Tap a page to start or stop a new student there. Nothing is created until you press Create.");
+  const status = el("p", "split-status", "Opening the scan…");
+  status.setAttribute("role", "status");
+  const controls = el("div", "split-controls");
+  const perWrap = el("div");
+  const perLab = el("label", "", "Pages per student");
+  perLab.htmlFor = "split-per";
+  const per = document.createElement("input");
+  per.type = "number"; per.min = "1"; per.max = "20"; per.value = "2"; per.id = "split-per";
+  perWrap.append(perLab, per);
+  const perGo = el("button", "secondary", "Split every N pages");
+  perGo.type = "button";
+  const redetect = el("button", "secondary", "Find cover sheets again");
+  redetect.type = "button";
+  controls.append(perWrap, perGo, redetect);
+  const summary = el("p", "split-summary", "");
+  const strip = el("div", "split-strip");
+  const actions = el("div", "split-actions");
+  const create = el("button", "primary", "Create students");
+  create.type = "button"; create.disabled = true;
+  const cancel = el("button", "secondary", "Cancel");
+  cancel.type = "button";
+  actions.append(create, cancel);
+  card.append(h, intro, status, controls, summary, strip, actions);
+  modal.append(card);
+  document.body.append(modal);
+  cancel.focus();
+  const say = (m, kind) => { status.textContent = m; status.dataset.kind = kind || ""; };
+  let closed = false;
+  const close = () => { closed = true; modal.remove(); if(owner !== state) releasePdfs(owner); };
+  cancel.addEventListener("click", close);
+  modal.addEventListener("keydown", (e) => { if(e.key === "Escape") close(); });
+
+  let total = 0, starts = new Set([1]), thumbs = [];
+  const tiles = [];
+  function draw(){
+    const groups = splitGroups(Array.from(starts), total);
+    let g = 0;
+    tiles.forEach((t, i) => {
+      const n = i + 1;
+      const on = starts.has(n) || n === 1;
+      if(on && n !== 1) g++;
+      t.dataset.start = on ? "true" : "false";
+      t.dataset.g = String(g % 2);
+      t.setAttribute("aria-pressed", on ? "true" : "false");
+      t.querySelector("b").textContent = on ? ("Student " + (g + 1)) : "";
+    });
+    summary.textContent = groups.length + " student" + (groups.length === 1 ? "" : "s") + ": " + groups.map(([a, b]) => a === b ? ("page " + a) : ("pages " + a + "–" + b)).join(", ") + ".";
+    create.textContent = "Create " + groups.length + " student" + (groups.length === 1 ? "" : "s");
+    create.disabled = groups.length < 2;
+  }
+  function everyN(){
+    const k = Math.max(1, Math.min(20, parseInt(per.value, 10) || 2));
+    starts = new Set();
+    for(let n = 1; n <= total; n += k) starts.add(n);
+    draw();
+  }
+  async function detect(){
+    if(!pass){ say("Enter the teacher passcode in Grade with AI first, or use Split every N pages.", "error"); everyN(); return; }
+    redetect.disabled = true;
+    const found = [];
+    try{
+      const batches = Math.ceil(total / SPLIT_BATCH);
+      for(let k = 0; k < batches; k++){
+        if(closed) return;
+        say("Finding cover sheets with AI" + (batches > 1 ? " (part " + (k + 1) + " of " + batches + ")" : "") + "…");
+        const pages = [];
+        for(let n = k * SPLIT_BATCH + 1; n <= Math.min(total, (k + 1) * SPLIT_BATCH); n++){
+          pages.push({n, image: thumbs[n - 1].replace(/^data:image\/jpeg;base64,/, "")});
+        }
+        const data = await paced(() => postAI({pages}, pass, SPLIT_URL), (m) => say(m), "Cover sheets");
+        (data.covers || []).forEach((n) => found.push(n));
+      }
+    } catch(e){
+      redetect.disabled = false;
+      say((e.status === 401 ? "Wrong teacher passcode." : "Could not find the cover sheets automatically.") + " Split every " + (parseInt(per.value, 10) || 2) + " pages for now — adjust the split points below.", "error");
+      everyN();
+      return;
+    }
+    redetect.disabled = false;
+    if(found.length < 2){
+      say("No clear cover sheets found. Split every " + (parseInt(per.value, 10) || 2) + " pages for now — tap pages to fix the split points.", "error");
+      everyN();
+      return;
+    }
+    starts = new Set(found);
+    draw();
+    say("Found " + found.length + " cover sheet" + (found.length === 1 ? "" : "s") + ". Check the split points, then press Create.");
+  }
+  try{
+    if(f.pdfReady) await f.pdfReady;
+    f.pdfBusy = true;
+    const doc = await openPdf(f);
+    total = doc.numPages;
+    for(let n = 1; n <= total; n++){
+      if(closed) return;
+      say("Preparing page " + n + " of " + total + "…");
+      const url = await renderPdfPage(doc, n, 512, 0.6);
+      thumbs.push(url);
+      const t = el("button", "split-tile");
+      t.type = "button";
+      const img = document.createElement("img");
+      img.src = url; img.alt = "Page " + n;
+      t.append(el("b", "", ""), img, document.createTextNode("Page " + n));
+      t.addEventListener("click", () => {
+        if(n === 1) return;
+        if(starts.has(n)) starts.delete(n); else starts.add(n);
+        draw();
+      });
+      tiles.push(t);
+      strip.append(t);
+    }
+  } catch(e){
+    say("This PDF could not be opened here.", "error");
+    return;
+  } finally {
+    f.pdfBusy = false;
+  }
+  draw();
+  perGo.addEventListener("click", everyN);
+  redetect.addEventListener("click", detect);
+  create.addEventListener("click", () => {
+    const groups = splitGroups(Array.from(starts), total);
+    close();
+    createSplitStudents(f, owner, groups);
+  });
+  await detect();
+}
+
+function createSplitStudents(f, owner, groups){
+  if(batchRunning || groups.length < 2) return;
+  syncForm();
+  const base = nameFromFile(f.name) || "Paper";
+  const idx = students.indexOf(owner);
+  owner.files = owner.files.filter((x) => x !== f);
+  releasePdfs({files: [f]});
+  const reuse = !hasPaper(owner) && !owner.scores.some(Boolean) && !owner.approved;
+  const made = [];
+  groups.forEach(([a, b], k) => {
+    let st;
+    if(k === 0 && reuse){
+      st = owner;
+    } else {
+      st = blankStudent();
+      st.grade = owner.grade; st.date = owner.date || today(); st.facilitator = owner.facilitator;
+      st.soft = {grade: !!owner.soft.grade || !owner.grade, date: true, facilitator: !!owner.soft.facilitator || !owner.facilitator};
+      students.splice(idx + made.length + (reuse ? 0 : 1), 0, st);
+    }
+    st.student = base + " · paper " + (k + 1);
+    st.soft.student = true;
+    st.auto = {};
+    st.coverRead = false;
+    st.files.push({
+      name: f.name + " · pages " + a + (b > a ? "–" + b : ""),
+      type: "application/pdf", size: f.size, url: "", blobUrl: null,
+      dataUrl: f.dataUrl || null, file: f.file || null,
+      bulk: true, pageRange: [a, b], coverPage: b > a ? a : 0, readCover: b > a
+    });
+    made.push(st);
+  });
+  if(f.blobUrl) setTimeout(() => URL.revokeObjectURL(f.blobUrl), 0);
+  state = made[0];
+  showStudent();
+  saveDraft();
+  made.forEach((st) => st.files.forEach((x) => queuePrepare(x, st)));
+  bulkSession = {files: made.length, students: made.length, skipped: [], split: true};
+  showBulkPanel(made.length, 1);
+  $("q-bulk-title").textContent = "Split into " + made.length + " students · " + students.length + " in this session";
+  // Fill names, grades and facilitators from each cover right away (needs the passcode).
+  if($("q-cover-on").checked && ($("ai-pass").value || $("q-pass").value)) readCoversAll();
 }
 
 function coverFile(st){
@@ -1673,12 +1917,12 @@ async function coverJpeg(st){
   }
 }
 
-async function postAI(body, pass){
+async function postAI(body, pass, url){
   let res, data = null;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 120000);
   try{
-    res = await fetch(AI_URL, {
+    res = await fetch(url || AI_URL, {
       method: "POST",
       headers: {"Content-Type": "application/json", "X-Teacher-Passcode": pass},
       body: JSON.stringify(body),

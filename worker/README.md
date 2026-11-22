@@ -1,5 +1,7 @@
 # grade-along-api (Cloudflare Worker)
 
+`POST /split` — body `{ pages: [{ n, image: small base64 JPEG }] }` (up to 24 per request). Returns `{ ok, covers: [page numbers] }`: which pages are STORIGEN cover sheets, so a combined class scan can be split into one student per paper. No names or text are returned.
+
 `POST /verify` — checks `X-Teacher-Passcode` only and returns 200 `{ ok: true }` or 401 (same CORS and rate limit). Used by the Grade Along page gate.
 
 `POST /grade` — drafts Storigen Wonders rubric scores and feedback for Grade Along. The teacher approves or edits every row.
