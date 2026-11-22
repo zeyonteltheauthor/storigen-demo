@@ -86,3 +86,14 @@ CREATE TABLE IF NOT EXISTS scores (
 );
 CREATE INDEX IF NOT EXISTS scores_school ON scores(school_id);
 CREATE INDEX IF NOT EXISTS scores_lookup ON scores(school_id, teacher_id, first_name, grade, date, assessment, rubric_id);
+
+CREATE TABLE IF NOT EXISTS answer_keys (
+  id TEXT PRIMARY KEY,
+  school_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  key_json TEXT NOT NULL,
+  updated_by TEXT,
+  updated_at TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS answer_keys_school ON answer_keys(school_id);

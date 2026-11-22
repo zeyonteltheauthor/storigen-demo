@@ -4,7 +4,7 @@
    static assets are cache-first. Bump CACHE on every release.
    Never cache or return a redirected Response: Chrome fails navigations with
    ERR_FAILED when a service worker answers with response.redirected. */
-var CACHE = 'storigen-os-v21';
+var CACHE = 'storigen-os-v22';
 var ASSETS = [
   './',
   './index.html',
@@ -15,6 +15,9 @@ var ASSETS = [
   './manifest.webmanifest',
   './grade-along/',
   './grade-along/index.html',
+  './grade-along/test-score.js',
+  './grade-along/samples/maya-science-check.jpg',
+  './grade-along/samples/nico-science-check.jpg',
   './grade-along/vendor/pdfjs/pdf.min.mjs',
   './grade-along/vendor/pdfjs/pdf.worker.min.mjs',
   './grade-along/vendor/pdfjs/wasm/jbig2.wasm',

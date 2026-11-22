@@ -285,6 +285,27 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 .demo-banner p{margin:0 auto;max-width:1280px;font-size:1rem;line-height:1.45}
 .demo-banner strong{color:var(--gold-hi)}
 .demo-banner a{color:var(--gold-hi);font-weight:700}
+
+.rubric-bar.test-bar{margin-top:8px}
+body.ga-test .paper-only{display:none !important}
+body:not(.ga-test) .test-only{display:none !important}
+.test-item{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 8px;background:rgba(16,26,47,.35)}
+.test-item[data-flag="true"]{border-color:#c4883a;background:rgba(196,136,58,.12)}
+.test-item[data-ok="true"]{border-color:#3d8f63}
+.test-item[data-wrong="true"]{border-color:#b04a4a}
+.test-item .test-q{font-weight:650;margin:0 0 4px}
+.test-item .test-meta{color:var(--sub);font-size:.92rem;margin:0 0 6px}
+.test-item .test-flag{color:#e0b060;font-weight:650}
+.test-item .test-ok{color:#8fd4a8;font-weight:650}
+.test-item .test-wrong{color:#f0a0a0;font-weight:650}
+.test-score{font-size:1.4rem;font-weight:700}
+.test-analysis{margin:16px 0 0}
+.test-analysis table{width:100%;border-collapse:collapse}
+.test-analysis th,.test-analysis td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+.test-analysis th.num,.test-analysis td.num{text-align:right}
+.test-key-acts{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+#t-test-items{margin-top:12px}
+
 .demo-samples{margin:0 0 16px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:rgba(16,26,47,.65)}
 .demo-samples label{display:block;margin:8px 0 6px;color:var(--gold);font-weight:650}
 .demo-samples label:first-child{margin-top:0}
@@ -1054,6 +1075,96 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
   "Done: {done} drafted, {failed} could not be graded (try them one at a time). Click each student to review and approve their rows, and check any details marked “from cover”.": "Listo: se redactaron {done}; no se pudo calificar a {failed} (inténtalo de uno en uno). Entra a cada estudiante para revisar y aprobar sus filas, y revisa los datos marcados “de la portada”."
 ,
   "Rubric ID": "ID de rúbrica"
+,
+  "Test (answer key)": "Prueba (clave de respuestas)",
+  "Answer key for this session": "Clave de respuestas de esta sesión",
+  "Manage answer keys": "Administrar claves de respuestas",
+  "Answer keys": "Claves de respuestas",
+  "New answer key": "Nueva clave de respuestas",
+  "Edit answer key": "Editar clave de respuestas",
+  "Answer key name": "Nombre de la clave",
+  "e.g. Grade 3 Science Check": "p. ej. Chequeo de ciencias de 3.°",
+  "Choices per question": "Opciones por pregunta",
+  "Number of questions": "Número de preguntas",
+  "Question {n}": "Pregunta {n}",
+  "Multiple choice": "Opción múltiple",
+  "Short answer": "Respuesta corta",
+  "Correct choice": "Opción correcta",
+  "Expected answer": "Respuesta esperada",
+  "Also accept (optional, comma-separated)": "También aceptar (opcional, separadas por comas)",
+  "Points": "Puntos",
+  "Prompt or question (optional)": "Enunciado o pregunta (opcional)",
+  "+ Add question": "+ Agregar pregunta",
+  "Save answer key": "Guardar clave",
+  "Leave without saving this answer key?": "¿Salir sin guardar esta clave de respuestas?",
+  "Saved “{name}” ({n} questions).": "Se guardó “{name}” ({n} preguntas).",
+  "Read answers": "Leer respuestas",
+  "Score all tests": "Calificar todas las pruebas",
+  "Grade Along AI reads the marked answers. The answer key scores them here. Correct, clear answers are approved automatically. Only flagged items need you.": "Grade Along IA lee las respuestas marcadas. La clave las califica aquí. Las respuestas correctas y claras se aprueban solas. Solo tú revisas las que quedan señaladas.",
+  "Photos or a scanned PDF of the test (up to 3 pages are sent to AI)": "Fotos o un PDF escaneado de la prueba (se envían hasta 3 páginas a la IA)",
+  "Student test": "Prueba del estudiante",
+  "{earned} / {points} ({percent}%)": "{earned} / {points} ({percent}%)",
+  "Finalized — no items need review.": "Finalizada: no hay ítems que revisar.",
+  "{n} item needs your review.": "{n} ítem necesita tu revisión.",
+  "{n} items need your review.": "{n} ítems necesitan tu revisión.",
+  "Flagged items are listed first.": "Los ítems señalados aparecen primero.",
+  "Auto-approved (matches the key)": "Aprobada automáticamente (coincide con la clave)",
+  "Scored wrong automatically": "Calificada como incorrecta automáticamente",
+  "Needs review: blank": "Necesita revisión: en blanco",
+  "Needs review: more than one mark": "Necesita revisión: más de una marca",
+  "Needs review: unclear or erased": "Necesita revisión: poco clara o borrada",
+  "Needs review: low confidence": "Necesita revisión: poca certeza",
+  "Needs review: short answer": "Necesita revisión: respuesta corta",
+  "Read: {read}": "Leído: {read}",
+  "Key: {key}": "Clave: {key}",
+  "Confidence: {n}%": "Certeza: {n}%",
+  "Blank": "En blanco",
+  "Confirm this answer": "Confirmar esta respuesta",
+  "Class item analysis": "Análisis de ítems de la clase",
+  "% correct": "% correctas",
+  "Counted": "Contadas",
+  "Flagged": "Señaladas",
+  "No scored tests in this session yet.": "Todavía no hay pruebas calificadas en esta sesión.",
+  "Built-in sample": "Muestra integrada",
+  "Sample · Grade 3 Science Check": "Muestra · Chequeo de ciencias de 3.°",
+  "Maya · Grade 3 Science Check (test)": "Maya · Chequeo de ciencias de 3.° (prueba)",
+  "Nico · Grade 3 Science Check (test)": "Nico · Chequeo de ciencias de 3.° (prueba)",
+  "Upload your own test": "Sube tu propia prueba",
+  "Sample (fictional)": "Muestra (ficticia)",
+  "Choose a sample paper or a sample test, or upload your own. Tests are scored against an answer key. Clear, correct answers are approved automatically.": "Elige un escrito de muestra o una prueba de muestra, o sube la tuya. Las pruebas se califican con una clave de respuestas. Las respuestas claras y correctas se aprueban solas.",
+  "Pick a sample test or upload your own. Grade Along AI reads the marked answers. The key scores them here. You only review flagged items.": "Elige una prueba de muestra o sube la tuya. Grade Along IA lee las respuestas marcadas. La clave las califica aquí. Solo revisas los ítems señalados.",
+  "Test · Private scoring": "Prueba · Calificación privada",
+  "Test (answer key) | Grade Along | STORIGEN OS": "Prueba (clave de respuestas) | Grade Along | STORIGEN OS",
+  "Add a photo of the test.": "Agrega una foto de la prueba.",
+  "The AI could not read this test. Try a clearer picture, or enter the answers by hand.": "La IA no pudo leer esta prueba. Prueba con una imagen más nítida, o escribe las respuestas a mano.",
+  "The answer key is not valid.": "La clave de respuestas no es válida.",
+  "The answer key needs a name.": "La clave de respuestas necesita un nombre.",
+  "An answer key needs at least one question.": "Una clave de respuestas necesita por lo menos una pregunta.",
+  "An answer key can have at most 50 questions.": "Una clave de respuestas puede tener como máximo 50 preguntas.",
+  "This is not an answer key.": "Esto no es una clave de respuestas.",
+  "Choose an answer key to remove.": "Elige una clave de respuestas para quitar.",
+  "Nothing new to score. Students who already have results, or no test yet, are skipped.": "No hay nada nuevo que calificar. Se omiten los estudiantes que ya tienen resultados o que todavía no tienen prueba.",
+  "Test item analysis": "Análisis de ítems de la prueba",
+  "{n} scored test{s} at this school.": "{n} prueba{s} calificada{s} en esta escuela.",
+  "Auto-finalized": "Finalizada automáticamente",
+  "Use this key": "Usar esta clave",
+  "A–D (4)": "A–D (4)",
+  "A–E (5)": "A–E (5)",
+  "A–C (3)": "A–C (3)",
+  "A–B (2)": "A–B (2)",
+  "Choose a sample test, or pick “Upload your own test” and add a photo or PDF of the answer sheet. Use the answer-key list to switch keys. Correct, clear answers are approved automatically. Drafts are not saved on the server.": "Elige una prueba de muestra, o elige “Sube tu propia prueba” y añade una foto o un PDF de la hoja de respuestas. Usa la lista de claves de respuestas para cambiar de clave. Las respuestas correctas y claras se aprueban solas. Los borradores no se guardan en el servidor.",
+  "No test yet": "Todavía no hay prueba",
+  "Pick a sample test or upload your own. Grade Along AI reads the marked answers. The key scores them here. You only review flagged items. This public demo scores about 3 papers or tests per day from your network, and nothing is stored on the server.": "Elige una prueba de muestra o sube la tuya. Grade Along IA lee las respuestas marcadas. La clave las califica aquí. Solo revisas los ítems señalados. Esta demo pública califica unos 3 escritos o pruebas por día desde tu red, y no se guarda nada en el servidor.",
+  "Reading…": "Leyendo…",
+  "Ready to score": "Listo para calificar",
+  "Sample names and tests are fictional. If you upload your own test, only the photos you send are used to read the answers. They are not stored on the server and are not attached to a school account. You can score about 3 papers or tests per day.": "Los nombres y las pruebas de muestra son ficticios. Si subes tu propia prueba, solo las fotos que envíes se usan para leer las respuestas. No se guardan en el servidor ni se vinculan a una cuenta escolar. Puedes calificar unos 3 escritos o pruebas por día.",
+  "Score {earned} / {possible}": "Puntuación {earned} / {possible}",
+  "Try Grade Along with a sample paper, a sample test, or your own. This preview does not sign you in and has no school, teacher, admin, or owner tools. Schools can write to {email} for a full account.": "Prueba Grade Along con un escrito de muestra, una prueba de muestra o con los tuyos. Esta vista previa no inicia sesión y no tiene herramientas de escuela, docente, administración ni titular. Las escuelas pueden escribir a {email} para una cuenta completa.",
+  "{n} flagged · review": "{n} señalados · revisar",
+  "Examples from the story": "Ejemplos del escrito",
+  "Rubric criteria": "Criterios de la rúbrica",
+  "Not reviewed. Nothing is sent unless you press Read answers. A draft can be saved in this browser only.": "Sin revisar. No se envía nada hasta que pulses Leer respuestas. Un borrador solo se puede guardar en este navegador.",
+  "Grade Along AI is reading the answers… this can take up to a minute.": "Grade Along IA está leyendo las respuestas… esto puede tardar hasta un minuto."
 };
   function lang(){
     return document.documentElement.getAttribute("lang") === "es" ? "es" : "en";
@@ -1204,7 +1315,7 @@ GA_i18n.init();
 <p class="gate-msg" id="gate-msg" role="status" aria-live="polite"></p>
 <p class="gate-note" data-i18n="The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only, and each signed-in account has its own.">The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only, and each signed-in account has its own.</p>
 <p class="gate-note" data-i18n="A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
-<p class="version-label">Grade Along v21</p>
+<p class="version-label">Grade Along v22</p>
 <p class="gate-powered" data-i18n="Powered by STORIGEN · Arrival House Media">Powered by STORIGEN · Arrival House Media</p>
 </section>
 </main>
@@ -1213,6 +1324,7 @@ GA_i18n.init();
   <div class="modes" role="group" aria-label="Choose a mode" data-i18n-aria="Choose a mode">
     <button type="button" class="mode-btn" id="mode-practice" aria-pressed="true" data-i18n="Practice samples">Practice samples</button>
     <button type="button" class="mode-btn" id="mode-teacher" aria-pressed="false" data-i18n="Grade a paper">Grade a paper</button>
+    <button type="button" class="mode-btn" id="mode-test" aria-pressed="false" data-i18n="Test (answer key)">Test (answer key)</button>
   </div>
 </nav>
 
@@ -1284,12 +1396,17 @@ GA_i18n.init();
 <div class="queue-list" id="q-list" aria-label="Student papers" data-i18n-aria="Student papers"></div>
 <p class="queue-progress" id="q-progress" role="status" aria-live="polite"></p>
 <p class="queue-warn" id="q-warn" hidden></p>
-<div class="rubric-bar" id="rubric-bar">
+<div class="rubric-bar paper-only" id="rubric-bar">
 <div><label for="q-rubric" data-i18n="Rubric for this session">Rubric for this session</label><select id="q-rubric"></select></div>
 <button type="button" class="secondary" id="q-rubrics" data-i18n="Manage rubrics">Manage rubrics</button>
 <p class="growth-status" id="rubric-status"></p>
 </div>
-<div class="growth-bar" id="growth-bar">
+<div class="rubric-bar test-bar test-only" id="test-bar">
+<div><label for="q-key" data-i18n="Answer key for this session">Answer key for this session</label><select id="q-key"></select></div>
+<button type="button" class="secondary" id="q-keys" data-i18n="Manage answer keys">Manage answer keys</button>
+<p class="growth-status" id="key-status"></p>
+</div>
+<div class="growth-bar paper-only" id="growth-bar">
 <div><label for="q-assess" data-i18n="This session is">This session is</label><select id="q-assess"><option value="pre" data-i18n="Pre-writing (start of program)">Pre-writing (start of program)</option><option value="post" data-i18n="Post-writing (end of program)">Post-writing (end of program)</option></select></div>
 <button type="button" class="secondary" id="q-save-scores" data-i18n="Save class scores">Save class scores</button>
 <button type="button" class="secondary" id="q-load-pre" data-i18n="Load pre scores">Load pre scores</button>
@@ -1306,15 +1423,15 @@ GA_i18n.init();
 <div><label for="t-grade"><span data-i18n="Grade">Grade</span><span class="from-cover" data-field="grade" hidden data-i18n="from cover · check">from cover · check</span></label><input id="t-grade" type="text" autocomplete="off" maxlength="24" placeholder="e.g. 3" data-i18n-placeholder="e.g. 3"></div>
 <div><label for="t-date"><span data-i18n="Date">Date</span><span class="from-cover" data-field="date" hidden data-i18n="from cover · check">from cover · check</span></label><input id="t-date" type="date"></div>
 <div><label for="t-facilitator"><span data-i18n="Facilitator">Facilitator</span><span class="from-cover" data-field="facilitator" hidden data-i18n="from cover · check">from cover · check</span></label><input id="t-facilitator" type="text" autocomplete="name" maxlength="80"></div>
-<div class="assess-field">
+<div class="assess-field paper-only">
 <div><label for="t-assess" data-i18n="Assessment">Assessment</label><select id="t-assess"><option value="" data-i18n="Session default">Session default</option><option value="pre" data-i18n="Pre-writing">Pre-writing</option><option value="post" data-i18n="Post-writing">Post-writing</option></select></div>
 <div id="t-match-wrap" hidden><label for="t-match" data-i18n="Pre scores to compare">Pre scores to compare</label><select id="t-match"></select></div>
 <p class="match-flag" id="t-match-flag" hidden></p>
 </div>
 </div>
-<div class="story-field"><label for="t-story" data-i18n="Story text">Story text</label><textarea id="t-story" spellcheck="true" placeholder="Paste or type the story here." data-i18n-placeholder="Paste or type the story here."></textarea></div>
+<div class="story-field paper-only"><label for="t-story" data-i18n="Story text">Story text</label><textarea id="t-story" spellcheck="true" placeholder="Paste or type the story here." data-i18n-placeholder="Paste or type the story here."></textarea></div>
 <div class="attach-field">
-<label for="t-files" data-i18n="Photos or a scanned PDF of the paper (up to 3 pages are sent to AI)">Photos or a scanned PDF of the paper (up to 3 pages are sent to AI)</label>
+<label for="t-files" id="t-files-label" data-i18n="Photos or a scanned PDF of the paper (up to 3 pages are sent to AI)">Photos or a scanned PDF of the paper (up to 3 pages are sent to AI)</label>
 <input id="t-files" type="file" accept="application/pdf,.pdf,image/*,.heic,.heif" multiple>
 <div class="attach-list" id="t-attach-list"></div>
 <p class="slot-note" id="t-slot-note" aria-live="polite"></p>
@@ -1325,7 +1442,7 @@ GA_i18n.init();
 <p id="ai-intro">Grade Along AI drafts a level and a comment for <span id="ai-rubric-note">each of the four rows, plus overall feedback, using the Storigen Wonders rubric</span>. It uses the first name, grade, photos (up to 3) and/or the story text above.</p>
 <div class="ai-row">
 <div><label for="ai-pass" data-i18n="Teacher passcode">Teacher passcode</label><input id="ai-pass" type="password" autocomplete="off" maxlength="200" placeholder="Kept for this tab only" data-i18n-placeholder="Kept for this tab only"></div>
-<div id="t-feedback-lang-wrap"><label for="ai-feedback-lang" data-i18n="Feedback language">Feedback language</label>
+<div id="t-feedback-lang-wrap" class="paper-only"><label for="ai-feedback-lang" data-i18n="Feedback language">Feedback language</label>
 <select id="ai-feedback-lang">
 <option value="en" selected data-i18n="English">English</option>
 <option value="es" data-i18n="Spanish">Spanish</option>
@@ -1339,18 +1456,24 @@ GA_i18n.init();
 </section>
 <section class="panel" aria-labelledby="t-review">
 <div class="titleline"><div><h2 id="t-review" data-i18n="Storigen Wonders rubric">Storigen Wonders rubric</h2><div class="eyebrow" id="t-review-sub" data-i18n="Four categories · levels 1–5 · total out of 20">Four categories · levels 1–5 · total out of 20</div></div><div class="scorebox"><output id="t-total" aria-live="polite">— / 20</output><span id="t-score-state" data-i18n="Pick a level in each category">Pick a level in each category</span></div></div>
-<div id="t-categories"></div>
-<div class="overall" id="t-overall-wrap">
+<div id="t-categories" class="paper-only"></div>
+<div id="t-test-panel" class="test-only">
+<p class="test-score" id="t-test-score"></p>
+<p id="t-test-summary"></p>
+<div id="t-test-items"></div>
+<div class="test-analysis" id="t-test-analysis"></div>
+</div>
+<div class="overall paper-only" id="t-overall-wrap">
 <div class="row-head"><h3 data-i18n="Overall feedback">Overall feedback</h3><span class="row-tag" id="t-overall-tag" hidden></span></div>
 <label for="t-overall" data-i18n="Feedback for the student">Feedback for the student</label>
 <textarea id="t-overall" spellcheck="true" placeholder="Write overall feedback, or use Grade with AI to draft it." data-i18n-placeholder="Write overall feedback, or use Grade with AI to draft it."></textarea>
 <div class="row-actions" id="t-overall-actions" hidden><button type="button" class="secondary" id="t-overall-approve" data-i18n="Approve feedback">Approve feedback</button><button type="button" class="secondary" id="t-overall-edit" data-i18n="Edit">Edit</button></div>
 </div>
-<div id="t-story-summary-wrap" hidden>
+<div id="t-story-summary-wrap" class="paper-only" hidden>
 <h3 id="t-story-summary-title" data-i18n="What the story is about">What the story is about</h3>
 <p id="t-story-summary"></p>
 </div>
-<div id="t-student-facing-wrap" hidden>
+<div id="t-student-facing-wrap" class="paper-only" hidden>
 <label class="bulk-check"><input type="checkbox" id="t-student-facing-on"> <span data-i18n="Show student-facing feedback in the paper's language">Show student-facing feedback in the paper's language</span></label>
 <div id="t-student-facing-box" hidden>
 <h3 data-i18n="For the student">For the student</h3>
@@ -1399,7 +1522,7 @@ GA_i18n.init();
 <div id="owner-schools"></div>
 <p class="school-legal" data-i18n="A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
 </section>
-<footer class="version-label" id="ga-version">Grade Along v21</footer>
+<footer class="version-label" id="ga-version">Grade Along v22</footer>
 </div>
 
 </main>
@@ -1542,6 +1665,7 @@ if(window.GA_i18n) GA_i18n.onChange(function(){ loadStory(); render(); });
 
 }
 </script>
+<script src="test-score.js"></script>
 <script>
 /* Teacher grading: runs only after the passcode is verified. */
 function gaTeacherApp(){
@@ -1670,7 +1794,9 @@ function blankStudent(){
     preMatch: "",      // "" = match automatically, "none" = no pre scores, or a pre record id
     storySummary: "",
     studentFacingFeedback: "",
-    paperLanguage: ""
+    paperLanguage: "",
+    testObs: null,
+    testResult: null
   };
 }
 const FIELD_IDS = {student: "t-name", grade: "t-grade", date: "t-date", facilitator: "t-facilitator"};
@@ -1683,7 +1809,521 @@ const PRE_FILE_STORE = "storigen-os-grade-along-pre-loaded";
 const HISTORY_STORE = "storigen-os-grade-along-history";
 const WORKSPACE_MIGRATED = "storigen-os-grade-along-workspace-migrated-v14";
 const FEEDBACK_LANG_STORE = "storigen-os-grade-along-feedback-lang";
-const LOCAL_BASES = [RUBRIC_STORE, STORE, QUEUE_STORE, PRE_FILE_STORE, HISTORY_STORE, FEEDBACK_LANG_STORE];
+const LOCAL_BASES = [RUBRIC_STORE, STORE, QUEUE_STORE, PRE_FILE_STORE, HISTORY_STORE, FEEDBACK_LANG_STORE, "storigen-os-grade-along-keys"];
+const KEY_STORE = "storigen-os-grade-along-keys";
+const TEST_READ_URL = window.GA_DEMO
+  ? "https://grade-along-api.storigen.workers.dev/demo/test/read"
+  : "https://grade-along-api.storigen.workers.dev/test/read";
+const DEMO_SCIENCE_KEY = {
+  id: "demo-science-check",
+  name: "Sample · Grade 3 Science Check",
+  sample: true,
+  choiceCount: 4,
+  questions: [
+    {n:1, type:"mc", choices:"ABCD", correct:"C", points:1, prompt:"Plants need sunlight to grow."},
+    {n:2, type:"mc", choices:"ABCD", correct:"A", points:1, prompt:"Water can be a solid, liquid, or gas."},
+    {n:3, type:"mc", choices:"ABCD", correct:"B", points:1, prompt:"A magnet attracts some metals."},
+    {n:4, type:"mc", choices:"ABCD", correct:"D", points:1, prompt:"The Earth goes around the sun."},
+    {n:5, type:"mc", choices:"ABCD", correct:"A", points:1, prompt:"Bones support the body."},
+    {n:6, type:"mc", choices:"ABCD", correct:"C", points:1, prompt:"Ice is water in solid form."},
+    {n:7, type:"mc", choices:"ABCD", correct:"B", points:1, prompt:"A shadow is made when light is blocked."},
+    {n:8, type:"mc", choices:"ABCD", correct:"D", points:1, prompt:"Lungs help us breathe."},
+    {n:9, type:"short", correct:"photosynthesis", acceptable:["photo synthesis"], points:2, prompt:"What process do plants use to make food from sunlight?"}
+  ]
+};
+let sessionKind = "paper";
+let KEY = DEMO_SCIENCE_KEY;
+function keyLib(){
+  const a = readJSON(KEY_STORE, []);
+  return (Array.isArray(a) ? a : []).map((k) => {
+    try { const n = GA_testScore.normalizeKey(k); n.updated = k.updated || ""; n.school = !!k.school; return n; } catch(e){ return null; }
+  }).filter(Boolean);
+}
+function saveKeyLib(list){ return writeJSON(KEY_STORE, list); }
+function schoolKeyList(){
+  const list = (window.GA_SCHOOL && Array.isArray(window.GA_SCHOOL.answerKeys)) ? window.GA_SCHOOL.answerKeys : [];
+  return list.map((k) => {
+    try { const n = GA_testScore.normalizeKey(k); n.school = true; n.updated = k.updated || ""; return n; } catch(e){ return null; }
+  }).filter(Boolean);
+}
+function allKeys(){
+  const out = [];
+  const seen = new Set();
+  out.push(DEMO_SCIENCE_KEY); seen.add(DEMO_SCIENCE_KEY.id);
+
+  const locked = teachersLockedToSchool();
+  const pool = locked ? schoolKeyList() : schoolKeyList().concat(keyLib());
+  pool.forEach((k) => { if(k.id && !seen.has(k.id)){ seen.add(k.id); out.push(k); } });
+  return out;
+}
+function useKey(id){
+  const k = allKeys().find((x) => x.id === id);
+  if(!k) return false;
+  KEY = k;
+  students.forEach((st) => {
+    if(st.testObs) st.testResult = GA_testScore.scoreTest(KEY, st.testObs, st.testResult);
+    if(st.testResult && st.testResult.finalized) st.approved = true;
+  });
+  renderKeyUI();
+  renderTestResults();
+  renderTestAnalysis();
+  return true;
+}
+function renderKeyUI(){
+  const sel = $("q-key");
+  if(!sel) return;
+  const cur = KEY && KEY.id;
+  sel.replaceChildren();
+  allKeys().forEach((k) => {
+    const o = document.createElement("option");
+    o.value = k.id;
+    o.textContent = (k.sample ? uiT(k.name) : k.name) + (k.school ? uiT(" (school)") : (k.sample ? "" : ""));
+    sel.append(o);
+  });
+  if(cur && allKeys().some((k) => k.id === cur)) sel.value = cur;
+  else if(allKeys()[0]) { KEY = allKeys()[0]; sel.value = KEY.id; }
+  const status = $("key-status");
+  if(status) status.textContent = KEY ? uiT("{count} rows · levels {min}–{max} · total out of {total}", {count: KEY.questions.length, min: 0, max: 0, total: KEY.questions.reduce((a,q)=>a+q.points,0)}).replace(/ · levels 0–0/, "") : "";
+  // simpler status
+  if(status && KEY){
+    const pts = KEY.questions.reduce((a,q)=>a+q.points,0);
+    status.textContent = (KEY.sample ? uiT(KEY.name) : KEY.name) + " · " + KEY.questions.length + " · " + pts;
+  }
+}
+function flagLabel(reason){
+  return uiT({
+    "blank": "Needs review: blank",
+    "multiple": "Needs review: more than one mark",
+    "unclear": "Needs review: unclear or erased",
+    "low-confidence": "Needs review: low confidence",
+    "short-answer": "Needs review: short answer"
+  }[reason] || "Needs review: short answer");
+}
+function applyTestResult(st, result){
+  st.testResult = result;
+  st.approved = !!(result && result.finalized);
+  st.error = "";
+  if(st.approved) rememberTestScore(st);
+}
+function rememberTestScore(st){
+  if(!st || !st.testResult || !st.approved) return;
+  if(!(window.GA_SCHOOL && window.GA_SCHOOL.token)) return;
+  const r = st.testResult;
+  fetch(API_BASE + "/school/scores", {
+    method: "POST",
+    headers: authHeaders(""),
+    body: JSON.stringify({
+      kind: "test",
+      firstName: (st.student || "").trim().split(/\s+/)[0] || "",
+      grade: st.grade || "",
+      facilitator: st.facilitator || "",
+      date: st.date || today(),
+      keyId: KEY && KEY.id,
+      keyName: KEY && (KEY.sample ? KEY.name : KEY.name),
+      items: r.items.map((it) => ({n: it.n, correct: it.correct, earned: it.earned, points: it.points, flagged: it.flagged})),
+      total: r.earned,
+      outOf: r.points
+    }),
+    cache: "no-store"
+  }).then((res) => res.json().then((data) => { applyUsage(data); }).catch(() => {})).catch(() => {});
+}
+function renderTestResults(){
+  const scoreEl = $("t-test-score");
+  const sumEl = $("t-test-summary");
+  const box = $("t-test-items");
+  if(!scoreEl || !box) return;
+  const r = state.testResult;
+  if($("t-review") && sessionKind === "test"){
+    $("t-review").textContent = KEY ? (KEY.sample ? uiT(KEY.name) : KEY.name) : uiT("Test (answer key)");
+    $("t-review-sub").textContent = KEY ? (KEY.questions.length + " · " + KEY.questions.reduce((a,q)=>a+q.points,0)) : "";
+  }
+  if(!r){
+    scoreEl.textContent = "—";
+    sumEl.textContent = sessionKind === "test"
+      ? uiT("Not reviewed. Nothing is sent unless you press Read answers. A draft can be saved in this browser only.")
+      : uiT("Not reviewed. Nothing is sent unless you press Grade with AI. A draft can be saved in this browser only.");
+    box.replaceChildren();
+    return;
+  }
+  scoreEl.textContent = uiT("{earned} / {points} ({percent}%)", {earned: r.earned, points: r.points, percent: r.percent});
+  $("t-total").textContent = r.earned + " / " + r.points;
+  if(r.finalized){
+    $("t-score-state").textContent = uiT("Auto-finalized");
+    sumEl.textContent = uiT("Finalized — no items need review.");
+  } else {
+    $("t-score-state").textContent = uiT("Draft score");
+    sumEl.textContent = uiT(r.flaggedCount === 1 ? "{n} item needs your review." : "{n} items need your review.", {n: r.flaggedCount}) + " " + uiT("Flagged items are listed first.");
+  }
+  const items = r.items.slice().sort((a,b) => (b.flagged?1:0) - (a.flagged?1:0) || a.n - b.n);
+  box.replaceChildren();
+  items.forEach((it) => {
+    const card = el("div", "test-item");
+    if(it.flagged) card.dataset.flag = "true";
+    else if(it.correct) card.dataset.ok = "true";
+    else card.dataset.wrong = "true";
+    const title = el("p", "test-q", uiT("Question {n}", {n: it.n}) + (it.prompt ? " · " + it.prompt : ""));
+    const meta = el("p", "test-meta");
+    const read = it.read || uiT("Blank");
+    meta.textContent = uiT("Read: {read}", {read: read}) + (it.type === "mc" ? " · " + uiT("Key: {key}", {key: it.expected}) : "") + " · " + uiT("Confidence: {n}%", {n: Math.round((it.confidence||0)*100)}) + " · " + it.earned + "/" + it.points;
+    let tag;
+    if(it.flagged) tag = el("div", "test-flag", flagLabel(it.flagReason));
+    else if(it.correct) tag = el("div", "test-ok", uiT("Auto-approved (matches the key)"));
+    else tag = el("div", "test-wrong", uiT("Scored wrong automatically"));
+    card.append(title, meta, tag);
+    if(it.flagged || !it.autoApproved){
+      const row = el("div", "test-key-acts");
+      if(it.type === "mc"){
+        const sel = document.createElement("select");
+        const letters = ((KEY.questions.find((q)=>q.n===it.n)||{}).choices || "ABCD").split("");
+        const blank = document.createElement("option"); blank.value = ""; blank.textContent = uiT("Blank"); sel.append(blank);
+        letters.forEach((L) => { const o = document.createElement("option"); o.value = L; o.textContent = L; sel.append(o); });
+        sel.value = it.read || "";
+        const go = mkBtn(uiT("Confirm this answer"), "secondary", () => {
+          confirmTestItem(it.n, sel.value);
+        });
+        row.append(sel, go);
+      } else {
+        const inp = document.createElement("input");
+        inp.type = "text"; inp.value = it.read || ""; inp.maxLength = 200;
+        const go = mkBtn(uiT("Confirm this answer"), "secondary", () => {
+          confirmTestItem(it.n, inp.value);
+        });
+        row.append(inp, go);
+      }
+      card.append(row);
+    }
+    box.append(card);
+  });
+  $("t-approve").disabled = !r.finalized && r.flaggedCount > 0;
+  if(r.finalized){ $("t-approve").disabled = true; }
+  $("t-print").disabled = false;
+  $("t-json").disabled = false;
+  $("t-csv").disabled = !students.some((st) => st.testResult);
+  renderTestAnalysis();
+}
+function confirmTestItem(n, read){
+  if(!state.testResult) return;
+  const items = state.testResult.items.map((it) => it.n === n ? Object.assign({}, it, {reviewed: true, read: read}) : it);
+  applyTestResult(state, GA_testScore.scoreTest(KEY, state.testObs || items, {items: items}));
+  renderTestResults();
+  renderStatus();
+  saveDraft();
+}
+function renderTestAnalysis(){
+  const box = $("t-test-analysis");
+  if(!box) return;
+  const scored = students.map((st) => st.testResult).filter(Boolean);
+  box.replaceChildren();
+  box.append(el("h3", null, uiT("Class item analysis")));
+  if(!scored.length){ box.append(el("p", null, uiT("No scored tests in this session yet."))); return; }
+  const rows = GA_testScore.itemAnalysis(scored);
+  const table = el("table");
+  const hr = el("tr");
+  [uiT("Question {n}", {n: "#"}).replace(" #","").replace("{n}", "#") === "Question #" ? uiT("Question {n}", {n: ""}) : uiT("Question {n}", {n: ""}), uiT("% correct"), uiT("Counted"), uiT("Flagged")].forEach((h,i) => hr.append(el("th", i ? "num" : null, h)));
+  // cleaner headers
+  hr.replaceChildren();
+  [uiT("Question {n}", {n: ""}).trim() || "Q", uiT("% correct"), uiT("Counted"), uiT("Flagged")].forEach((h,i) => hr.append(el("th", i ? "num" : null, h)));
+  const thead = el("thead"); thead.append(hr); table.append(thead);
+  const tb = el("tbody");
+  rows.forEach((row) => {
+    const tr = el("tr");
+    tr.append(
+      el("td", null, String(row.n) + (row.prompt ? " · " + row.prompt : "")),
+      el("td", "num", row.percentCorrect == null ? "—" : String(row.percentCorrect) + "%"),
+      el("td", "num", String(row.counted)),
+      el("td", "num", String(row.flagged))
+    );
+    tb.append(tr);
+  });
+  table.append(tb); box.append(table);
+}
+function renderTestStatus(){
+  const r = state.testResult;
+  if(r){
+    $("t-total").textContent = r.earned + " / " + r.points;
+    $("t-score-state").textContent = r.finalized ? uiT("Auto-finalized") : uiT("Draft score");
+    $("t-print").disabled = false;
+    $("t-json").disabled = false;
+    $("t-csv").disabled = !students.some((st) => st.testResult);
+    $("t-approve").disabled = true;
+    const approval = $("t-approval");
+    if(r.finalized || state.approved){
+      approval.hidden = false;
+      approval.textContent = uiT("Finalized — no items need review.");
+      $("t-status").textContent = uiT("Approved. A draft may also be kept in this browser until you clear it.");
+    } else {
+      approval.hidden = true;
+      $("t-status").textContent = uiT(r.flaggedCount === 1 ? "{n} item needs your review." : "{n} items need your review.", {n: r.flaggedCount});
+    }
+  } else {
+    $("t-total").textContent = "—";
+    $("t-score-state").textContent = "";
+    $("t-approve").disabled = true;
+    $("t-print").disabled = true;
+    $("t-json").disabled = true;
+    $("t-csv").disabled = !students.some((st) => st.testResult);
+    $("t-approval").hidden = true;
+    $("t-status").textContent = uiT("Not reviewed. Nothing is sent unless you press Grade with AI. A draft can be saved in this browser only.");
+  }
+  renderQueue();
+}
+async function requestTestRead(st, pass, onStatus){
+  const images = [];
+  // reuse the same image packing as papers: requestDraft uses photos. We'll call existing helpers via toJpeg / files.
+  const files = (st.files || []).filter(Boolean);
+  if(!files.length && !(st.story || "").trim()){
+    throw Object.assign(new Error(uiT("Add a photo of the test.")), {status: 400});
+  }
+  // Walk files similar to requestDraft
+  return requestTestReadFromFiles(st, pass, onStatus);
+}
+async function requestTestReadFromFiles(st, pass, onStatus){
+  // Collect up to 3 page images using the same pipeline as grading.
+  const images = [];
+  let coverImage;
+  for(const f of st.files || []){
+    if(images.length >= 3) break;
+    if(isPdfFile(f)){
+      if(f.pdfReady) await f.pdfReady;
+      const doc = f.pdfDoc || await (typeof openPdf === "function" ? openPdf(f) : Promise.reject(new Error("pdf")));
+      const range = Array.isArray(f.pageRange) ? f.pageRange : [1, Math.min(doc.numPages || 1, 3)];
+      const start = range[0] || 1;
+      const end = range[1] || start;
+      if(f.readCover && f.coverPage){
+        const pg = await renderPdfPage(doc, f.coverPage, 1568, 0.85);
+        coverImage = (pg || "").replace(/^data:image\/jpeg;base64,/, "");
+      }
+      for(let n = start; n <= end && images.length < 3; n++){
+        if(f.coverPage && n === f.coverPage) continue;
+        if(typeof onStatus === "function") onStatus(uiT("Turning PDF page {n} into a picture…", {n: n}));
+        const url = await renderPdfPage(doc, n, 1568, 0.85);
+        images.push((url || "").replace(/^data:image\/jpeg;base64,/, ""));
+      }
+    } else {
+      const url = f.blobUrl || f.dataUrl || f.url;
+      if(!url && f.file){
+        const u = URL.createObjectURL(f.file);
+        try { images.push(await toJpegBase64({blobUrl: u})); }
+        finally { URL.revokeObjectURL(u); }
+      } else if(url){
+        images.push(await toJpegBase64({blobUrl: url, dataUrl: f.dataUrl, url: f.url}));
+      }
+    }
+  }
+  if(!images.length) throw Object.assign(new Error(uiT("Add a photo of the test.")), {status: 400});
+  if(typeof onStatus === "function") onStatus(uiT("Grade Along AI is reading the answers… this can take up to a minute."));
+  const body = {
+    firstName: (st.student || "").trim().split(/\s+/)[0] || "",
+    grade: st.grade || "",
+    images,
+    key: GA_testScore.keyShape(KEY)
+  };
+  if(coverImage) body.coverImage = coverImage;
+  const data = await postAI(body, pass, TEST_READ_URL);
+  return data;
+}
+async function readTestWithAI(){
+  if(batchRunning || state.busy) return;
+  syncForm();
+  if(!KEY){ setAiStatus(uiT("The answer key is not valid."), "error"); return; }
+  const pass = getPass(setAiStatus);
+  if(!pass && !(window.GA_SCHOOL && window.GA_SCHOOL.token) && !window.GA_DEMO) return;
+  state.busy = true; state.error = "";
+  renderQueue();
+  setAiStatus(uiT("Working…"));
+  try{
+    const data = await paced(() => requestTestReadFromFiles(state, pass, (m) => setAiStatus(m)), setAiStatus, uiT("Read answers"));
+    if(data.cover) applyCover(state, data.cover);
+    if(data.transcriptionNote) state.aiNote = data.transcriptionNote;
+    state.testObs = data.answers || [];
+    applyTestResult(state, GA_testScore.scoreTest(KEY, state.testObs));
+    fillForm();
+    renderTestResults();
+    renderStatus();
+    saveDraft();
+    const r = state.testResult;
+    setAiStatus(r && r.finalized ? uiT("Finalized — no items need review.") : uiT(r.flaggedCount === 1 ? "{n} item needs your review." : "{n} items need your review.", {n: r ? r.flaggedCount : 0}));
+  } catch(e){
+    state.error = e.message || "";
+    setAiStatus(GA_i18n.localizeError(e.message) + (e.status && e.status !== 401 ? uiT(" You can still grade this paper by hand.") : ""), "error");
+  } finally {
+    state.busy = false;
+    renderQueue();
+  }
+}
+function openKeys(msg, kind){
+  const card = rubricShell(uiT("Answer keys"));
+  card.append(el("h2", null, uiT("Answer keys")));
+  const locked = teachersLockedToSchool();
+  card.append(el("p", null, locked
+    ? uiT("Your school requires you to grade with an approved school rubric, so scores stay comparable. Ask your admin to add a rubric, or to allow teachers to use their own.")
+    : uiT("Pick the rubric each session grades with. School rubrics are shared with every teacher at this school. You can still keep private rubrics in this browser, or import a file.")));
+  const acts = el("div", "split-controls");
+  if(!locked) acts.append(mkBtn(uiT("New answer key"), "primary", () => openKeyEditor(blankKey(), true)));
+  const status = el("p", "split-status", msg ? GA_i18n.localizeError(msg) : "");
+  status.setAttribute("role", "status");
+  card.append(acts, status);
+  const list = el("div", "rb-list");
+  allKeys().forEach((k) => {
+    const it = el("article", "rb-item"); it.dataset.on = k.id === (KEY && KEY.id) ? "true" : "false";
+    const h = el("h3", null, k.sample ? uiT(k.name) : k.name);
+    if(k.sample) h.append(el("span", "rb-badge", uiT("Built-in sample")));
+    if(k.school) h.append(el("span", "rb-badge", uiT("School")));
+    if(k.id === (KEY && KEY.id)) h.append(el("span", "rb-badge", uiT("This session")));
+    it.append(h, el("p", null, k.questions.length + " · " + k.questions.reduce((a,q)=>a+q.points,0)));
+    const a = el("div", "rb-acts");
+    const use = mkBtn(k.id === (KEY && KEY.id) ? uiT("In use") : uiT("Use this key"), "secondary", () => { useKey(k.id); openKeys(uiT("This session now uses “{name}”.", {name: k.sample ? uiT(k.name) : k.name})); });
+    use.disabled = k.id === (KEY && KEY.id);
+    a.append(use);
+    if(!locked && !k.sample) a.append(mkBtn(uiT("Edit"), "secondary", () => openKeyEditor(k, false)));
+    if(!locked && !k.sample && window.GA_SCHOOL && window.GA_SCHOOL.user && window.GA_SCHOOL.user.role === "admin"){
+      a.append(mkBtn(k.school ? uiT("Update school copy") : uiT("Save to school"), "secondary", () => saveKeyToSchool(k, status)));
+    }
+    if(!locked && !k.sample) a.append(mkBtn(uiT("Delete"), "secondary", () => {
+      if(!confirm(uiT("Delete “{name}” from this browser? Files you exported are not affected.", {name: k.name}))) return;
+      const finish = () => {
+        saveKeyLib(keyLib().filter((x) => x.id !== k.id));
+        if(KEY && KEY.id === k.id) KEY = allKeys()[0] || DEMO_SCIENCE_KEY;
+        renderKeyUI();
+        openKeys(uiT("Deleted “{name}”.", {name: k.name}));
+      };
+      if(k.school && window.GA_SCHOOL && window.GA_SCHOOL.user && window.GA_SCHOOL.user.role === "admin"){
+        fetch(API_BASE + "/school/keys/delete", {method:"POST", headers: authHeaders(""), body: JSON.stringify({id: k.id}), cache:"no-store"})
+          .then((res) => res.json().then((data) => { applyUsage(data); if(data.ok && window.GA_SCHOOL.answerKeys) window.GA_SCHOOL.answerKeys = window.GA_SCHOOL.answerKeys.filter((x) => x.id !== k.id); finish(); }))
+          .catch(() => setMsg(status, uiT("Could not remove that school rubric right now."), "error"));
+        return;
+      }
+      finish();
+    }));
+    it.append(a); list.append(it);
+  });
+  card.append(list);
+  const foot = el("div", "split-actions"); foot.append(mkBtn(uiT("Close"), "secondary", closeRubrics)); card.append(foot);
+  (card.querySelector("button") || card).focus();
+}
+function blankKey(){
+  const letters = "ABCD";
+  return {id:"", name:"", choiceCount:4, questions: Array.from({length:8}, (_,i) => ({n:i+1, type:"mc", choices:letters, correct:"A", points:1, prompt:""}))};
+}
+function openKeyEditor(src, isNew){
+  let draft;
+  try { draft = JSON.parse(JSON.stringify(isNew ? src : GA_testScore.normalizeKey(src))); }
+  catch(e){ draft = blankKey(); }
+  if(!draft.questions.length) draft = blankKey();
+  const card = rubricShell(isNew ? uiT("New answer key") : uiT("Edit answer key"));
+  function render(){
+    card.replaceChildren();
+    card.append(el("h2", null, isNew ? uiT("New answer key") : uiT("Edit answer key")));
+    const form = el("div", "rb-form");
+    const nameId = "key-name";
+    const lab = el("label", null, uiT("Answer key name")); lab.htmlFor = nameId;
+    const name = document.createElement("input"); name.id = nameId; name.value = draft.name || ""; name.maxLength = 100; name.placeholder = uiT("e.g. Grade 3 Science Check");
+    name.addEventListener("input", () => { draft.name = name.value; });
+    form.append(lab, name);
+    const chLab = el("label", null, uiT("Choices per question"));
+    const ch = document.createElement("select");
+    [[2,"A–B (2)"],[3,"A–C (3)"],[4,"A–D (4)"],[5,"A–E (5)"]].forEach(([n,l]) => { const o=document.createElement("option"); o.value=String(n); o.textContent=uiT(l); ch.append(o); });
+    ch.value = String(draft.choiceCount || 4);
+    ch.addEventListener("change", () => {
+      draft.choiceCount = parseInt(ch.value, 10);
+      const letters = GA_testScore.lettersFor(draft.choiceCount);
+      draft.questions.forEach((q) => { if(q.type==="mc"){ q.choices = letters; if(letters.indexOf(q.correct)<0) q.correct = letters[0]; } });
+      render();
+    });
+    form.append(chLab, ch);
+    draft.questions.forEach((q, i) => {
+      const fs = el("fieldset", "rb-row");
+      fs.append(el("legend", null, uiT("Question {n}", {n: i+1})));
+      const typ = document.createElement("select");
+      [["mc", uiT("Multiple choice")],["short", uiT("Short answer")]].forEach(([v,l]) => { const o=document.createElement("option"); o.value=v; o.textContent=l; typ.append(o); });
+      typ.value = q.type;
+      typ.addEventListener("change", () => { q.type = typ.value === "short" ? "short" : "mc"; if(q.type==="mc"){ q.choices = GA_testScore.lettersFor(draft.choiceCount); q.correct = q.correct && q.choices.indexOf(String(q.correct).toUpperCase())>=0 ? String(q.correct).toUpperCase() : q.choices[0]; } render(); });
+      const pts = document.createElement("input"); pts.type="number"; pts.min="0.5"; pts.step="0.5"; pts.value=String(q.points||1);
+      pts.addEventListener("input", () => { q.points = Number(pts.value)||1; });
+      const pr = document.createElement("input"); pr.value = q.prompt||""; pr.placeholder = uiT("Prompt or question (optional)"); pr.maxLength=120;
+      pr.addEventListener("input", () => { q.prompt = pr.value; });
+      fs.append(el("label", null, uiT("Points")), typ, pts, pr);
+      if(q.type === "mc"){
+        const letters = q.choices || GA_testScore.lettersFor(draft.choiceCount);
+        const ans = document.createElement("select");
+        String(letters).split("").forEach((L) => { const o=document.createElement("option"); o.value=L; o.textContent=L; ans.append(o); });
+        ans.value = q.correct || letters[0];
+        ans.addEventListener("change", () => { q.correct = ans.value; });
+        fs.append(el("label", null, uiT("Correct choice")), ans);
+      } else {
+        const exp = document.createElement("input"); exp.value = q.correct||""; exp.placeholder = uiT("Expected answer");
+        exp.addEventListener("input", () => { q.correct = exp.value; });
+        const acc = document.createElement("input"); acc.value = (q.acceptable||[]).join(", "); acc.placeholder = uiT("Also accept (optional, comma-separated)");
+        acc.addEventListener("input", () => { q.acceptable = acc.value.split(",").map((s)=>s.trim()).filter(Boolean); });
+        fs.append(el("label", null, uiT("Expected answer")), exp, el("label", null, uiT("Also accept (optional, comma-separated)")), acc);
+      }
+      const rm = mkBtn(uiT("Remove row"), "secondary", () => { if(draft.questions.length>1){ draft.questions.splice(i,1); draft.questions.forEach((qq,n)=>qq.n=n+1); render(); } });
+      rm.disabled = draft.questions.length <= 1;
+      fs.append(rm);
+      form.append(fs);
+    });
+    const add = mkBtn(uiT("+ Add question"), "secondary", () => {
+      if(draft.questions.length >= 50) return;
+      const letters = GA_testScore.lettersFor(draft.choiceCount);
+      draft.questions.push({n: draft.questions.length+1, type:"mc", choices:letters, correct:letters[0], points:1, prompt:""});
+      render();
+    });
+    add.disabled = draft.questions.length >= 50;
+    form.append(add);
+    card.append(form);
+    const status = el("p", "split-status");
+    const foot = el("div", "split-actions");
+    foot.append(
+      mkBtn(uiT("Save answer key"), "primary", () => saveKey(draft, status, isNew)),
+      mkBtn(uiT("Cancel"), "secondary", () => { if(confirm(uiT("Leave without saving this answer key?"))) openKeys(); })
+    );
+    card.append(status, foot);
+  }
+  render();
+}
+function saveKey(draft, status, isNew){
+  let k;
+  try { k = GA_testScore.normalizeKey(draft); }
+  catch(e){ setMsg(status, e.message, "error"); return; }
+  k.id = draft.id || ("k-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,8));
+  k.updated = new Date().toISOString();
+  const lib = keyLib();
+  const i = lib.findIndex((x) => x.id === k.id);
+  if(i>=0) lib[i]=k; else lib.push(k);
+  if(!saveKeyLib(lib)){ setMsg(status, uiT("Could not save: this browser's storage is full."), "error"); return; }
+  KEY = k;
+  renderKeyUI();
+  const after = uiT("Saved “{name}” ({n} questions).", {name: k.name, n: k.questions.length});
+  if(window.GA_SCHOOL && window.GA_SCHOOL.user && window.GA_SCHOOL.user.role === "admin"){
+    saveKeyToSchool(k, status, after);
+    return;
+  }
+  openKeys(after);
+}
+function saveKeyToSchool(k, status, after){
+  setMsg(status, uiT("Saving “{name}” to the school…", {name: k.name}));
+  return schoolFetch("/school/keys", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(Object.assign({id:k.id}, k))}).then((data) => {
+    if(data.answerKey){
+      const list = (window.GA_SCHOOL.answerKeys || []).filter((x) => x.id !== data.answerKey.id);
+      list.push(data.answerKey);
+      window.GA_SCHOOL.answerKeys = list;
+    }
+    renderKeyUI();
+    openKeys((after || uiT("Saved “{name}” ({n} questions).", {name: k.name, n: k.questions.length})) + " " + uiT("Every teacher at this school will see it."));
+  }).catch((e) => {
+    if(after) openKeys(after + " " + uiT("Could not also save it to the school: {detail}", {detail: GA_i18n.localizeError(e.message)}));
+    else setMsg(status, e.message, "error");
+  });
+}
+async function loadTestSampleImage(url, filename){
+  const res = await fetch(url);
+  const blob = await res.blob();
+  const file = new File([blob], filename, {type: "image/jpeg"});
+  state.files = [];
+  await addFiles([file]);
+}
+
+
 const AI_URL = window.GA_DEMO
   ? "https://grade-along-api.storigen.workers.dev/demo/grade"
   : "https://grade-along-api.storigen.workers.dev/grade";
@@ -1738,12 +2378,20 @@ function starterFor(i, score){
 }
 
 function allScored(st = state){
+  if(st.testResult) return true;
+  if(sessionKind === "test") return false;
   return st.scores.length === WONDERS.length && st.scores.every(scoreOk);
 }
 
 function total(st = state){
+  if(st.testResult) return st.testResult.earned;
   if(!allScored(st)) return null;
   return st.scores.reduce((a,b) => a+b, 0);
+}
+
+function scoreOutOf(st = state){
+  if(st.testResult) return st.testResult.points;
+  return maxTotal();
 }
 
 function syncForm(){
@@ -1891,6 +2539,7 @@ function setScore(i, n){
 }
 
 function renderStatus(){
+  if(sessionKind === "test"){ renderTestResults(); renderTestStatus(); return; }
   const tot = total();
   $("t-total").textContent = (tot === null ? "—" : tot) + " / " + maxTotal();
   $("t-score-state").textContent = tot === null ? uiT("Pick a level in each category") : (state.approved ? uiT("Approved review") : uiT("Draft score"));
@@ -2051,7 +2700,7 @@ function nameFromFile(name){
 }
 
 function isEmptyStudent(st){
-  return !hasPaper(st) && !st.scores.some((x) => x != null) && !(st.overall || "").trim() && (!(st.student || "").trim() || st.soft.student);
+  return !hasPaper(st) && !st.scores.some((x) => x != null) && !(st.overall || "").trim() && !st.testResult && (!(st.student || "").trim() || st.soft.student);
 }
 
 // Phone pickers sometimes hand over files with no type and no ".pdf" in the name; look at the first bytes.
@@ -2292,6 +2941,15 @@ function hasPaper(st){
 }
 
 function studentStatus(st){
+  if(sessionKind === "test" || st.testResult){
+    if(st.busy) return {s: "busy", t: uiT("Reading…")};
+    if(st.approved || (st.testResult && st.testResult.finalized)) return {s: "approved", t: uiT("Score {earned} / {possible}", {earned: total(st), possible: scoreOutOf(st)})};
+    if(st.error) return {s: "error", t: GA_i18n.localizeError(st.error)};
+    if(st.testResult && st.testResult.flaggedCount) return {s: "ai", t: uiT("{n} flagged · review", {n: st.testResult.flaggedCount})};
+    if(st.testResult) return {s: "draft", t: uiT("Score {earned} / {possible}", {earned: total(st), possible: scoreOutOf(st)})};
+    if(st.droppedFiles && !hasPaper(st)) return {s: "error", t: uiT("Re-add paper")};
+    return hasPaper(st) ? {s: "ready", t: uiT("Ready to score")} : {s: "empty", t: uiT("No test yet")};
+  }
   if(st.busy) return {s: "busy", t: uiT("Grading…")};
   if(st.approved) return {s: "approved", t: uiT("Approved ✓ · {total} / {max}", {total: total(st), max: maxTotal()})};
   if(st.error) return {s: "error", t: GA_i18n.localizeError(st.error)};
@@ -2370,6 +3028,7 @@ function showStudent(){
   renderStatus();
   renderAssess();
   renderLanguageExtras(state);
+  if(sessionKind === "test"){ renderTestResults(); renderTestAnalysis(); }
 }
 
 function releasePdfs(st){
@@ -2697,6 +3356,7 @@ function renderGrowthBar(){
 function rememberScores(list){
   const hist = readJSON(HISTORY_STORE, []) || [];
   list.forEach((st) => {
+    if(st.testResult){ if(st.approved) rememberTestScore(st); return; }
     if(!allScored(st)) return;
     const r = scoreRecord(st, "device");
     if(!r.firstName) return;
@@ -3232,12 +3892,34 @@ function today(){
 
 function setMode(mode){
   const practice = mode === "practice";
+  const test = mode === "test";
+  sessionKind = test ? "test" : "paper";
+  document.body.classList.toggle("ga-test", test && !practice);
   $("practice-view").hidden = !practice;
   $("teacher-view").hidden = practice;
   $("mode-practice").setAttribute("aria-pressed", practice ? "true" : "false");
-  $("mode-teacher").setAttribute("aria-pressed", practice ? "false" : "true");
-  $("mode-badge").textContent = practice ? uiT("Teacher demo · Practice samples") : uiT("Teacher demo · Private grading");
-  document.title = practice ? "Grade Along | STORIGEN OS" : uiT("Grade a paper | Grade Along | STORIGEN OS");
+  $("mode-teacher").setAttribute("aria-pressed", (!practice && !test) ? "true" : "false");
+  if($("mode-test")) $("mode-test").setAttribute("aria-pressed", test ? "true" : "false");
+  if(!window.GA_DEMO){
+    $("mode-badge").textContent = practice ? uiT("Teacher demo · Practice samples") : (test ? uiT("Test · Private scoring") : uiT("Teacher demo · Private grading"));
+  }
+  document.title = practice ? "Grade Along | STORIGEN OS" : (test ? uiT("Test (answer key) | Grade Along | STORIGEN OS") : uiT("Grade a paper | Grade Along | STORIGEN OS"));
+  if($("paper-heading")) $("paper-heading").textContent = test ? uiT("Student test") : uiT("Student paper");
+  if($("t-files-label")) $("t-files-label").textContent = test ? uiT("Photos or a scanned PDF of the test (up to 3 pages are sent to AI)") : uiT("Photos or a scanned PDF of the paper (up to 3 pages are sent to AI)");
+  if($("ai-heading")) $("ai-heading").textContent = test ? uiT("Read answers") : uiT("Grade with AI");
+  if($("ai-go")) $("ai-go").textContent = test ? uiT("Read answers") : uiT("Grade with AI");
+  if($("q-grade-all")) $("q-grade-all").textContent = test ? uiT("Score all tests") : uiT("Grade all with AI");
+  const intro = $("ai-intro");
+  if(intro && test) intro.textContent = uiT("Grade Along AI reads the marked answers. The answer key scores them here. Correct, clear answers are approved automatically. Only flagged items need you.");
+  else if(intro && !test) renderRubricUI();
+  const heroP = $("teacher-hero-p");
+  if(heroP && !window.GA_DEMO){
+    heroP.textContent = test
+      ? uiT("Pick a sample test or upload your own. Grade Along AI reads the marked answers. The key scores them here. You only review flagged items.")
+      : uiT("Grade Along AI reads the paper and drafts a level and comment for each rubric row. You approve or edit every row and the feedback. The teacher decides.");
+  }
+  if(test){ renderKeyUI(); renderTestResults(); renderTestAnalysis(); }
+  if(window.GA_DEMO && typeof refreshDemoI18n === "function") refreshDemoI18n();
   if(!practice) $("t-name").focus();
 }
 
@@ -3901,6 +4583,8 @@ function getPass(statusFn){
 }
 
 async function gradeWithAI(){
+  if(sessionKind === "test"){ return readTestWithAI(); }
+
   if(batchRunning) return;
   syncForm();
   const pass = getPass(setAiStatus);
@@ -3966,8 +4650,54 @@ async function coverStep(st, pass, label){
   }
 }
 
+async function scoreAllTests(){
+  if(batchRunning) return;
+  syncForm();
+  const prog = batchProg;
+  const pass = batchPass();
+  if(!pass && !(window.GA_SCHOOL && window.GA_SCHOOL.token) && !window.GA_DEMO) return;
+  const targets = students.filter((st) => hasPaper(st) && !st.testResult && !st.approved);
+  if(!targets.length){ prog(uiT("Nothing new to score. Students who already have results, or no test yet, are skipped.")); return; }
+  batchRunning = true;
+  renderQueue();
+  let done = 0, failed = 0;
+  for(let k = 0; k < targets.length; k++){
+    const st = targets[k];
+    const label = () => uiT("Student {k} of {n} ({name})", {k: k + 1, n: targets.length, name: (st.student || "").trim() || uiT("Paper")});
+    st.busy = true; st.error = "";
+    renderQueue();
+    try{
+      if(typeof needsCover === "function" && needsCover(st)) await coverStep(st, pass, label());
+      const data = await paced(() => requestTestReadFromFiles(st, pass, (m) => prog(label() + ": " + m)), prog, label());
+      if(data.cover) applyCover(st, data.cover);
+      if(data.transcriptionNote) st.aiNote = data.transcriptionNote;
+      st.testObs = data.answers || [];
+      applyTestResult(st, GA_testScore.scoreTest(KEY, st.testObs));
+      done++;
+    } catch(e){
+      st.error = e.status === 401 ? uiT("Wrong passcode") : uiT("Not graded");
+      failed++;
+      if(e.status === 401){
+        st.busy = false; batchRunning = false; renderQueue();
+        prog(uiT("Wrong teacher passcode. Fix it and press Grade all again."), "error");
+        return;
+      }
+    }
+    st.busy = false;
+    renderQueue();
+  }
+  batchRunning = false;
+  renderQueue();
+  if(students.includes(state)) { fillForm(); renderTestResults(); renderStatus(); }
+  prog(uiT(failed
+    ? "Done: {done} drafted, {failed} could not be graded (try them one at a time). Click each student to review and approve their rows, and check any details marked “from cover”."
+    : "Done: {done} drafted. Click each student to review and approve their rows, and check any details marked “from cover”.",
+    {done: done, failed: failed}));
+}
+
 async function gradeAll(){
   if(batchRunning) return;
+  if(sessionKind === "test"){ return scoreAllTests(); }
   syncForm();
   if(students.some((st) => st.files.some((f) => isPdfFile(f) && (!f.pdf || f.pdf.status === "loading")))){
     batchProg(uiT("Opening the PDFs on this device…"));
@@ -4338,6 +5068,24 @@ function renderSchoolReport(data){
   }
   section(uiT("By grade"), data.byGrade);
   section(uiT("By class"), data.byClass);
+  if(data.testItemAnalysis && data.testItemAnalysis.length){
+    box.append(el("h3", null, uiT("Test item analysis")));
+    box.append(el("p", null, uiT("{n} scored test{s} at this school.", {n: data.testRecords || 0, s: (data.testRecords||0)===1?"":"s"})));
+    data.testItemAnalysis.forEach((g) => {
+      box.append(el("h3", null, g.keyName || uiT("Answer keys")));
+      const table = el("table");
+      const hr = el("tr");
+      [uiT("Question {n}", {n:""}).trim(), uiT("% correct"), uiT("Counted"), uiT("Flagged")].forEach((h,i) => hr.append(el("th", i?"num":null, h)));
+      const thead = el("thead"); thead.append(hr); table.append(thead);
+      const tb = el("tbody");
+      (g.questions||[]).forEach((row) => {
+        const tr = el("tr");
+        tr.append(el("td", null, String(row.n)), el("td", "num", row.percentCorrect==null?"—":String(row.percentCorrect)+"%"), el("td", "num", String(row.counted)), el("td", "num", String(row.flagged)));
+        tb.append(tr);
+      });
+      table.append(tb); box.append(table);
+    });
+  }
 }
 async function refreshSchool(msg){
   if(!window.GA_SCHOOL) return;
@@ -4347,7 +5095,9 @@ async function refreshSchool(msg){
     window.GA_SCHOOL.school = data.school;
     window.GA_SCHOOL.usage = data.usage;
     window.GA_SCHOOL.rubrics = data.rubrics || [];
+    if(data.answerKeys) window.GA_SCHOOL.answerKeys = data.answerKeys;
     if(data.teachers) window.GA_SCHOOL.teachers = data.teachers;
+    if(sessionKind === "test") renderKeyUI();
     renderSchoolBar();
     enforceSchoolRubric();
     renderRubricUI();
@@ -4510,10 +5260,17 @@ $("t-overall-edit").addEventListener("click", () => { $("t-overall").focus(); })
 if(state.aiNote){ $("ai-transcript").hidden = false; $("ai-transcript").textContent = uiT("Reading note from AI: {note}", {note: state.aiNote}); }
 $("mode-practice").addEventListener("click", () => setMode("practice"));
 $("mode-teacher").addEventListener("click", () => setMode("teacher"));
+if($("mode-test")) $("mode-test").addEventListener("click", () => setMode("test"));
+if($("q-keys")) $("q-keys").addEventListener("click", () => openKeys());
+if($("q-key")) $("q-key").addEventListener("change", () => useKey($("q-key").value));
+renderKeyUI();
 
 const params = new URLSearchParams(location.search);
 if(params.get("mode") === "grade" || params.get("mode") === "teacher"){
   setMode("teacher");
+}
+if(params.get("mode") === "test"){
+  setMode("test");
 }
 const DEMO_PAPERS = [
   {id:"bus", name:"Maya · The Last Bus Ticket (Grade 3, English)", student:"Maya", grade:"3", title:"The Last Bus Ticket",
@@ -4524,23 +5281,30 @@ const DEMO_PAPERS = [
    text:"El viernes Ana queria llevar su puente de papel a la feria antes de las cuatro.\n\nCuando empezo la lluvia, la caja se mojo y una esquina del puente se doblo.\n\nEn vez de regresar a casa, Ana puso el puente en una bolsa y tomo el camino cubierto.\n\nLlego antes de las cuatro y su amiga le ayudo a enderezar la esquina. Ana sonrio cuando pusieron el puente en la mesa."},
   {id:"lantern", name:"Nia · The Light in the Window (Grade 3, English)", student:"Nia", grade:"3", title:"The Light in the Window",
    text:"On the morning of the school story fair, Nia carried a paper lantern in a shoebox. She had painted its sides yellow so they would glow like the window in her favorite book. Her little brother, Eli, had drawn a crooked star on the bottom. Nia put that side down. She wanted to win the ribbon for the best display, and she did not think crooked stars won ribbons.\n\nBy lunch, rain was drumming on the cafeteria roof. When Nia went to set up, she found water dripping onto her table. One side of the lantern had sagged. She tried to stand it up, but each time she moved her hand, it folded again. Across the room, Eli was squatting under a table with the book she had promised to read with him. He had not looked up once.\n\nNia could move to the dry end of the room and ask for a new sheet of paper. Instead, she carried the lantern to Eli and asked him to hold the bottom while she taped the torn side. He turned it so the star faced out. “That’s your window,” he said. “I put it there so you could find me in the story.”\n\nWhen the lights went down, the flashlight inside the lantern sent a crooked star across both of their hands. Nia set the shoebox lid beneath it and opened the book. The judges had not come to her table yet, but Eli had finally looked up. She started reading before the star could slide off his thumb."},
-  {id:"upload", name:"Upload or paste your own paper", student:"", grade:"", title:"", text:""}
+  {id:"upload", name:"Upload or paste your own paper", student:"", grade:"", title:"", text:""},
+  {id:"test-maya", kind:"test", name:"Maya · Grade 3 Science Check (test)", student:"Maya", grade:"3", image:"samples/maya-science-check.jpg", file:"maya-science-check.jpg"},
+  {id:"test-nico", kind:"test", name:"Nico · Grade 3 Science Check (test)", student:"Nico", grade:"3", image:"samples/nico-science-check.jpg", file:"nico-science-check.jpg"},
+  {id:"test-upload", kind:"test", name:"Upload your own test", student:"", grade:"", image:""}
 ];
 
 function refreshDemoI18n(){
   if(!window.GA_DEMO) return;
   const banner = $("demo-banner");
   if(banner){
-    banner.innerHTML = "<p><strong>" + uiT("Demo, schools get full accounts.") + "</strong> " + uiT("Try Grade Along with a sample paper or your own. This preview does not sign you in and has no school, teacher, admin, or owner tools. Schools can write to {email} for a full account.", {email: '<a href="mailto:info@arrivalhousemedia.com">info@arrivalhousemedia.com</a>'}) + "</p>";
+    banner.innerHTML = "<p><strong>" + uiT("Demo, schools get full accounts.") + "</strong> " + uiT("Try Grade Along with a sample paper, a sample test, or your own. This preview does not sign you in and has no school, teacher, admin, or owner tools. Schools can write to {email} for a full account.", {email: '<a href="mailto:info@arrivalhousemedia.com">info@arrivalhousemedia.com</a>'}) + "</p>";
   }
   const badge = $("mode-badge");
   if(badge) badge.textContent = uiT("Public demo");
   const heroP = $("teacher-hero-p") || document.querySelector("#teacher-view .hero p");
-  if(heroP) heroP.textContent = uiT("Pick a sample paper or upload your own. Grade Along AI drafts a level and comment for each rubric row. You approve or edit every row. This public demo grades about 3 papers per day from your network, and nothing is stored on the server.");
+  if(heroP) heroP.textContent = sessionKind === "test"
+    ? uiT("Pick a sample test or upload your own. Grade Along AI reads the marked answers. The key scores them here. You only review flagged items. This public demo scores about 3 papers or tests per day from your network, and nothing is stored on the server.")
+    : uiT("Pick a sample paper or upload your own. Grade Along AI drafts a level and comment for each rubric row. You approve or edit every row. This public demo grades about 3 papers per day from your network, and nothing is stored on the server.");
   const privacy = $("teacher-privacy") || document.querySelector("#teacher-view .privacy");
-  if(privacy) privacy.innerHTML = "<strong>" + uiT("This is a public demo.") + "</strong> " + uiT("Sample names and papers are fictional. If you upload your own paper, only the photos or text you send are used to draft scores. They are not stored on the server and are not attached to a school account. You can grade about 3 papers per day.");
+  if(privacy) privacy.innerHTML = "<strong>" + uiT("This is a public demo.") + "</strong> " + (sessionKind === "test"
+    ? uiT("Sample names and tests are fictional. If you upload your own test, only the photos you send are used to read the answers. They are not stored on the server and are not attached to a school account. You can score about 3 papers or tests per day.")
+    : uiT("Sample names and papers are fictional. If you upload your own paper, only the photos or text you send are used to draft scores. They are not stored on the server and are not attached to a school account. You can grade about 3 papers per day."));
   const label = document.querySelector('label[for="demo-sample"]');
-  if(label) label.textContent = uiT("Sample paper (fictional)");
+  if(label) label.textContent = uiT("Sample (fictional)");
   const sel = $("demo-sample");
   if(sel){
     const cur = sel.value;
@@ -4549,7 +5313,9 @@ function refreshDemoI18n(){
     sel.value = cur || "bus";
   }
   const hint = document.querySelector(".demo-hint");
-  if(hint) hint.textContent = uiT("Choose a sample, or pick “Upload or paste your own paper” and add a photo, a PDF, or the story text below. Use the rubric list to switch between the built-in Storigen Wonders rubric and the sample Grade 3 narrative snapshot. Drafts are not saved on the server.");
+  if(hint) hint.textContent = sessionKind === "test"
+    ? uiT("Choose a sample test, or pick “Upload your own test” and add a photo or PDF of the answer sheet. Use the answer-key list to switch keys. Correct, clear answers are approved automatically. Drafts are not saved on the server.")
+    : uiT("Choose a sample, or pick “Upload or paste your own paper” and add a photo, a PDF, or the story text below. Use the rubric list to switch between the built-in Storigen Wonders rubric and the sample Grade 3 narrative snapshot. Drafts are not saved on the server.");
   const story = $("t-story");
   const sample = DEMO_PAPERS.find((s) => s.id === (sel && sel.value)) || DEMO_PAPERS[0];
   if(story && sample && !sample.text) story.placeholder = uiT("Paste your own story, or add a photo or PDF of the paper below.");
@@ -4584,10 +5350,12 @@ function applyPublicDemo(){
   if(teacher) teacher.hidden = false;
   const modeT = $("mode-teacher");
   const modeP = $("mode-practice");
+  const modeTest = $("mode-test");
   if(modeT) modeT.setAttribute("aria-pressed","true");
   if(modeP){ modeP.setAttribute("aria-pressed","false"); modeP.hidden = true; }
+  if(modeTest){ modeTest.hidden = false; modeTest.setAttribute("aria-pressed","false"); }
   const modes = document.querySelector(".modes");
-  if(modes) modes.hidden = true;
+  if(modes) modes.hidden = false;
   const hero = document.querySelector("#teacher-view .hero");
   if(hero && !$("demo-samples")){
     const box = document.createElement("div");
@@ -4604,6 +5372,26 @@ function applyPublicDemo(){
 function loadDemoSample(id){
   const sample = DEMO_PAPERS.find((s) => s.id === id) || DEMO_PAPERS[0];
   syncForm();
+  if(sample.kind === "test"){
+    setMode("test");
+    useKey(DEMO_SCIENCE_KEY.id);
+    state.student = sample.student;
+    state.grade = sample.grade;
+    state.story = "";
+    state.testObs = null;
+    state.testResult = null;
+    state.approved = false;
+    state.soft = {date: true};
+    state.auto = {};
+    (state.files || []).forEach((f) => { try { if(f.blobUrl) URL.revokeObjectURL(f.blobUrl); } catch(e){} });
+    state.files = [];
+    showStudent();
+    if(sample.image){
+      loadTestSampleImage(sample.image, sample.file || "sample.jpg").catch(() => setAiStatus(uiT("Add a photo of the test."), "error"));
+    }
+    return;
+  }
+  if(sessionKind === "test") setMode("teacher");
   state.student = sample.student;
   state.grade = sample.grade;
   state.story = sample.text;
@@ -4625,6 +5413,7 @@ if(window.GA_i18n) GA_i18n.onChange(function(){
   else if(window.wireHostLinks) window.wireHostLinks("app");
   showStudent();
   renderSchoolBar();
+  if(sessionKind === "test"){ renderKeyUI(); renderTestResults(); renderTestAnalysis(); }
   if(isSchoolAdmin() && window.GA_SCHOOL){
     renderTeacherTable(window.GA_SCHOOL.teachers || []);
     if(lastSchoolReport) renderSchoolReport(lastSchoolReport);
@@ -4637,7 +5426,7 @@ if(window.GA_i18n) GA_i18n.onChange(function(){
     document.title = practice ? "Grade Along | STORIGEN OS" : uiT("Grade a paper | Grade Along | STORIGEN OS");
   }
 });
-window.GA_schoolUi = { renderTeacherTable, renderSchoolReport, openSplit, openEditor, blankRubric, buildGrowthSummary, renderSchoolBar };
+window.GA_schoolUi = { renderTeacherTable, renderSchoolReport, openSplit, openEditor, blankRubric, buildGrowthSummary, renderSchoolBar, openKeys, openKeyEditor, blankKey, useKey, renderTestResults, renderTestAnalysis, setMode, scoreTest: (obs) => { state.testObs = obs; applyTestResult(state, GA_testScore.scoreTest(KEY, obs)); renderTestResults(); renderStatus(); } };
 }
 
 </script>
