@@ -92,6 +92,65 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 .overall{border:1px solid var(--line);border-radius:12px;padding:13px;background:#0a1020a8;margin-bottom:10px}.overall h3{font-size:1rem;margin:0 0 4px;color:var(--warm)}
 @media print{.ai-box,.row-actions,.ai-note{display:none!important}.row-tag{color:#333;border-color:#bbb;background:#fff}.overall{background:#fff;border-color:#bbb}}
 
+
+.primary:disabled{opacity:.5;filter:none}
+.queue{margin:0 0 18px;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,var(--raised),var(--surface) 70%)}
+.queue-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between}
+.queue-head h2{margin:0;font-size:1.05rem;font-family:var(--display)}
+.queue-head .eyebrow{margin-left:8px}
+.queue-actions{display:flex;flex-wrap:wrap;gap:8px}.queue-actions button{min-height:38px;padding:6px 12px;font-size:.9rem}
+.queue-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.q-chip{appearance:none;font:inherit;text-align:left;cursor:pointer;border:1px solid var(--line);border-radius:12px;background:var(--night);color:var(--sub);padding:8px 12px;min-height:46px;min-width:150px;display:flex;flex-direction:column;gap:2px}
+.q-chip b{color:var(--ink);font-weight:700}.q-chip span{font-size:.8rem}
+.q-chip[aria-current=true]{border-color:var(--gold);background:#d1a95416;box-shadow:0 0 0 1px var(--gold) inset}
+.q-chip[data-s=approved] span{color:#9fe0c0}.q-chip[data-s=ai] span{color:var(--violet)}.q-chip[data-s=busy] span{color:var(--warm)}.q-chip[data-s=error] span{color:#ffb4a8}
+.queue-progress{margin:10px 0 0;font-size:.9rem;color:var(--warm);min-height:0}.queue-progress:empty{display:none}.queue-progress[data-kind=error]{color:#ffb4a8}
+.queue-warn{margin:10px 0 0;font-size:.85rem;color:#ffd59a;border-left:2px solid var(--gold);padding-left:10px}
+#print-root{display:none}
+#print-root.measuring{display:block;position:absolute;left:-10000px;top:0;visibility:hidden}
+/* ---------- One-page score report (US Letter) ---------- */
+.report{width:7.5in;box-sizing:border-box;background:#fff;color:#1F2937;font-family:var(--body);font-size:10.5pt;line-height:1.38;display:flex;flex-direction:column}
+.report *{box-sizing:border-box}
+.r-head{background:none;border-top:0;border-left:0;border-right:0;position:static;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding-bottom:.55em;border-bottom:2.5px solid #D1A954}
+.r-brand{font-family:var(--display);font-weight:650;letter-spacing:.22em;font-size:.82em;color:#1F2937;display:flex;align-items:center;gap:.6em}
+.r-brand b{color:#9C7A34;letter-spacing:.14em}
+.r-dot{display:inline-block;width:.85em;height:.85em;border-radius:50%;background:radial-gradient(circle,#F2DDA4,#D1A954 70%);box-shadow:0 0 0 2px #F7F0DC}
+.r-title{font-family:var(--display);font-size:1.55em;font-weight:750;letter-spacing:-.01em;margin-top:.25em;color:#111827}
+.r-sub{font-size:.85em;color:#6B7280}
+.r-draft{font-family:var(--display);font-size:.78em;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:#9A3412;border:1px solid #F5C9A8;background:#FFF4EC;border-radius:999px;padding:.2em .7em;white-space:nowrap}
+.r-top{display:flex;gap:16px;align-items:stretch;margin:.9em 0 .8em}
+.r-meta{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:.45em 1.2em;margin:0;padding:.75em .9em;background:#FBF8F1;border:1px solid #EADFC4;border-radius:10px}
+.r-meta div{min-width:0}.r-meta dt{font-size:.72em;text-transform:uppercase;letter-spacing:.1em;color:#8A6D2C;font-weight:700}.r-meta dd{margin:0;font-weight:650;font-size:1.02em;overflow-wrap:anywhere}
+.r-total{width:1.75in;border-radius:12px;background:linear-gradient(150deg,#FFF9E8,#F4E3B5);border:1.5px solid #D1A954;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.5em}
+.r-num{font-family:var(--display);font-size:3.1em;line-height:1;font-weight:800;color:#1F2937}
+.r-of{font-family:var(--display);font-size:1.05em;font-weight:700;color:#8A6D2C}
+.r-cap{font-size:.72em;text-transform:uppercase;letter-spacing:.12em;color:#6B7280;margin-top:.25em}
+.r-table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid #E5DCC6;border-radius:10px;overflow:hidden}
+.r-table th{font-family:var(--display);text-align:left;font-size:.74em;text-transform:uppercase;letter-spacing:.1em;color:#8A6D2C;background:#FBF6E9;padding:.5em .7em;border-bottom:1px solid #E5DCC6}
+.r-table td{vertical-align:top;padding:.6em .7em;border-bottom:1px solid #EFE8D8}
+.r-table tr:last-child td{border-bottom:0}
+.r-cat{width:1.85in;font-weight:700;color:#111827}
+.r-lvl{width:1.05in;white-space:nowrap}
+.r-lvl b{display:inline-flex;align-items:center;justify-content:center;width:1.7em;height:1.7em;border-radius:50%;background:#D1A954;color:#1F2937;font-family:var(--display);font-weight:800;margin-right:.35em}
+.r-lvl span{font-weight:650}
+.r-fb{color:#1F2937;white-space:pre-wrap;overflow-wrap:anywhere}
+.r-status{display:block;margin-top:.35em;font-size:.72em;font-weight:650;color:#6B7280;letter-spacing:.02em}
+.r-status[data-s=approved]{color:#1F7A53}.r-status[data-s=edited]{color:#8A6D2C}.r-status[data-s=ai]{color:#9A3412}
+.r-overall{margin-top:.8em;padding:.7em .9em;border:1px solid #EADFC4;border-left:4px solid #D1A954;border-radius:10px;background:#FFFDF8}
+.r-overall h3{margin:0 0 .25em;font-family:var(--display);font-size:.95em;color:#111827}
+.r-overall p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.r-foot{margin-top:auto;padding-top:.6em;border-top:1px solid #E5DCC6;display:flex;justify-content:space-between;gap:10px;font-size:.74em;color:#6B7280}
+.r-foot b{color:#8A6D2C;font-weight:700}
+@media print{
+  @page{size:letter;margin:.5in}
+  html:has(body.print-report){background:#fff!important;color-scheme:light}
+  body.print-report{background:#fff!important;min-height:0}
+  body.print-report > *:not(#print-root){display:none!important}
+  body.print-report #print-root{display:block!important;position:static;visibility:visible}
+  body.print-report .report{break-after:page;page-break-after:always;height:9.95in;overflow:hidden}
+  body.print-report .report[data-overflow=true]{height:auto;overflow:visible}
+  body.print-report .report:last-child{break-after:auto;page-break-after:auto}
+}
 </style>
 </head>
 <body>
@@ -146,7 +205,19 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 
 <div id="teacher-view" hidden>
 <div class="hero"><div class="cap">Grade Along</div><h1>Grade a paper</h1><p>Grade Along AI reads the paper and drafts a level and comment for each rubric row. You approve or edit every row and the feedback. The teacher decides.</p></div>
-<p class="privacy"><strong>Papers stay on this device until you press Grade with AI.</strong> Then only the photos (or the PDF pages you tick, turned into pictures here), the story text, the first name, and the grade are sent to the Grade Along AI service (Claude by Anthropic, through Cloudflare) to draft scores. Grade Along does not store them. Use first names only. A draft can be saved in this browser only; use Clear all to remove it.</p>
+<p class="privacy"><strong>Papers stay on this device until you press Grade with AI.</strong> Then only the photos (or the PDF pages you tick, turned into pictures here), the story text, the first name, and the grade are sent to the Grade Along AI service (Claude by Anthropic, through Cloudflare) to draft scores. Grade Along does not store them. Use first names only. Drafts for every student can be saved in this browser only; use Clear all to remove them.</p>
+<section class="queue" aria-labelledby="q-heading">
+<div class="queue-head"><div><h2 id="q-heading" style="display:inline">Students</h2><span class="eyebrow" id="q-count"></span></div>
+<div class="queue-actions">
+<button type="button" class="secondary" id="q-add">+ Add student</button>
+<button type="button" class="secondary" id="q-grade-all" hidden>Grade all with AI</button>
+<button type="button" class="secondary" id="q-print-all" hidden>Print all approved</button>
+<button type="button" class="secondary" id="q-remove" hidden>Remove this student</button>
+</div></div>
+<div class="queue-list" id="q-list" aria-label="Student papers"></div>
+<p class="queue-progress" id="q-progress" role="status" aria-live="polite"></p>
+<p class="queue-warn" id="q-warn" hidden></p>
+</section>
 <div class="grid">
 <section class="panel" aria-labelledby="paper-heading">
 <div class="titleline"><div><h2 id="paper-heading">Student paper</h2><div class="eyebrow">Private teacher review · not published</div></div></div>
@@ -186,9 +257,9 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 </div>
 <div class="actions">
 <button type="button" class="primary" id="t-approve" disabled>Approve review</button>
-<button type="button" class="secondary" id="t-print" disabled>Print / Save as PDF</button>
+<button type="button" class="secondary" id="t-print" disabled>Print report</button>
 <button type="button" class="secondary" id="t-json" disabled>Download JSON</button>
-<button type="button" class="secondary" id="t-csv" disabled>Download CSV</button>
+<button type="button" class="secondary" id="t-csv" disabled>Download CSV (all students)</button>
 <button type="button" class="secondary" id="t-clear">Clear all</button>
 </div>
 <p class="approval" role="status" id="t-approval" hidden></p>
@@ -386,26 +457,38 @@ const WONDERS = [
 const STORE = "storigen-os-grade-along-teacher-draft";
 const MAX_STORE_BYTES = 4 * 1024 * 1024;
 const $ = (id) => document.getElementById(id);
-const state = {
-  scores: WONDERS.map(() => null),
-  feedback: WONDERS.map(() => ""),
-  starters: WONDERS.map(() => ""),
-  approved: false,
-  files: [],
-  rowStatus: WONDERS.map(() => ""),   // "" teacher-only | "ai" draft | "approved" | "edited"
-  aiDraft: WONDERS.map(() => null),   // {score, comment} as drafted by AI
-  overall: "",
-  overallStatus: "",
-  aiOverall: "",
-  aiModel: "",
-  aiNote: ""
-};
+const QUEUE_STORE = "storigen-os-grade-along-teacher-queue";
+let nextId = 1;
+function blankStudent(){
+  return {
+    id: nextId++,
+    student: "", grade: "", date: today(), facilitator: "", story: "",
+    scores: WONDERS.map(() => null),
+    feedback: WONDERS.map(() => ""),
+    starters: WONDERS.map(() => ""),
+    approved: false,
+    files: [],
+    rowStatus: WONDERS.map(() => ""),   // "" teacher-only | "ai" draft | "approved" | "edited"
+    aiDraft: WONDERS.map(() => null),   // {score, comment} as drafted by AI
+    overall: "",
+    overallStatus: "",
+    aiOverall: "",
+    aiModel: "",
+    aiNote: "",
+    busy: false,
+    error: ""
+  };
+}
+let students = [blankStudent()];
+let state = students[0];          // the student shown in the form
+let storeWarn = false;
+let batchRunning = false;
 const AI_URL = "https://grade-along-api.storigen.workers.dev/grade";
 const PASS_KEY = "storigen-grade-along-passcode";
 const ROW_LABEL = {ai: "AI draft", approved: "Teacher approved", edited: "Edited by teacher"};
 
-function aiPending(){
-  return state.rowStatus.some((s) => s === "ai") || state.overallStatus === "ai";
+function aiPending(st = state){
+  return st.rowStatus.some((s) => s === "ai") || st.overallStatus === "ai";
 }
 
 function starterFor(i, score){
@@ -414,13 +497,29 @@ function starterFor(i, score){
   return lvl.label + " — " + lvl.text;
 }
 
-function allScored(){
-  return state.scores.every((s) => s >= 1 && s <= 5);
+function allScored(st = state){
+  return st.scores.every((s) => s >= 1 && s <= 5);
 }
 
-function total(){
-  if(!allScored()) return null;
-  return state.scores.reduce((a,b) => a+b, 0);
+function total(st = state){
+  if(!allScored(st)) return null;
+  return st.scores.reduce((a,b) => a+b, 0);
+}
+
+function syncForm(){
+  state.student = $("t-name").value;
+  state.grade = $("t-grade").value;
+  state.date = $("t-date").value;
+  state.facilitator = $("t-facilitator").value;
+  state.story = $("t-story").value;
+}
+
+function fillForm(){
+  $("t-name").value = state.student || "";
+  $("t-grade").value = state.grade || "";
+  $("t-date").value = state.date || today();
+  $("t-facilitator").value = state.facilitator || "";
+  $("t-story").value = state.story || "";
 }
 
 function renderCategories(){
@@ -534,7 +633,8 @@ function renderStatus(){
   $("t-approve").dataset.reviewed = state.approved ? "true" : "false";
   $("t-print").disabled = !allScored();
   $("t-json").disabled = !allScored();
-  $("t-csv").disabled = !allScored();
+  $("t-csv").disabled = !students.some((st) => allScored(st));
+  renderQueue();
   const approval = $("t-approval");
   if(state.approved){
     approval.hidden = false;
@@ -551,34 +651,43 @@ function renderStatus(){
   }
 }
 
-function payload(){
+function reviewText(s, teacherWord){
+  return s === "approved" ? "AI draft approved by teacher" : s === "edited" ? "Edited by teacher" : s === "ai" ? "AI draft, not yet reviewed" : teacherWord;
+}
+
+function payloadFor(st){
   const cats = WONDERS.map((cat, i) => ({
     category: cat.name,
-    score: state.scores[i],
-    level: state.scores[i] ? cat.levels[state.scores[i]].label : "",
-    descriptor: state.scores[i] ? cat.levels[state.scores[i]].text : "",
-    feedback: state.feedback[i],
-    review: state.rowStatus[i] === "approved" ? "AI draft approved by teacher" : state.rowStatus[i] === "edited" ? "Edited by teacher" : state.rowStatus[i] === "ai" ? "AI draft, not yet reviewed" : "Teacher scored",
-    aiDraft: state.aiDraft[i]
+    score: st.scores[i],
+    level: st.scores[i] ? cat.levels[st.scores[i]].label : "",
+    descriptor: st.scores[i] ? cat.levels[st.scores[i]].text : "",
+    feedback: st.feedback[i],
+    review: reviewText(st.rowStatus[i], "Teacher scored"),
+    aiDraft: st.aiDraft[i]
   }));
   return {
     tool: "STORIGEN OS Grade Along",
     rubric: "Storigen Wonders Rubric",
-    student: $("t-name").value.trim(),
-    grade: $("t-grade").value.trim(),
-    date: $("t-date").value,
-    facilitator: $("t-facilitator").value.trim(),
-    story: $("t-story").value,
-    attachments: state.files.map((f) => ({name: f.name, type: f.type, size: f.size})),
+    student: (st.student || "").trim(),
+    grade: (st.grade || "").trim(),
+    date: st.date || "",
+    facilitator: (st.facilitator || "").trim(),
+    story: st.story || "",
+    attachments: st.files.map((f) => ({name: f.name, type: f.type, size: f.size})),
     categories: cats,
-    total: total(),
+    total: total(st),
     totalPossible: 20,
-    overallFeedback: state.overall,
-    overallReview: state.overallStatus === "approved" ? "AI draft approved by teacher" : state.overallStatus === "edited" ? "Edited by teacher" : state.overallStatus === "ai" ? "AI draft, not yet reviewed" : "Teacher written",
-    aiModel: state.aiModel || null,
-    aiTranscriptionNote: state.aiNote || null,
-    approved: state.approved
+    overallFeedback: st.overall,
+    overallReview: reviewText(st.overallStatus, "Teacher written"),
+    aiModel: st.aiModel || null,
+    aiTranscriptionNote: st.aiNote || null,
+    approved: st.approved
   };
+}
+
+function payload(){
+  syncForm();
+  return payloadFor(state);
 }
 
 function download(filename, text, mime){
@@ -640,11 +749,12 @@ function readAsDataURL(file){
 }
 
 async function addFiles(fileList){
+  const owner = state;
   for(const file of fileList){
     const blobUrl = URL.createObjectURL(file);
     let dataUrl = null;
     try { dataUrl = await readAsDataURL(file); } catch(e){ dataUrl = null; }
-    state.files.push({
+    owner.files.push({
       name: file.name,
       type: file.type,
       size: file.size,
@@ -654,118 +764,356 @@ async function addFiles(fileList){
       file
     });
   }
-  renderFiles();
+  owner.error = "";
+  owner.droppedFiles = 0;
+  if(owner === state) renderFiles();
   saveDraft();
-  state.files.filter((f) => isPdfFile(f) && !f.pdf).forEach((f) => { preparePdf(f); });
+  owner.files.filter((f) => isPdfFile(f) && !f.pdf).forEach((f) => { preparePdf(f, owner); });
 }
 
-function collectDraft(){
+function serializeStudent(st, withFiles){
   return {
-    student: $("t-name").value,
-    grade: $("t-grade").value,
-    date: $("t-date").value,
-    facilitator: $("t-facilitator").value,
-    story: $("t-story").value,
-    scores: state.scores,
-    feedback: state.feedback,
-    starters: state.starters,
-    approved: state.approved,
-    rowStatus: state.rowStatus,
-    aiDraft: state.aiDraft,
-    overall: state.overall,
-    overallStatus: state.overallStatus,
-    aiOverall: state.aiOverall,
-    aiModel: state.aiModel,
-    aiNote: state.aiNote,
-    files: state.files.map((f) => ({
-      name: f.name, type: f.type, size: f.size, dataUrl: f.dataUrl || null
+    student: st.student, grade: st.grade, date: st.date, facilitator: st.facilitator, story: st.story,
+    scores: st.scores, feedback: st.feedback, starters: st.starters, approved: st.approved,
+    rowStatus: st.rowStatus, aiDraft: st.aiDraft, overall: st.overall, overallStatus: st.overallStatus,
+    aiOverall: st.aiOverall, aiModel: st.aiModel, aiNote: st.aiNote,
+    files: st.files.map((f) => ({
+      name: f.name, type: f.type, size: f.size,
+      dataUrl: withFiles ? (f.dataUrl || null) : null,
+      pages: isPdfFile(f) ? (f.pdf && f.pdf.status === "ready" ? selectedPdfPages(f).map((p) => p.n) : (f.savedPages || null)) : null
     }))
   };
 }
 
 function saveDraft(){
+  syncForm();
+  const current = students.indexOf(state);
+  let warn = false;
   try{
-    const draft = collectDraft();
-    const raw = JSON.stringify(draft);
+    let raw = JSON.stringify({v: 2, current, students: students.map((st) => serializeStudent(st, true))});
     if(raw.length > MAX_STORE_BYTES){
-      draft.files = draft.files.map((f) => ({name: f.name, type: f.type, size: f.size, dataUrl: null}));
-      const slimmer = JSON.stringify(draft);
-      if(slimmer.length > MAX_STORE_BYTES){
-        delete draft.story;
-        localStorage.setItem(STORE, JSON.stringify(draft));
-        return;
-      }
-      localStorage.setItem(STORE, slimmer);
-      return;
+      warn = true;
+      raw = JSON.stringify({v: 2, current, students: students.map((st) => serializeStudent(st, false))});
     }
-    localStorage.setItem(STORE, raw);
-  } catch(e){ /* quota or private mode: keep working in memory */ }
+    try { localStorage.setItem(QUEUE_STORE, raw); }
+    catch(e){
+      warn = true;
+      localStorage.setItem(QUEUE_STORE, JSON.stringify({v: 2, current, students: students.map((st) => serializeStudent(st, false))}));
+    }
+  } catch(e){ /* private mode: keep working in memory */ }
+  storeWarn = warn && students.some((st) => st.files.length);
+  renderQueue();
+}
+
+function restoreStudent(d){
+  const st = blankStudent();
+  st.student = d.student || ""; st.grade = d.grade || ""; st.date = d.date || today();
+  st.facilitator = d.facilitator || ""; st.story = d.story || "";
+  if(Array.isArray(d.scores)) st.scores = WONDERS.map((_,i) => d.scores[i] ?? null);
+  if(Array.isArray(d.feedback)) st.feedback = WONDERS.map((_,i) => d.feedback[i] || "");
+  if(Array.isArray(d.starters)) st.starters = WONDERS.map((_,i) => d.starters[i] || "");
+  st.approved = !!d.approved;
+  if(Array.isArray(d.rowStatus)) st.rowStatus = WONDERS.map((_,i) => ["ai","approved","edited"].includes(d.rowStatus[i]) ? d.rowStatus[i] : "");
+  if(Array.isArray(d.aiDraft)) st.aiDraft = WONDERS.map((_,i) => d.aiDraft[i] || null);
+  st.overall = d.overall || "";
+  st.overallStatus = ["ai","approved","edited"].includes(d.overallStatus) ? d.overallStatus : "";
+  st.aiOverall = d.aiOverall || ""; st.aiModel = d.aiModel || ""; st.aiNote = d.aiNote || "";
+  let dropped = 0;
+  if(Array.isArray(d.files)){
+    d.files.forEach((f) => {
+      if(f && f.dataUrl){
+        st.files.push({name: f.name || "scan", type: f.type || "", size: f.size || 0, url: f.dataUrl, blobUrl: null, dataUrl: f.dataUrl, savedPages: Array.isArray(f.pages) ? f.pages : null});
+      } else if(f){ dropped++; }
+    });
+  }
+  st.droppedFiles = dropped;
+  return st;
 }
 
 function loadDraft(){
-  let raw;
-  try { raw = localStorage.getItem(STORE); } catch(e){ return false; }
-  if(!raw) return false;
-  let draft;
-  try { draft = JSON.parse(raw); } catch(e){ return false; }
-  $("t-name").value = draft.student || "";
-  $("t-grade").value = draft.grade || "";
-  $("t-date").value = draft.date || $("t-date").value;
-  $("t-facilitator").value = draft.facilitator || "";
-  $("t-story").value = draft.story || "";
-  if(Array.isArray(draft.scores)) state.scores = WONDERS.map((_,i) => draft.scores[i] ?? null);
-  if(Array.isArray(draft.feedback)) state.feedback = WONDERS.map((_,i) => draft.feedback[i] || "");
-  if(Array.isArray(draft.starters)) state.starters = WONDERS.map((_,i) => draft.starters[i] || "");
-  state.approved = !!draft.approved;
-  if(Array.isArray(draft.rowStatus)) state.rowStatus = WONDERS.map((_,i) => ["ai","approved","edited"].includes(draft.rowStatus[i]) ? draft.rowStatus[i] : "");
-  if(Array.isArray(draft.aiDraft)) state.aiDraft = WONDERS.map((_,i) => draft.aiDraft[i] || null);
-  state.overall = draft.overall || "";
-  state.overallStatus = ["ai","approved","edited"].includes(draft.overallStatus) ? draft.overallStatus : "";
-  state.aiOverall = draft.aiOverall || "";
-  state.aiModel = draft.aiModel || "";
-  state.aiNote = draft.aiNote || "";
-  revokeFiles();
-  state.files = [];
-  if(Array.isArray(draft.files)){
-    draft.files.forEach((f) => {
-      if(f && f.dataUrl){
-        state.files.push({
-          name: f.name || "scan",
-          type: f.type || "",
-          size: f.size || 0,
-          url: f.dataUrl,
-          blobUrl: null,
-          dataUrl: f.dataUrl
-        });
+  let raw = null;
+  try { raw = localStorage.getItem(QUEUE_STORE); } catch(e){ return false; }
+  try{
+    if(raw){
+      const q = JSON.parse(raw);
+      if(q && Array.isArray(q.students) && q.students.length){
+        students = q.students.map(restoreStudent);
+        state = students[Math.min(Math.max(0, q.current | 0), students.length - 1)];
+        return true;
       }
-    });
-  }
-  return true;
+    }
+    // Migrate a single-paper draft from the earlier version.
+    const old = localStorage.getItem(STORE);
+    if(old){
+      students = [restoreStudent(JSON.parse(old))];
+      state = students[0];
+      localStorage.removeItem(STORE);
+      return true;
+    }
+  } catch(e){}
+  return false;
+}
+
+function revokeAll(){
+  students.forEach((st) => st.files.forEach((f) => { if(f.blobUrl) URL.revokeObjectURL(f.blobUrl); }));
 }
 
 function clearAll(){
-  if(!confirm("Clear this paper, scores, feedback, and the draft saved in this browser?")) return;
-  revokeFiles();
-  state.scores = WONDERS.map(() => null);
-  state.feedback = WONDERS.map(() => "");
-  state.starters = WONDERS.map(() => "");
-  state.approved = false;
-  state.files = [];
-  state.rowStatus = WONDERS.map(() => "");
-  state.aiDraft = WONDERS.map(() => null);
-  state.overall = ""; state.overallStatus = ""; state.aiOverall = ""; state.aiModel = ""; state.aiNote = "";
+  const many = students.length > 1;
+  if(!confirm(many ? "Clear all " + students.length + " students — papers, scores, feedback, and the drafts saved in this browser?" : "Clear this paper, scores, feedback, and the draft saved in this browser?")) return;
+  revokeAll();
+  students = [blankStudent()];
+  state = students[0];
+  storeWarn = false;
   $("ai-status").textContent = "";
   $("ai-transcript").hidden = true;
-  $("t-name").value = "";
-  $("t-grade").value = "";
-  $("t-date").value = today();
-  $("t-facilitator").value = "";
-  $("t-story").value = "";
+  $("q-progress").textContent = "";
   $("t-files").value = "";
-  try { localStorage.removeItem(STORE); } catch(e){}
+  fillForm();
+  try { localStorage.removeItem(QUEUE_STORE); localStorage.removeItem(STORE); } catch(e){}
   renderCategories();
   renderFiles();
   renderStatus();
+}
+
+/* ---------- Student queue ---------- */
+function displayName(st){
+  const n = (st.student || "").trim();
+  return n || ("Student " + (students.indexOf(st) + 1));
+}
+
+function hasPaper(st){
+  return !!((st.story || "").trim() || st.files.some((f) => isImageFile(f) || isPdfFile(f)));
+}
+
+function studentStatus(st){
+  if(st.busy) return {s: "busy", t: "Grading…"};
+  if(st.approved) return {s: "approved", t: "Approved ✓ · " + total(st) + " / 20"};
+  if(st.error) return {s: "error", t: st.error};
+  if(aiPending(st)) return {s: "ai", t: "AI draft · review it"};
+  if(allScored(st)) return {s: "draft", t: "Draft · " + total(st) + " / 20"};
+  if(st.droppedFiles && !hasPaper(st)) return {s: "error", t: "Re-add paper"};
+  return hasPaper(st) ? {s: "ready", t: "Ready to grade"} : {s: "empty", t: "No paper yet"};
+}
+
+function renderQueue(){
+  const list = $("q-list");
+  if(!list) return;
+  list.replaceChildren();
+  students.forEach((st, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "q-chip";
+    const stt = studentStatus(st);
+    b.dataset.s = stt.s;
+    b.setAttribute("aria-current", st === state ? "true" : "false");
+    const nm = document.createElement("b");
+    nm.textContent = displayName(st);
+    const sub = document.createElement("span");
+    sub.textContent = stt.t;
+    b.append(nm, sub);
+    b.addEventListener("click", () => switchTo(i));
+    list.append(b);
+  });
+  const many = students.length > 1;
+  const approvedN = students.filter((st) => st.approved).length;
+  $("q-count").textContent = many ? (students.length + " students · " + approvedN + " approved") : "Add more students to grade a whole class in one session.";
+  $("q-grade-all").hidden = !many;
+  $("q-print-all").hidden = !many;
+  $("q-remove").hidden = !many;
+  $("q-grade-all").disabled = batchRunning;
+  $("q-print-all").disabled = approvedN === 0;
+  $("q-remove").disabled = batchRunning;
+  $("ai-go").disabled = batchRunning || state.busy;
+  const w = $("q-warn");
+  const dropped = students.filter((st) => st.droppedFiles).length;
+  if(storeWarn){
+    w.hidden = false;
+    w.textContent = "Heads up: the paper photos are too large to keep in this browser. Names, scores, and feedback are saved, but if you reload or close this page you will need to add the photos again before grading.";
+  } else if(dropped){
+    w.hidden = false;
+    w.textContent = "Some paper photos were too large to keep after the last reload. Scores and feedback are saved; add the photos again for any student you still need to grade.";
+  } else {
+    w.hidden = true;
+  }
+}
+
+function showStudent(){
+  fillForm();
+  $("t-files").value = "";
+  setAiStatus("", "");
+  const tn = $("ai-transcript");
+  tn.hidden = !state.aiNote;
+  tn.textContent = state.aiNote ? "Reading note from AI: " + state.aiNote : "";
+  renderCategories();
+  renderFiles();
+  renderStatus();
+}
+
+function switchTo(i){
+  if(students[i] === state) return;
+  syncForm();
+  state = students[i];
+  showStudent();
+  saveDraft();
+}
+
+function addStudent(){
+  syncForm();
+  const prev = state;
+  const st = blankStudent();
+  st.grade = prev.grade;
+  st.date = prev.date || today();
+  st.facilitator = prev.facilitator;
+  students.push(st);
+  state = st;
+  showStudent();
+  saveDraft();
+  $("t-name").focus();
+}
+
+function removeStudent(){
+  if(students.length < 2 || batchRunning) return;
+  if(!confirm("Remove " + displayName(state) + " and their scores from this session?")) return;
+  const i = students.indexOf(state);
+  state.files.forEach((f) => { if(f.blobUrl) URL.revokeObjectURL(f.blobUrl); });
+  students.splice(i, 1);
+  state = students[Math.max(0, i - 1)];
+  showStudent();
+  saveDraft();
+}
+
+/* ---------- One-page score reports ---------- */
+const REPORT_STATUS = {approved: "Approved", edited: "Edited by teacher", ai: "AI draft — not reviewed", "": "Teacher scored"};
+
+function niceDate(d){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d || "");
+  if(!m) return d || "—";
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return months[+m[2]-1] + " " + (+m[3]) + ", " + m[1];
+}
+
+function el(tag, cls, text){
+  const e = document.createElement(tag);
+  if(cls) e.className = cls;
+  if(text != null) e.textContent = text;
+  return e;
+}
+
+function buildReport(st){
+  const r = el("article", "report");
+  const head = el("header", "r-head");
+  const left = el("div");
+  const brand = el("div", "r-brand");
+  brand.append(el("span", "r-dot"), document.createTextNode("STORIGEN "));
+  brand.append(el("b", null, "OS"), document.createTextNode(" · GRADE ALONG"));
+  left.append(brand, el("div", "r-title", "Score Report"), el("div", "r-sub", "Storigen Wonders Rubric · four categories, levels 1–5"));
+  head.append(left);
+  if(!st.approved) head.append(el("span", "r-draft", "Draft · not yet approved"));
+  r.append(head);
+
+  const top = el("div", "r-top");
+  const meta = el("dl", "r-meta");
+  [["Student", (st.student || "").trim().split(/\s+/)[0] || "—"], ["Grade", st.grade || "—"], ["Date", niceDate(st.date)], ["Facilitator", st.facilitator || "—"]].forEach(([k, v]) => {
+    const d = el("div"); d.append(el("dt", null, k), el("dd", null, v)); meta.append(d);
+  });
+  const tot = el("div", "r-total");
+  const t = total(st);
+  tot.append(el("span", "r-num", t == null ? "—" : String(t)), el("span", "r-of", "out of 20"), el("span", "r-cap", "Total score"));
+  top.append(meta, tot);
+  r.append(top);
+
+  const table = el("table", "r-table");
+  const thead = el("thead"); const hr = el("tr");
+  ["Rubric category", "Level", "Feedback"].forEach((h) => hr.append(el("th", null, h)));
+  thead.append(hr); table.append(thead);
+  const tb = el("tbody");
+  WONDERS.forEach((cat, i) => {
+    const tr = el("tr");
+    const c1 = el("td", "r-cat", (i+1) + ". " + cat.name);
+    const stat = el("span", "r-status", REPORT_STATUS[st.rowStatus[i] || ""]);
+    stat.dataset.s = st.rowStatus[i] || "";
+    c1.append(stat);
+    const c2 = el("td", "r-lvl");
+    const sc = st.scores[i];
+    c2.append(el("b", null, sc ? String(sc) : "–"), el("span", null, sc ? cat.levels[sc].label : "Not scored"));
+    const c3 = el("td", "r-fb", (st.feedback[i] || "").trim() || "—");
+    tr.append(c1, c2, c3);
+    tb.append(tr);
+  });
+  table.append(tb);
+  r.append(table);
+
+  if((st.overall || "").trim()){
+    const ov = el("section", "r-overall");
+    const h = el("h3", null, "Overall feedback");
+    ov.append(h, el("p", null, st.overall.trim()));
+    const os = el("span", "r-status", REPORT_STATUS[st.overallStatus || ""] === "Teacher scored" ? "Teacher written" : REPORT_STATUS[st.overallStatus || ""]);
+    os.dataset.s = st.overallStatus || "";
+    ov.append(os);
+    r.append(ov);
+  }
+  const foot = el("footer", "r-foot");
+  foot.append(el("span", null, "Storigen Wonders Rubric · AI-drafted, teacher-approved"), el("b", null, "STORIGEN OS · Arrival House Media"));
+  r.append(foot);
+  return r;
+}
+
+// Build the reports and shrink the type until each fits one US Letter page (7.5in × 10in printable).
+function buildReports(list){
+  const root = $("print-root");
+  root.replaceChildren();
+  list.forEach((st) => root.append(buildReport(st)));
+  root.classList.add("measuring");
+  const maxH = 9.9 * 96;
+  root.querySelectorAll(".report").forEach((rep) => {
+    let fs = 11.5;
+    rep.style.fontSize = fs + "pt";
+    while(rep.scrollHeight > maxH && fs > 6){
+      fs -= 0.25;
+      rep.style.fontSize = fs + "pt";
+    }
+    // Never cut text: if it still cannot fit, let it run onto a second page.
+    rep.dataset.overflow = rep.scrollHeight > maxH ? "true" : "false";
+  });
+  root.classList.remove("measuring");
+}
+
+let reportsReady = false;
+function printReports(list){
+  if(!list.length) return;
+  buildReports(list);
+  document.body.classList.add("print-report");
+  reportsReady = true;
+  window.print();
+}
+
+window.addEventListener("beforeprint", () => {
+  if(reportsReady) return;
+  if($("teacher-view").hidden) return;
+  syncForm();
+  buildReports([state]);
+  document.body.classList.add("print-report");
+});
+window.addEventListener("afterprint", () => {
+  reportsReady = false;
+  document.body.classList.remove("print-report");
+});
+
+function csvAll(){
+  syncForm();
+  const head = ["Student", "Grade", "Date", "Facilitator"];
+  WONDERS.forEach((cat, i) => { const n = i + 1; head.push(n + ". " + cat.name + " — score", n + " level", n + " feedback", n + " review"); });
+  head.push("Total", "Out of", "Overall feedback", "Overall review", "Approved");
+  const rows = [head];
+  students.forEach((st) => {
+    const d = payloadFor(st);
+    const row = [d.student, d.grade, d.date, d.facilitator];
+    d.categories.forEach((c) => row.push(c.score ?? "", c.level, c.feedback, c.review));
+    row.push(d.total ?? "", 20, d.overallFeedback, d.overallReview, d.approved ? "yes" : "no");
+    rows.push(row);
+  });
+  return rows.map((r) => r.map(csvEscape).join(",")).join("\n");
 }
 
 function today(){
@@ -930,9 +1278,9 @@ function selectedPdfPages(f){
   return f.pdf && f.pdf.pages ? f.pdf.pages.filter((p) => p.selected) : [];
 }
 
-function aiSlotsUsed(except){
-  const photos = state.files.filter((f) => isImageFile(f)).length;
-  const pages = state.files.filter((f) => isPdfFile(f) && f !== except).reduce((a, f) => a + selectedPdfPages(f).length, 0);
+function aiSlotsUsed(except, st = state){
+  const photos = st.files.filter((f) => isImageFile(f)).length;
+  const pages = st.files.filter((f) => isPdfFile(f) && f !== except).reduce((a, f) => a + selectedPdfPages(f).length, 0);
   return photos + pages;
 }
 
@@ -945,9 +1293,14 @@ function renderSlotNote(msg, kind){
   el.textContent = msg || (hasAny ? ("Pictures going to AI: " + used + " of " + MAX_AI_IMAGES + "." + (used > MAX_AI_IMAGES ? " Untick pages so no more than 3 are picked." : "")) : "");
 }
 
-async function preparePdf(f){
+function preparePdf(f, owner = state){
+  f.pdfReady = preparePdfInner(f, owner);
+  return f.pdfReady;
+}
+
+async function preparePdfInner(f, owner){
   f.pdf = {status: "loading", pages: [], numPages: 0, coverSkipped: []};
-  renderFiles();
+  if(owner === state) renderFiles();
   try{
     const doc = await openPdf(f);
     const n = doc.numPages;
@@ -958,16 +1311,20 @@ async function preparePdf(f){
       const cover = n > 1 ? await looksLikeCover(doc, i) : false;
       f.pdf.pages.push({n: i, thumb, cover, selected: false});
     }
-    const free = Math.max(0, MAX_AI_IMAGES - aiSlotsUsed(f));
-    let picks = f.pdf.pages.filter((p) => !p.cover);
-    if(!picks.length) picks = f.pdf.pages.slice();
-    picks.slice(0, free).forEach((p) => { p.selected = true; });
+    if(Array.isArray(f.savedPages)){
+      f.pdf.pages.forEach((p) => { p.selected = f.savedPages.includes(p.n); });
+    } else {
+      const free = Math.max(0, MAX_AI_IMAGES - aiSlotsUsed(f, owner));
+      let picks = f.pdf.pages.filter((p) => !p.cover);
+      if(!picks.length) picks = f.pdf.pages.slice();
+      picks.slice(0, free).forEach((p) => { p.selected = true; });
+    }
     f.pdf.coverSkipped = f.pdf.pages.filter((p) => p.cover).map((p) => p.n);
     f.pdf.status = "ready";
   } catch(e){
     f.pdf.status = "error";
   }
-  renderFiles();
+  if(owner === state) renderFiles();
 }
 
 function pageList(nums){
@@ -1021,7 +1378,9 @@ function renderPdfPicker(f){
         return;
       }
       p.selected = cb.checked;
+      f.savedPages = null;
       renderFiles();
+      saveDraft();
     });
     lab.append(cb, document.createTextNode("Page " + p.n + (p.cover ? " · cover" : "")));
     grid.append(lab);
@@ -1030,103 +1389,184 @@ function renderPdfPicker(f){
   return box;
 }
 
-async function gradeWithAI(){
-  const pass = $("ai-pass").value;
-  if(!pass){ setAiStatus("Enter the teacher passcode first.", "error"); $("ai-pass").focus(); return; }
-  try { sessionStorage.setItem(PASS_KEY, pass); } catch(e){}
-  const firstName = ($("t-name").value.trim().split(/\s+/)[0] || "");
-  const grade = $("t-grade").value.trim();
-  const text = $("t-story").value.trim();
-  const imgs = state.files.filter(isImageFile);
-  const pdfs = state.files.filter(isPdfFile);
-  if(pdfs.some((f) => !f.pdf || f.pdf.status === "loading")){
-    setAiStatus("Still reading the PDF. Try again in a moment.", "error");
-    pdfs.filter((f) => !f.pdf).forEach((f) => { preparePdf(f); });
-    return;
+function aiError(msg, status){
+  const e = new Error(msg);
+  e.status = status || 0;
+  return e;
+}
+
+// Prepare one student's pictures/text and ask the Worker for a draft. Throws an Error with a teacher-friendly message.
+async function requestDraft(st, pass, onStatus){
+  const firstName = ((st.student || "").trim().split(/\s+/)[0] || "");
+  const grade = (st.grade || "").trim();
+  const text = (st.story || "").trim();
+  const imgs = st.files.filter(isImageFile);
+  const pdfs = st.files.filter(isPdfFile);
+  for(const f of pdfs){
+    if(!f.pdf) preparePdf(f, st);
+    if(f.pdfReady) await f.pdfReady;
   }
   const pdfPages = [];
   pdfs.forEach((f) => { selectedPdfPages(f).forEach((p) => pdfPages.push({f, n: p.n})); });
   if(!imgs.length && !pdfPages.length && !text){
-    setAiStatus(pdfs.length ? "Tick at least one PDF page to send, or paste the story text." : "Add a photo or scanned PDF of the paper, or paste the story text first.", "error");
-    return;
+    throw aiError(pdfs.length ? "Tick at least one PDF page to send, or paste the story text." : "Add a photo or scanned PDF of the paper, or paste the story text first.");
   }
-  if(imgs.length + pdfPages.length > MAX_AI_IMAGES){ setAiStatus("Up to 3 pictures can be sent. Untick PDF pages or remove photos, then try again.", "error"); return; }
-  const anyScored = state.scores.some((s) => s) || state.overall.trim();
-  if(anyScored && !confirm("Replace the current levels and feedback with a new AI draft?")) return;
-
-  const btn = $("ai-go");
-  btn.disabled = true;
-  setAiStatus(imgs.length ? "Preparing photos…" : "Preparing pages…");
+  if(imgs.length + pdfPages.length > MAX_AI_IMAGES) throw aiError("Up to 3 pictures can be sent. Untick PDF pages or remove photos, then try again.");
   const images = [];
+  onStatus(imgs.length ? "Preparing photos…" : "Preparing pages…");
   try{
     for(const f of imgs){ images.push(await toJpegBase64(f)); }
   } catch(e){
-    btn.disabled = false;
-    setAiStatus("This browser could not read one of the photos. On iPhone, try Settings → Camera → Formats → Most Compatible, or take a screenshot of the photo and upload that.", "error");
-    return;
+    throw aiError("This browser could not read one of the photos. On iPhone, try Settings → Camera → Formats → Most Compatible, or take a screenshot of the photo and upload that.");
   }
   try{
     for(const {f, n} of pdfPages){
-      setAiStatus("Turning PDF page " + n + " into a picture…");
+      onStatus("Turning PDF page " + n + " into a picture…");
       const doc = await openPdf(f);
       const url = await renderPdfPage(doc, n, 1568, 0.85);
       images.push(url.replace(/^data:image\/jpeg;base64,/, ""));
     }
   } catch(e){
-    btn.disabled = false;
-    setAiStatus("Could not turn the PDF pages into pictures here. Take a photo or screenshot of each page and add those instead.", "error");
-    return;
+    throw aiError("Could not turn the PDF pages into pictures here. Take a photo or screenshot of each page and add those instead.");
   }
-  setAiStatus("Grade Along AI is reading the paper… this can take up to a minute.");
+  onStatus("Grade Along AI is reading the paper… this can take up to a minute.");
+  let res, data = null;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 120000);
   try{
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 120000);
-    const res = await fetch(AI_URL, {
+    res = await fetch(AI_URL, {
       method: "POST",
       headers: {"Content-Type": "application/json", "X-Teacher-Passcode": pass},
       body: JSON.stringify({firstName, grade, text: text || undefined, images: images.length ? images : undefined}),
       signal: ctrl.signal
     });
-    clearTimeout(timer);
-    let data = null;
     try { data = await res.json(); } catch(e){}
-    if(!res.ok || !data || !data.ok){
-      const msg = (data && data.error) || ("The AI service returned an error (" + res.status + ").");
-      if(res.status === 401){ try { sessionStorage.removeItem(PASS_KEY); } catch(e){} }
-      setAiStatus(msg + (res.status === 401 ? "" : " You can still grade this paper by hand."), "error");
-      return;
-    }
-    applyAI(data);
-    setAiStatus("AI draft ready — " + data.total + " / 20. Review each row: approve it or edit the level and comment.");
   } catch(e){
-    setAiStatus((e && e.name === "AbortError") ? "The AI took too long. Try again, or grade by hand." : "Could not reach the AI service. Check the connection and try again.", "error");
+    throw aiError((e && e.name === "AbortError") ? "The AI took too long. Try again, or grade by hand." : "Could not reach the AI service. Check the connection and try again.");
   } finally {
-    btn.disabled = false;
+    clearTimeout(timer);
+  }
+  if(!res.ok || !data || !data.ok){
+    if(res.status === 401){ try { sessionStorage.removeItem(PASS_KEY); } catch(e){} }
+    throw aiError((data && data.error) || ("The AI service returned an error (" + res.status + ")."), res.status);
+  }
+  return data;
+}
+
+function getPass(statusFn){
+  const pass = $("ai-pass").value;
+  if(!pass){ statusFn("Enter the teacher passcode first.", "error"); $("ai-pass").focus(); return null; }
+  try { sessionStorage.setItem(PASS_KEY, pass); } catch(e){}
+  return pass;
+}
+
+async function gradeWithAI(){
+  if(batchRunning) return;
+  syncForm();
+  const pass = getPass(setAiStatus);
+  if(!pass) return;
+  if(!hasPaper(state)){ setAiStatus("Add a photo or scanned PDF of the paper, or paste the story text first.", "error"); return; }
+  const anyScored = state.scores.some((s) => s) || state.overall.trim();
+  if(anyScored && !confirm("Replace the current levels and feedback with a new AI draft?")) return;
+  const st = state;
+  st.busy = true; st.error = "";
+  renderQueue();
+  try{
+    const data = await requestDraft(st, pass, (m) => { if(st === state) setAiStatus(m); });
+    applyAI(data, st);
+    if(st === state) setAiStatus("AI draft ready — " + data.total + " / 20. Review each row: approve it or edit the level and comment.");
+  } catch(e){
+    if(st === state) setAiStatus(e.message + (e.status && e.status !== 401 ? " You can still grade this paper by hand." : ""), "error");
+  } finally {
+    st.busy = false;
+    renderQueue();
   }
 }
 
-function applyAI(data){
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const MIN_GAP_MS = 3500;   // keeps a batch under the Worker's 20 requests/minute limit
+
+async function gradeAll(){
+  if(batchRunning) return;
+  syncForm();
+  const prog = (m, kind) => { const p = $("q-progress"); p.textContent = m; p.dataset.kind = kind || ""; };
+  const pass = getPass(prog);
+  if(!pass) return;
+  const targets = students.filter((st) => hasPaper(st) && !st.approved && !st.rowStatus.some(Boolean) && !allScored(st));
+  if(!targets.length){
+    prog("Nothing new to grade. Students who already have scores, or no paper yet, are skipped.");
+    return;
+  }
+  batchRunning = true;
+  renderQueue();
+  let done = 0, failed = 0, lastStart = 0;
+  for(let k = 0; k < targets.length; k++){
+    const st = targets[k];
+    const label = "Student " + (k + 1) + " of " + targets.length + " (" + displayName(st) + ")";
+    const wait = lastStart + MIN_GAP_MS - Date.now();
+    if(wait > 0) await sleep(wait);
+    st.busy = true; st.error = "";
+    renderQueue();
+    let attempt = 0;
+    while(true){
+      lastStart = Date.now();
+      try{
+        const data = await requestDraft(st, pass, (m) => prog(label + ": " + m));
+        applyAI(data, st);
+        done++;
+        break;
+      } catch(e){
+        if(e.status === 429 && attempt === 0){
+          attempt++;
+          prog(label + ": the AI is busy, waiting a minute before trying again…");
+          await sleep(60000);
+          continue;
+        }
+        st.error = e.status === 401 ? "Wrong passcode" : "Not graded";
+        failed++;
+        if(e.status === 401){
+          st.busy = false;
+          batchRunning = false;
+          renderQueue();
+          prog("Wrong teacher passcode. Fix it and press Grade all again.", "error");
+          return;
+        }
+        break;
+      }
+    }
+    st.busy = false;
+    renderQueue();
+  }
+  batchRunning = false;
+  renderQueue();
+  prog("Done: " + done + " drafted" + (failed ? ", " + failed + " could not be graded (try them one at a time)" : "") + ". Click each student to review and approve their rows.", failed ? "error" : "");
+}
+
+function applyAI(data, st = state){
   WONDERS.forEach((cat, i) => {
     const r = (data.rows || [])[i];
     const score = r && Number(r.score);
     if(!(score >= 1 && score <= 5)) return;
-    state.scores[i] = score;
-    state.feedback[i] = String(r.comment || "");
-    state.starters[i] = "";
-    state.rowStatus[i] = "ai";
-    state.aiDraft[i] = {score, comment: state.feedback[i]};
+    st.scores[i] = score;
+    st.feedback[i] = String(r.comment || "");
+    st.starters[i] = "";
+    st.rowStatus[i] = "ai";
+    st.aiDraft[i] = {score, comment: st.feedback[i]};
   });
-  state.overall = String(data.overallFeedback || "");
-  state.aiOverall = state.overall;
-  state.overallStatus = state.overall ? "ai" : "";
-  state.aiModel = String(data.model || "");
-  state.aiNote = String(data.transcriptionNote || "");
-  state.approved = false;
-  const tn = $("ai-transcript");
-  tn.hidden = !state.aiNote;
-  tn.textContent = state.aiNote ? "Reading note from AI: " + state.aiNote : "";
-  renderCategories();
-  renderStatus();
+  st.overall = String(data.overallFeedback || "");
+  st.aiOverall = st.overall;
+  st.overallStatus = st.overall ? "ai" : "";
+  st.aiModel = String(data.model || "");
+  st.aiNote = String(data.transcriptionNote || "");
+  st.approved = false;
+  st.error = "";
+  if(st === state){
+    const tn = $("ai-transcript");
+    tn.hidden = !st.aiNote;
+    tn.textContent = st.aiNote ? "Reading note from AI: " + st.aiNote : "";
+    renderCategories();
+    renderStatus();
+  }
   saveDraft();
 }
 
@@ -1136,16 +1576,16 @@ function safeName(){
   return "grade-along-" + n + "-" + d;
 }
 
-$("t-date").value = today();
 loadDraft();
+fillForm();
 renderCategories();
 renderFiles();
-state.files.filter((f) => isPdfFile(f) && f.dataUrl).forEach((f) => { preparePdf(f); });
+students.forEach((st) => st.files.filter((f) => isPdfFile(f) && f.dataUrl).forEach((f) => { preparePdf(f, st); }));
 renderStatus();
 
 ["t-name","t-grade","t-date","t-facilitator","t-story"].forEach((id) => {
   $(id).addEventListener("input", () => {
-    if(state.approved && id !== "t-date"){ /* keep approved unless scores/feedback change */ }
+    if(id !== "t-story" || state.error) state.error = "";
     saveDraft();
     if(state.approved) renderStatus();
   });
@@ -1160,27 +1600,16 @@ $("t-approve").addEventListener("click", () => {
   renderStatus();
   saveDraft();
 });
-$("t-print").addEventListener("click", () => window.print());
+$("t-print").addEventListener("click", () => { syncForm(); printReports([state]); });
+$("q-print-all").addEventListener("click", () => { syncForm(); printReports(students.filter((st) => st.approved)); });
+$("q-add").addEventListener("click", addStudent);
+$("q-remove").addEventListener("click", removeStudent);
+$("q-grade-all").addEventListener("click", gradeAll);
 $("t-json").addEventListener("click", () => {
   download(safeName() + ".json", JSON.stringify(payload(), null, 2), "application/json");
 });
 $("t-csv").addEventListener("click", () => {
-  const data = payload();
-  const rows = [["Category","Score","Level","Descriptor","Feedback","Review"]];
-  data.categories.forEach((c) => {
-    rows.push([c.category, c.score, c.level, c.descriptor, c.feedback, c.review]);
-  });
-  rows.push(["Overall feedback", "", "", "", data.overallFeedback, data.overallReview]);
-  rows.push([]);
-  rows.push(["Student", data.student]);
-  rows.push(["Grade", data.grade]);
-  rows.push(["Date", data.date]);
-  rows.push(["Facilitator", data.facilitator]);
-  rows.push(["Total", data.total, "out of", 20]);
-  rows.push(["Approved", data.approved ? "yes" : "no"]);
-  rows.push(["Story", data.story]);
-  const csv = rows.map((r) => r.map(csvEscape).join(",")).join("\n");
-  download(safeName() + ".csv", csv, "text/csv");
+  download("grade-along-students-" + today() + ".csv", csvAll(), "text/csv");
 });
 $("t-clear").addEventListener("click", clearAll);
 $("ai-go").addEventListener("click", gradeWithAI);
@@ -1210,5 +1639,6 @@ if(params.get("mode") === "grade" || params.get("mode") === "teacher"){
 })();
 
 </script>
+<div id="print-root" aria-hidden="true"></div>
 </body>
 </html>

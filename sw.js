@@ -1,6 +1,6 @@
 /* STORIGEN OS demo — offline cache.
    Relative URLs so the worker works under /storigen-demo/ as well as at the root. */
-var CACHE = 'storigen-os-v4';
+var CACHE = 'storigen-os-v5';
 var ASSETS = [
   './',
   './index.html',
