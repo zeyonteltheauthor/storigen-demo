@@ -11,6 +11,7 @@ Auth, either:
 `POST /verify` — passcode or session. Passcode returns `{ ok, mode: "passcode" }`. School session returns `{ ok, mode: "school", user, school, usage, rubrics }`. 401 otherwise.
 
 `POST /grade`, `POST /split`, `POST /rubric` — same bodies as v12. Both auth modes work. `/split` and `/rubric` do not count against the paper pool. `/grade` counts one paper per graded student in school mode (cover-only reads do not count), warns at 80% of the yearly cap (`usageNote`), and stops at 100%. Passcode mode has no cap and stores nothing. In school mode, a teacher whose school has not allowed personal rubrics must send an approved school rubric on `/grade`.
+- `POST /split` returns `{ covers, pages: [{ n, kind }] }` where kind is `cover`, `story`, or `blank`. Only `cover` pages start a student. Story pages with Name/Title lines are not covers.
 
 School accounts (D1 binding `DB`, database `grade-along-db`):
 - `POST /auth/redeem` `{ email, code }` → `{ ok, token, user, school, usage, rubrics }`. The invite is one-time and expires in 14 days.

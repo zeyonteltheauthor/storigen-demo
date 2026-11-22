@@ -296,7 +296,7 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 <p class="gate-msg" id="gate-msg" role="status" aria-live="polite"></p>
 <p class="gate-note">The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only, and each signed-in account has its own.</p>
 <p class="gate-note">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
-<p class="version-label">Grade Along v14</p>
+<p class="version-label">Grade Along v15</p>
 </section>
 </main>
 <template id="ga-app">
@@ -473,7 +473,7 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 <div id="owner-schools"></div>
 <p class="school-legal">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
 </section>
-<footer class="version-label" id="ga-version">Grade Along v14</footer>
+<footer class="version-label" id="ga-version">Grade Along v15</footer>
 </div>
 
 </main>
@@ -2393,7 +2393,7 @@ async function looksLikeCover(doc, n){
     const page = await doc.getPage(n);
     const tc = await page.getTextContent();
     const text = tc.items.map((it) => it.str || "").join(" ");
-    return /cover\s*sheet|cover\s*page|title\s*page/i.test(text);
+    return /young\s*author\s*challenge|cover\s*sheet|cover\s*page/i.test(text);
   } catch(e){ return false; }
 }
 
@@ -2596,7 +2596,7 @@ async function openSplit(f, owner){
   const card = el("div", "split-card");
   const h = el("h2", "", "Split into students");
   h.id = "split-title";
-  const intro = el("p", "", "Each cover sheet starts a new student; their story pages run up to the next cover. Tap a page to start or stop a new student there. Nothing is created until you press Create.");
+  const intro = el("p", "", "Each printed cover sheet starts a new student; their story pages run up to the next cover. Lined story pages with Name or Title at the top are not covers. Tap a page to start or stop a new student there. Use Split every N pages only when you want an even split yourself. Nothing is created until you press Create.");
   const status = el("p", "split-status", "Opening the scan…");
   status.setAttribute("role", "status");
   const controls = el("div", "split-controls");
@@ -2653,8 +2653,15 @@ async function openSplit(f, owner){
     for(let n = 1; n <= total; n += k) starts.add(n);
     draw();
   }
+  function canDetect(){
+    return !!(pass || (window.GA_SCHOOL && window.GA_SCHOOL.token));
+  }
   async function detect(){
-    if(!pass){ say("Enter the teacher passcode in Grade with AI first, or use Split every N pages.", "error"); everyN(); return; }
+    if(!canDetect()){
+      say("Sign in or enter the teacher passcode first, then press Find cover sheets again. Or tap each cover, or use Split every N pages.", "error");
+      draw();
+      return;
+    }
     redetect.disabled = true;
     const found = [];
     try{
@@ -2667,23 +2674,26 @@ async function openSplit(f, owner){
           pages.push({n, image: thumbs[n - 1].replace(/^data:image\/jpeg;base64,/, "")});
         }
         const data = await paced(() => postAI({pages}, pass, SPLIT_URL), (m) => say(m), "Cover sheets");
-        (data.covers || []).forEach((n) => found.push(n));
+        const covers = Array.isArray(data.covers) ? data.covers : [];
+        covers.forEach((n) => found.push(n));
       }
     } catch(e){
       redetect.disabled = false;
-      say((e.status === 401 ? "Wrong teacher passcode." : "Could not find the cover sheets automatically.") + " Split every " + (parseInt(per.value, 10) || 2) + " pages for now — adjust the split points below.", "error");
-      everyN();
+      const authMsg = e.status === 401 ? "Sign-in expired or the passcode is wrong." : "Could not find the cover sheets automatically.";
+      say(authMsg + " Tap each cover to start a student, or use Split every N pages.", "error");
+      draw();
       return;
     }
     redetect.disabled = false;
-    if(found.length < 2){
-      say("No clear cover sheets found. Split every " + (parseInt(per.value, 10) || 2) + " pages for now — tap pages to fix the split points.", "error");
-      everyN();
+    const uniq = Array.from(new Set(found.filter((n) => n >= 1 && n <= total))).sort((a, b) => a - b);
+    if(uniq.length){
+      starts = new Set(uniq);
+      draw();
+      say("Found " + uniq.length + " cover sheet" + (uniq.length === 1 ? "" : "s") + ". Story and blank pages are not starts. Check the split points, then press Create.");
       return;
     }
-    starts = new Set(found);
+    say("No clear cover sheets found. Tap each cover to start a student, or use Split every N pages.", "error");
     draw();
-    say("Found " + found.length + " cover sheet" + (found.length === 1 ? "" : "s") + ". Check the split points, then press Create.");
   }
   try{
     if(f.pdfReady) await f.pdfReady;
@@ -2693,7 +2703,7 @@ async function openSplit(f, owner){
     for(let n = 1; n <= total; n++){
       if(closed) return;
       say("Preparing page " + n + " of " + total + "…");
-      const url = await renderPdfPage(doc, n, 512, 0.6);
+      const url = await renderPdfPage(doc, n, 768, 0.72);
       thumbs.push(url);
       const t = el("button", "split-tile");
       t.type = "button";
@@ -2765,7 +2775,7 @@ function createSplitStudents(f, owner, groups){
   showBulkPanel(made.length, 1);
   $("q-bulk-title").textContent = "Split into " + made.length + " students · " + students.length + " in this session";
   // Fill names, grades and facilitators from each cover right away (needs the passcode).
-  if($("q-cover-on").checked && ($("ai-pass").value || $("q-pass").value)) readCoversAll();
+  if($("q-cover-on").checked && (storedPass() || (window.GA_SCHOOL && window.GA_SCHOOL.token))) readCoversAll();
 }
 
 function coverFile(st){
