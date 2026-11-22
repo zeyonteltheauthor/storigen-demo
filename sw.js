@@ -1,8 +1,10 @@
 /* STORIGEN OS demo — offline cache.
    Relative URLs so the worker works under /storigen-demo/ as well as at the root.
    Pages (navigations and .html) are network-first so an open tab always gets the newest version;
-   static assets are cache-first. Bump CACHE on every release. */
-var CACHE = 'storigen-os-v17';
+   static assets are cache-first. Bump CACHE on every release.
+   Never cache or return a redirected Response: Chrome fails navigations with
+   ERR_FAILED when a service worker answers with response.redirected. */
+var CACHE = 'storigen-os-v18';
 var ASSETS = [
   './',
   './index.html',
@@ -24,11 +26,36 @@ var ASSETS = [
   './fonts/inter-var-latin.woff2'
 ];
 
+function asCleanResponse(res) {
+  // opaqueredirect cannot be used as a navigation response; treat as failure so we fall back.
+  if (!res || res.type === 'opaqueredirect' || res.type === 'error') return Promise.resolve(null);
+  if (!res.redirected) return Promise.resolve(res);
+  return res.arrayBuffer().then(function (buf) {
+    var headers = new Headers(res.headers);
+    headers.delete("Location");
+    return new Response(buf, { status: res.status, statusText: res.statusText, headers: headers });
+  });
+}
+
+function fetchClean(req, init) {
+  return fetch(req, init).then(function (res) {
+    return asCleanResponse(res).then(function (clean) {
+      if (!clean) throw new Error('Redirected or unusable response');
+      return clean;
+    });
+  });
+}
+
 self.addEventListener('install', function (event) {
   event.waitUntil(
     caches.open(CACHE).then(function (cache) {
       // cache: 'reload' skips the browser HTTP cache so a new release never precaches stale files.
-      return cache.addAll(ASSETS.map(function (u) { return new Request(u, { cache: 'reload' }); }));
+      return Promise.all(ASSETS.map(function (u) {
+        return fetchClean(new Request(u, { cache: 'reload' })).then(function (res) {
+          if (!res || !res.ok) throw new Error('Failed to precache ' + u);
+          return cache.put(u, res);
+        });
+      }));
     }).then(function () {
       return self.skipWaiting();
     })
@@ -63,8 +90,12 @@ function isPage(req, url) {
     url.pathname.endsWith('/') || url.pathname.endsWith('.html');
 }
 
+function canCache(res) {
+  return !!(res && res.ok && res.type === 'basic' && !res.redirected);
+}
+
 function putInCache(key, res) {
-  if (res && res.ok && res.type === 'basic') {
+  if (canCache(res)) {
     var copy = res.clone();
     caches.open(CACHE).then(function (cache) { return cache.put(key, copy); });
   }
@@ -73,11 +104,12 @@ function putInCache(key, res) {
 
 function offlinePage(req) {
   return caches.match(req, { ignoreSearch: true }).then(function (hit) {
-    if (hit) return hit;
+    if (hit && !hit.redirected) return hit;
     return caches.match('./index.html').then(function (page) {
       return page || caches.match('./');
     }).then(function (page) {
-      return page || new Response('', { status: 504, statusText: 'Offline' });
+      if (page && !page.redirected) return page;
+      return new Response('', { status: 504, statusText: 'Offline' });
     });
   });
 }
@@ -93,17 +125,28 @@ self.addEventListener('fetch', function (event) {
     // Network-first: newest page when online, cached copy when offline.
     var key = url.origin + url.pathname;   // one cached copy per page, whatever the ?query
     event.respondWith(
-      fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }).then(function (res) {
-        return putInCache(key, res);
-      }).catch(function () { return offlinePage(req); })
+      fetchClean(req.url, { cache: 'no-cache', credentials: 'same-origin' }).then(function (res) {
+        if (res && res.ok) return putInCache(key, res);
+        // Unusable network response: try a clean cached page, then a direct network fetch.
+        return offlinePage(req).then(function (page) {
+          if (page && page.status !== 504) return page;
+          return fetchClean(event.request, { cache: 'reload', credentials: 'same-origin' });
+        });
+      }).catch(function () {
+        return offlinePage(req).then(function (page) {
+          if (page && page.status !== 504) return page;
+          // Last resort: fall back to the network so a bad SW cache cannot stick ERR_FAILED.
+          return fetchClean(event.request);
+        });
+      })
     );
     return;
   }
 
   event.respondWith(
     caches.match(req).then(function (cached) {
-      if (cached) return cached;
-      return fetch(req).then(function (res) {
+      if (cached && !cached.redirected) return cached;
+      return fetchClean(req).then(function (res) {
         return putInCache(req, res);
       }).catch(function () {
         return new Response('', { status: 504, statusText: 'Offline' });
