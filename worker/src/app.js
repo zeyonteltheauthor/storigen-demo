@@ -786,7 +786,7 @@ async function handleGrade(request, env, origin) {
 // never the paper or scores.
 const DEMO_DAILY_LIMIT = 10;
 const memDemoCounts = new Map();
-const DEMO_LIMIT_MSG = "This public demo grades up to 10 papers per day. Schools get full accounts — write to info@arrivalhousemedia.com.";
+const DEMO_LIMIT_MSG = "This public demo grades up to 10 sample papers or tests per day per network. Schools get full accounts — write to info@arrivalhousemedia.com.";
 
 function demoDayStamp(now = new Date()) {
   return new Intl.DateTimeFormat("en-CA", {
