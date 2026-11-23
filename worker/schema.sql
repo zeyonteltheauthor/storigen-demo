@@ -126,3 +126,21 @@ CREATE TABLE IF NOT EXISTS school_deletions (
   counts_json TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS school_deletions_school ON school_deletions(school_id);
+
+
+-- v25 (additive; the Worker also applies this on first use):
+-- Teacher flags of a charged draft or test read. restored = 1 when the credit was
+-- added back, 0 when the teacher was over the monthly cap (the flag is still kept).
+-- Deleted with the school.
+CREATE TABLE IF NOT EXISTS credit_flags (
+  id TEXT PRIMARY KEY,
+  school_id TEXT NOT NULL,
+  teacher_id TEXT NOT NULL,
+  usage_id TEXT NOT NULL UNIQUE,
+  reason TEXT NOT NULL,
+  note TEXT NOT NULL DEFAULT '',
+  restored INTEGER NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS credit_flags_school ON credit_flags(school_id);
+CREATE INDEX IF NOT EXISTS credit_flags_teacher ON credit_flags(teacher_id, created_at);

@@ -766,6 +766,8 @@ async function handleGrade(request, env, origin) {
       if (auth.kind === "school") {
         const slot = await consumePaper(env, auth, paperKey);
         usageExtra = extraUsage(slot.ok ? slot.usage : (slot.usage || usageView(auth.school)));
+        if (slot.usageId) usageExtra.usageId = slot.usageId;
+        if (slot.free) usageExtra.free = true;
       }
       return json({ ok: true, model: out.model || MODEL, ...draft, ...extra, note: "AI draft. The teacher decides.", ...usageExtra }, 200, origin);
     } catch (e) {
@@ -1095,6 +1097,8 @@ async function handleTestRead(request, env, origin) {
       if (auth.kind === "school") {
         const slot = await consumePaper(env, auth, paperKey);
         usageExtra = extraUsage(slot.ok ? slot.usage : (slot.usage || usageView(auth.school)));
+        if (slot.usageId) usageExtra.usageId = slot.usageId;
+        if (slot.free) usageExtra.free = true;
       }
       return json({ ok: true, model: read.model, answers: read.answers, transcriptionNote: read.transcriptionNote, note: "Answers read. The key scores them on this device.", usage: read.usage || null, ...extra, ...usageExtra }, 200, origin);
     } catch (e) {
@@ -1651,14 +1655,15 @@ async function consumePaper(env, auth, paperKey = "") {
   }
   auth.school = updated;
   if (paperKey) await ensureRetentionSchema(env);
+  const usageId = crypto.randomUUID();
   await dbRun(
     env,
     paperKey
       ? "INSERT INTO usage_events (id, school_id, teacher_id, kind, papers, created_at, paper_key) VALUES (?, ?, ?, 'grade', 1, ?, ?)"
       : "INSERT INTO usage_events (id, school_id, teacher_id, kind, papers, created_at) VALUES (?, ?, ?, 'grade', 1, ?)",
-    ...(paperKey ? [crypto.randomUUID(), school.id, auth.teacher.id, nowIso(), paperKey] : [crypto.randomUUID(), school.id, auth.teacher.id, nowIso()])
+    ...(paperKey ? [usageId, school.id, auth.teacher.id, nowIso(), paperKey] : [usageId, school.id, auth.teacher.id, nowIso()])
   );
-  return { ok: true, usage: usageView(updated) };
+  return { ok: true, usage: usageView(updated), usageId };
 }
 
 function extraUsage(usage) {
@@ -2328,13 +2333,18 @@ function testItemAnalysis(records) {
   }));
 }
 
-// Pairs a student's pre and post records: first name + teacher-entered last initial + grade.
-// (v24 fix: v23 read r.first_name from mapped records, which is undefined, so every
-// student in a grade shared one key and pre/post could pair across students.)
+// Pairs a student's pre and post records.
+// v25: when a record has a roster key, pair by that key only — two students who
+// share a first name never merge. Fall back to first name + last initial + grade
+// only for legacy rows with no roster key. (v24 used the name key for every row,
+// so same-name students with roster keys were left unpaired. v23 read r.first_name
+// from mapped records, which is undefined, so every student in a grade shared one key.)
 function scoreKey(r) {
+  const rid = cleanRosterId(r.rosterId != null ? r.rosterId : (r.roster_id || ""));
+  if (rid) return "rid:" + rid;
   const first = r.firstName != null ? r.firstName : r.first_name;
   const initial = r.lastInitial != null ? r.lastInitial : (r.last_initial || "");
-  return normName(cleanFirstName(first)) + "|" + String(initial || "").toLowerCase() + "|" + normGrade(r.grade);
+  return "name:" + normName(cleanFirstName(first)) + "|" + String(initial || "").toLowerCase() + "|" + normGrade(r.grade);
 }
 
 async function handleSchoolReport(request, env, origin) {
@@ -2359,6 +2369,7 @@ async function handleSchoolReport(request, env, origin) {
   const records = rows.map((r) => ({
     firstName: cleanFirstName(r.first_name),
     lastInitial: r.last_initial || "",
+    rosterId: r.roster_id || "",
     grade: r.grade,
     facilitator: r.facilitator,
     teacherName: r.teacher_name || r.teacher_email,
@@ -2387,8 +2398,9 @@ async function handleSchoolReport(request, env, origin) {
       const posts = list.filter((x) => x.assessment === "post");
       const used = new Set();
       const students = [];
-      // v24: when two pre (or two post) records share a name key, pairing would mix students,
-      // so they stay unpaired and are flagged for a teacher-entered last initial.
+      // v25: records with a roster key pair by that key. Legacy rows (no roster key)
+      // fall back to first name + last initial + grade; when that fallback is
+      // ambiguous they stay unpaired and are flagged sameName.
       const count = (arr) => arr.reduce((m, x) => m.set(scoreKey(x), (m.get(scoreKey(x)) || 0) + 1), new Map());
       const preN = count(pres), postN = count(posts);
       const ambiguous = (r) => (preN.get(scoreKey(r)) || 0) > 1 || (postN.get(scoreKey(r)) || 0) > 1;
@@ -2454,7 +2466,7 @@ async function handleSchoolReport(request, env, origin) {
 // sessions and expired unused invites. Only a minimal deletion record is kept as written confirmation:
 // school id, school name, closed/deleted times, how it was deleted, and row counts.
 const RETENTION_DAYS = 30;
-const SCHOOL_DATA_TABLES = ["scores", "usage_events", "rubrics", "answer_keys", "sessions", "invites", "teachers"];
+const SCHOOL_DATA_TABLES = ["scores", "usage_events", "credit_flags", "rubrics", "answer_keys", "sessions", "invites", "teachers"];
 
 async function ensureRetentionSchema(env) {
   if (!env.DB || env._retentionReady) return;
@@ -2479,6 +2491,10 @@ async function ensureRetentionSchema(env) {
   const useCols = new Set((await dbAll(env, "PRAGMA table_info(usage_events)")).map((c) => c.name));
   if (!useCols.has("paper_key")) { try { await env.DB.prepare("ALTER TABLE usage_events ADD COLUMN paper_key TEXT").run(); } catch { /* added concurrently */ } }
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS usage_paper ON usage_events(school_id, paper_key)").run();
+  // v25 (additive): teacher flags of a bad charged result; may restore the credit.
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS credit_flags (id TEXT PRIMARY KEY, school_id TEXT NOT NULL, teacher_id TEXT NOT NULL, usage_id TEXT NOT NULL UNIQUE, reason TEXT NOT NULL, note TEXT NOT NULL DEFAULT '', restored INTEGER NOT NULL, created_at TEXT NOT NULL)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS credit_flags_school ON credit_flags(school_id)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS credit_flags_teacher ON credit_flags(teacher_id, created_at)").run();
   env._retentionReady = true;
 }
 
@@ -2667,6 +2683,87 @@ async function runRetention(env, now = nowIso()) {
   return { schools, sessions: changes(ses), invites: changes(inv), paperKeys: changes(pk) };
 }
 
+const FLAG_REASONS = new Set(["wrong_student", "misread_page", "garbled_text", "other"]);
+const FLAG_RESTORE_CAP = 5;
+const FLAG_OVER_CAP_MSG = "You've already had 5 credits restored this month. This result was flagged, but the credit was not added back.";
+
+function utcMonthBounds(now = new Date()) {
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+  const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString();
+  return { start, end };
+}
+
+async function restoredThisMonth(env, teacherId, now = new Date()) {
+  const { start, end } = utcMonthBounds(now);
+  const row = await dbOne(
+    env,
+    "SELECT COUNT(*) AS n FROM credit_flags WHERE teacher_id = ? AND restored = 1 AND created_at >= ? AND created_at < ?",
+    teacherId, start, end
+  );
+  return Number(row && row.n) || 0;
+}
+
+// v25: a teacher flags a charged draft or test read as unusable. Restores that
+// credit once, for that teacher's own usage row, up to 5 restores per teacher
+// per calendar month (UTC). Over the cap, the flag is still recorded.
+async function handleSchoolFlag(request, env, origin) {
+  const blocked = await requireSchoolConfigured(env, origin);
+  if (blocked) return blocked;
+  const limited = await rateLimit(request, env, "school:");
+  if (limited) return limited(origin);
+  const auth = await authorize(request, env);
+  if (!auth.ok) return json({ error: auth.error }, auth.status, origin);
+  if (auth.kind !== "school") return json({ error: "Sign in with a school invite." }, 401, origin);
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
+  const usageId = cleanStr(body.usageId || body.usage_id, 80);
+  const reason = cleanStr(body.reason, 40);
+  const note = cleanStr(body.note, 120);
+  if (!usageId) return json({ error: "Choose the result to flag." }, 400, origin);
+  if (!FLAG_REASONS.has(reason)) return json({ error: "Choose a reason: wrong student, misread page, garbled text, or other." }, 400, origin);
+  await ensureRetentionSchema(env);
+  const ev = await dbOne(env, "SELECT * FROM usage_events WHERE id = ? AND school_id = ?", usageId, auth.school.id);
+  if (!ev || ev.teacher_id !== auth.teacher.id || !(Number(ev.papers) > 0)) {
+    return json({ error: "That charge was not found." }, 404, origin);
+  }
+  const already = await dbOne(env, "SELECT id, restored FROM credit_flags WHERE usage_id = ?", usageId);
+  if (already) {
+    return json({ error: "This result was already flagged.", already: true, restored: !!already.restored }, 409, origin);
+  }
+  const usedFlags = await restoredThisMonth(env, auth.teacher.id);
+  const canRestore = usedFlags < FLAG_RESTORE_CAP;
+  let restored = false;
+  if (canRestore) {
+    const updated = await dbOne(
+      env,
+      `UPDATE schools SET papers_used = CASE WHEN papers_used > 0 THEN papers_used - 1 ELSE 0 END
+       WHERE id = ?
+       RETURNING paper_allowance, papers_used, license_year, status, name, id`,
+      auth.school.id
+    );
+    if (updated) auth.school = updated;
+    restored = true;
+  }
+  await dbRun(
+    env,
+    "INSERT INTO credit_flags (id, school_id, teacher_id, usage_id, reason, note, restored, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    crypto.randomUUID(), auth.school.id, auth.teacher.id, usageId, reason, note, restored ? 1 : 0, nowIso()
+  );
+  const flagsUsed = usedFlags + (restored ? 1 : 0);
+  const usage = usageView(auth.school);
+  return json({
+    ok: true,
+    restored,
+    overCap: !restored,
+    flagsUsed,
+    flagsCap: FLAG_RESTORE_CAP,
+    flagsRemaining: Math.max(0, FLAG_RESTORE_CAP - flagsUsed),
+    usage,
+    ...(restored ? {} : { message: FLAG_OVER_CAP_MSG }),
+    ...extraUsage(usage)
+  }, 200, origin);
+}
+
 async function routeSchool(url, request, env, origin) {
   const path = url.pathname;
   if (path === "/auth/redeem") {
@@ -2753,6 +2850,10 @@ async function routeSchool(url, request, env, origin) {
     if (request.method !== "GET") return json({ error: "Use GET." }, 405, origin);
     return handleSchoolReport(request, env, origin);
   }
+  if (path === "/school/usage/flag") {
+    if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
+    return handleSchoolFlag(request, env, origin);
+  }
   return null;
 }
 
@@ -2828,4 +2929,4 @@ export default {
   }
 };
 
-export { runRetention, cleanFirstName, cleanInitial, scrubName, scrubDraftNames, paperKeyFor, testReadUsable, scoreKey, deleteSchoolData, schoolScoresCsv, ensureRetentionSchema, RETENTION_DAYS, parseSplitOutput, sendInviteEmail, inviteEmailContent, inviteFrom, inviteFromName, inviteReplyTo, inviteSigninUrl, originAllowed, ALLOWED_ORIGINS, demoDayStamp, DEMO_DAILY_LIMIT, DEMO_LIMIT_MSG, readDemoCount, bumpDemoCount, parseFeedbackLanguage, feedbackLanguageName, feedbackLanguageInstructions, applyFeedbackLanguage, defaultSystem };
+export { runRetention, cleanFirstName, cleanInitial, scrubName, scrubDraftNames, paperKeyFor, testReadUsable, scoreKey, deleteSchoolData, schoolScoresCsv, ensureRetentionSchema, RETENTION_DAYS, FLAG_RESTORE_CAP, FLAG_REASONS, parseSplitOutput, sendInviteEmail, inviteEmailContent, inviteFrom, inviteFromName, inviteReplyTo, inviteSigninUrl, originAllowed, ALLOWED_ORIGINS, demoDayStamp, DEMO_DAILY_LIMIT, DEMO_LIMIT_MSG, readDemoCount, bumpDemoCount, parseFeedbackLanguage, feedbackLanguageName, feedbackLanguageInstructions, applyFeedbackLanguage, defaultSystem };

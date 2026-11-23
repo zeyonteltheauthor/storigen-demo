@@ -216,6 +216,11 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 .ai-row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:8px}.ai-row>div{flex:1 1 200px}
 .ai-note{display:inline-block;margin:0 0 10px;padding:3px 10px;border-radius:999px;border:1px solid rgba(183,156,255,.55);color:var(--violet);font-size:.82rem;font-weight:700;letter-spacing:.02em}
 .ai-status{font-size:.9rem;color:var(--warm);margin:10px 0 0;min-height:1.2em}.ai-status[data-kind=error]{color:#ffb4a8}
+.ai-flag{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.ai-flag label{display:block;font-size:.88rem;margin:8px 0 4px}
+.ai-flag select{font:inherit;color:var(--ink);background:var(--night);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:42px;max-width:100%}
+.ai-flag-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.ai-flag-msg{font-size:.9rem;margin:8px 0 0;min-height:1.2em;color:var(--warm)}.ai-flag-msg[data-kind=error]{color:#ffb4a8}
 .ai-transcript{margin:10px 0 0;font-size:.85rem;color:var(--muted);border-left:2px solid var(--violet);padding-left:10px}
 .row-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap}
 .row-tag{font-size:.78rem;font-weight:750;padding:2px 9px;border-radius:999px;white-space:nowrap;border:1px solid var(--line);color:var(--muted)}
@@ -226,7 +231,7 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 .teacher-cat[data-s=ai]{border-color:rgba(183,156,255,.5)}
 .ai-was{font-size:.82rem;color:var(--muted);margin:6px 0 0}
 .overall{border:1px solid var(--line);border-radius:12px;padding:13px;background:#0a1020a8;margin-bottom:10px}.overall h3{font-size:1rem;margin:0 0 4px;color:var(--warm)}
-@media print{.ai-box,.row-actions,.ai-note{display:none!important}.row-tag{color:#333;border-color:#bbb;background:#fff}.overall{background:#fff;border-color:#bbb}}
+@media print{.ai-box,.ai-flag,.row-actions,.ai-note{display:none!important}.row-tag{color:#333;border-color:#bbb;background:#fff}.overall{background:#fff;border-color:#bbb}}
 
 
 .primary:disabled{opacity:.5;filter:none}
@@ -1217,8 +1222,22 @@ body:not(.ga-test) .test-only{display:none !important}
   "Examples from the story": "Ejemplos del escrito",
   "Rubric criteria": "Criterios de la rúbrica",
   "Not reviewed. Nothing is sent unless you press Read answers. A draft can be saved in this browser only.": "Sin revisar. No se envía nada hasta que pulses Leer respuestas. Un borrador solo se puede guardar en este navegador.",
-  "Grade Along AI is reading the answers… this can take up to a minute.": "Grade Along IA está leyendo las respuestas… esto puede tardar hasta un minuto."
+  "Grade Along AI is reading the answers… this can take up to a minute.": "Grade Along IA está leyendo las respuestas… esto puede tardar hasta un minuto.",
+  "Flag bad result": "Marcar resultado incorrecto",
+  "A credit was used for this result. If it is unusable, you can flag it for a credit back (up to 5 per teacher each month).": "Se usó un crédito para este resultado. Si no se puede usar, puedes marcarlo para recuperar el crédito (hasta 5 por docente cada mes).",
+  "Why is this result unusable?": "¿Por qué no se puede usar este resultado?",
+  "Wrong student": "Estudiante equivocado",
+  "Misread page": "Página mal leída",
+  "Garbled text": "Texto ilegible",
+  "Other": "Otro",
+  "Flag this result": "Marcar este resultado",
+  "Credit restored. This paper no longer uses a credit.": "Crédito restaurado. Este escrito ya no usa un crédito.",
+  "You've already had 5 credits restored this month. This result was flagged, but the credit was not added back.": "Ya se te restauraron 5 créditos este mes. Se marcó este resultado, pero el crédito no se devolvió.",
+  "This result was already flagged.": "Este resultado ya estaba marcado.",
+  "That charge was not found.": "No se encontró ese cargo.",
+  "Could not flag this result: {detail}": "No se pudo marcar este resultado: {detail}"
 };
+
   function lang(){
     return document.documentElement.getAttribute("lang") === "es" ? "es" : "en";
   }
@@ -1370,7 +1389,7 @@ GA_i18n.init();
 <p class="gate-note" data-i18n="Lock signs you out and clears that account's grading queue, paper photos and saved scores from this browser.">Lock signs you out and clears that account's grading queue, paper photos and saved scores from this browser.</p>
 <p class="gate-note" data-i18n="The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only, and each signed-in account has its own.">The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only, and each signed-in account has its own.</p>
 <p class="gate-note" data-i18n="A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
-<p class="version-label">Grade Along v24</p>
+<p class="version-label">Grade Along v25</p>
 <p class="gate-powered" data-i18n="Powered by STORIGEN · Arrival House Media">Powered by STORIGEN · Arrival House Media</p>
 </section>
 </main>
@@ -1507,6 +1526,24 @@ GA_i18n.init();
 <button type="button" class="primary" id="ai-go" data-i18n="Grade with AI">Grade with AI</button>
 </div>
 <p class="ai-status" id="ai-status" role="status" aria-live="polite"></p>
+<div class="ai-flag" id="ai-flag" hidden>
+<p id="ai-flag-intro" data-i18n="A credit was used for this result. If it is unusable, you can flag it for a credit back (up to 5 per teacher each month).">A credit was used for this result. If it is unusable, you can flag it for a credit back (up to 5 per teacher each month).</p>
+<button type="button" class="secondary" id="ai-flag-open" data-i18n="Flag bad result">Flag bad result</button>
+<form id="ai-flag-form" hidden>
+<label for="ai-flag-reason" data-i18n="Why is this result unusable?">Why is this result unusable?</label>
+<select id="ai-flag-reason">
+<option value="wrong_student" data-i18n="Wrong student">Wrong student</option>
+<option value="misread_page" data-i18n="Misread page">Misread page</option>
+<option value="garbled_text" data-i18n="Garbled text">Garbled text</option>
+<option value="other" data-i18n="Other">Other</option>
+</select>
+<div class="ai-flag-actions">
+<button type="submit" class="secondary" id="ai-flag-go" data-i18n="Flag this result">Flag this result</button>
+<button type="button" class="secondary" id="ai-flag-cancel" data-i18n="Cancel">Cancel</button>
+</div>
+</form>
+<p class="ai-flag-msg" id="ai-flag-msg" role="status"></p>
+</div>
 <p class="ai-transcript" id="ai-transcript" hidden></p>
 </div>
 </section>
@@ -1579,7 +1616,7 @@ GA_i18n.init();
 <p class="growth-status" data-i18n="When a school's agreement ends or it asks in writing, use Close school. Export its scores first if it asked for them. Its data is deleted automatically 30 days after closing, or right away with Delete school data now.">When a school's agreement ends or it asks in writing, use Close school. Export its scores first if it asked for them. Its data is deleted automatically 30 days after closing, or right away with Delete school data now.</p>
 <p class="school-legal" data-i18n="A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
 </section>
-<footer class="version-label" id="ga-version">Grade Along v24</footer>
+<footer class="version-label" id="ga-version">Grade Along v25</footer>
 </div>
 
 </main>
@@ -1834,6 +1871,8 @@ function blankStudent(){
     feedback: WONDERS.map(() => ""),
     starters: WONDERS.map(() => ""),
     approved: false,
+    usageId: "",
+    usageFlagged: false,
     files: [],
     rowStatus: WONDERS.map(() => ""),   // "" teacher-only | "ai" draft | "approved" | "edited"
     aiDraft: WONDERS.map(() => null),   // {score, comment} as drafted by AI
@@ -2197,11 +2236,13 @@ async function readTestWithAI(){
     const data = await paced(() => requestTestReadFromFiles(state, pass, (m) => setAiStatus(m)), setAiStatus, uiT("Read answers"));
     if(data.cover) applyCover(state, data.cover);
     if(data.transcriptionNote) state.aiNote = data.transcriptionNote;
+    if(data.usageId && !data.free){ state.usageId = String(data.usageId); state.usageFlagged = false; }
     state.testObs = data.answers || [];
     applyTestResult(state, GA_testScore.scoreTest(KEY, state.testObs));
     fillForm();
     renderTestResults();
     renderStatus();
+    renderFlagPanel();
     saveDraft();
     const r = state.testResult;
     setAiStatus(r && r.finalized ? uiT("Finalized — no items need review.") : uiT(r.flaggedCount === 1 ? "{n} item needs your review." : "{n} items need your review.", {n: r ? r.flaggedCount : 0}));
@@ -2431,10 +2472,11 @@ window.GA_workspace = {
   unfinished: () => students.some((st) => (st.files.length || st.story || st.student) && !st.approved),
   clear: () => { storageWiped = true; skipPhotoStore = true; return clearWorkspaceStudentData(); }
 };
-// Local test hook only (never exposed on gradealong.com): lets the v24 browser test reach these helpers.
+// Local test hook only (never exposed on gradealong.com): lets the v25 browser test reach these helpers.
 if(location.hostname === "127.0.0.1"){
   window.__GA_TEST = {firstOnly, initialOnly, scrubName, nameFromFile, blankStudent, applyCover, applyAI, buildReport, csvAll, payload, displayName, renderQueue, renderNameNote,
-    students: () => students, state: () => state};
+    preHits, autoMatch, matchFor, growthFor, rosterOf, prePool, preAmbiguous,
+    students: () => students, state: () => state, rubricId: () => RUB.id};
 }
 function teachersLockedToSchool(){
   const s = window.GA_SCHOOL;
@@ -2511,6 +2553,7 @@ function fillForm(){
   $("t-story").value = state.story || "";
   renderCoverTags();
   renderAssess();
+  if(typeof renderFlagPanel === "function") renderFlagPanel();
 }
 
 function renderCoverTags(){
@@ -2912,7 +2955,7 @@ function showBulkPanel(nAdded, nPdf){
 
 function serializeStudent(st, withFiles){
   return {
-    student: st.student, initial: st.initial || "", rid: st.rid || "", grade: st.grade, date: st.date, facilitator: st.facilitator, story: st.story,
+    student: st.student, initial: st.initial || "", rid: st.rid || "", grade: st.grade, date: st.date, facilitator: st.facilitator, story: st.story, usageId: st.usageId || "", usageFlagged: !!st.usageFlagged,
     auto: st.auto, soft: st.soft, coverRead: st.coverRead, assess: st.assess || "", preMatch: st.preMatch || "",
     scores: st.scores, feedback: st.feedback, starters: st.starters, approved: st.approved,
     rowStatus: st.rowStatus, aiDraft: st.aiDraft, overall: st.overall, overallStatus: st.overallStatus,
@@ -2972,6 +3015,8 @@ function restoreStudent(d){
   st.coverRead = !!d.coverRead;
   st.assess = d.assess === "pre" || d.assess === "post" ? d.assess : "";
   st.preMatch = typeof d.preMatch === "string" ? d.preMatch.slice(0, 80) : "";
+  st.usageId = typeof d.usageId === "string" ? d.usageId.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 80) : "";
+  st.usageFlagged = !!d.usageFlagged;
   let dropped = 0;
   if(Array.isArray(d.files)){
     d.files.forEach((f) => {
@@ -3376,33 +3421,57 @@ function prePool(){
   });
   return out;
 }
+function rosterOf(stOrRec){
+  return String((stOrRec && (stOrRec.rid || stOrRec.rosterId)) || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40);
+}
 function autoMatch(st, pool){
   const n = normName(st.student), g = normGrade(st.grade);
-  if(!n) return null;
+  if(!n && !rosterOf(st)) return null;
   const hits = preHits(st, pool);
   if(!hits.length) return null;
   hits.sort((a, b) => (sameRubric(b) - sameRubric(a)) || (a.source === b.source ? 0 : a.source === "file" ? -1 : 1) || String(b.date).localeCompare(String(a.date)));
-  // v24: two different students' pre scores for this name on the same day: do not guess.
-  if(hits.length > 1 && sameRubric(hits[0]) === sameRubric(hits[1]) && hits[0].date === hits[1].date) return null;
+  // Same roster key: these rows are the same student. Name-key fallback: do not guess when two records match.
+  if(!rosterOf(st) || rosterOf(hits[0]) !== rosterOf(st)){
+    if(hits.length > 1 && sameRubric(hits[0]) === sameRubric(hits[1]) && hits[0].date === hits[1].date) return null;
+  }
   return hits[0];
 }
 function preHits(st, pool){
+  const rid = rosterOf(st);
+  if(rid){
+    const byRid = pool.filter((r) => rosterOf(r) === rid);
+    if(byRid.length) return byRid;
+    // Brand-new roster key (a later post session): unique name match can adopt the pre's key.
+    const n = normName(st.student), g = normGrade(st.grade), ini = st.initial || "";
+    if(!n) return [];
+    return pool.filter((r) => normName(r.firstName) === n && normGrade(r.grade) === g && (r.lastInitial || "") === ini);
+  }
+  // Legacy student with no roster key: only match legacy pre records by name.
   const n = normName(st.student), g = normGrade(st.grade), ini = st.initial || "";
   if(!n) return [];
-  return pool.filter((r) => normName(r.firstName) === n && normGrade(r.grade) === g && (r.lastInitial || "") === ini);
+  return pool.filter((r) => !rosterOf(r) && normName(r.firstName) === n && normGrade(r.grade) === g && (r.lastInitial || "") === ini);
 }
 function preAmbiguous(st, pool = prePool()){
   if(effAssess(st) !== "post" || st.preMatch) return false;
   const hits = preHits(st, pool);
   return hits.length > 1 && !autoMatch(st, pool);
 }
+function adoptRosterFromPre(st, pre){
+  const rid = pre && rosterOf(pre);
+  if(!rid || !st) return;
+  const taken = students.some((x) => x !== st && rosterOf(x) === rid);
+  if(!taken) st.rid = rid;
+}
 function matchFor(st, pool = prePool()){
   if(effAssess(st) !== "post" || st.preMatch === "none") return null;
+  let hit = null;
   if(st.preMatch){
-    const hit = pool.find((r) => r.id === st.preMatch);
-    if(hit) return hit;
+    hit = pool.find((r) => r.id === st.preMatch) || null;
+  } else {
+    hit = autoMatch(st, pool);
   }
-  return autoMatch(st, pool);
+  if(hit) adoptRosterFromPre(st, hit);
+  return hit;
 }
 // Pre and post are compared only when both were scored with the same rubric (same id or name, same rows).
 function sameRubric(rec, r = RUB){
@@ -4627,6 +4696,47 @@ async function coverJpeg(st){
   }
 }
 
+function renderFlagPanel(){
+  const box = $("ai-flag");
+  if(!box) return;
+  const school = window.GA_SCHOOL && window.GA_SCHOOL.token;
+  const can = !!(school && state && state.usageId);
+  box.hidden = !can;
+  if(!can) return;
+  const form = $("ai-flag-form");
+  const open = $("ai-flag-open");
+  const msg = $("ai-flag-msg");
+  const intro = $("ai-flag-intro");
+  if(state.usageFlagged){
+    if(open) open.hidden = true;
+    if(form) form.hidden = true;
+    if(intro) intro.hidden = true;
+    return;
+  }
+  if(open) open.hidden = false;
+  if(intro) intro.hidden = false;
+  if(msg && !msg.dataset.keep){ msg.textContent = ""; msg.dataset.kind = ""; }
+}
+async function submitFlag(ev){
+  if(ev) ev.preventDefault();
+  const msg = $("ai-flag-msg");
+  const say = (m, kind) => { if(msg){ msg.textContent = m ? GA_i18n.localizeError(m) : ""; msg.dataset.kind = kind || ""; msg.dataset.keep = m ? "1" : ""; } };
+  if(!(window.GA_SCHOOL && window.GA_SCHOOL.token) || !state.usageId){ say(uiT("That charge was not found."), "error"); return; }
+  const reason = ($("ai-flag-reason") && $("ai-flag-reason").value) || "";
+  const go = $("ai-flag-go");
+  if(go) go.disabled = true;
+  try{
+    const data = await schoolFetch("/school/usage/flag", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({usageId: state.usageId, reason})});
+    state.usageFlagged = true;
+    saveDraft();
+    renderFlagPanel();
+    say(data.restored ? uiT("Credit restored. This paper no longer uses a credit.") : (data.message || uiT("You've already had 5 credits restored this month. This result was flagged, but the credit was not added back.")));
+  } catch(e){
+    say(uiT("Could not flag this result: {detail}", {detail: GA_i18n.localizeError(e.message)}), "error");
+  } finally {
+    if(go) go.disabled = false;
+  }
+}
 function authHeaders(pass){
   const h = {"Content-Type": "application/json"};
   if(window.GA_DEMO) return h;
@@ -4960,6 +5070,7 @@ function applyAI(data, st = state){
   st.paperLanguage = String(data.paperLanguage || "");
   st.approved = false;
   st.error = "";
+  if(data && data.usageId && !data.free){ st.usageId = String(data.usageId); st.usageFlagged = false; }
   if(st === state){
     const tn = $("ai-transcript");
     tn.hidden = !st.aiNote;
@@ -4967,6 +5078,7 @@ function applyAI(data, st = state){
     renderCategories();
     renderStatus();
     renderLanguageExtras(st);
+    renderFlagPanel();
   }
   saveDraft();
 }
@@ -5507,6 +5619,9 @@ $("t-csv").addEventListener("click", () => {
 });
 $("t-clear").addEventListener("click", clearAll);
 $("ai-go").addEventListener("click", gradeWithAI);
+if($("ai-flag-open")) $("ai-flag-open").addEventListener("click", () => { if($("ai-flag-form")) $("ai-flag-form").hidden = false; if($("ai-flag-open")) $("ai-flag-open").hidden = true; });
+if($("ai-flag-cancel")) $("ai-flag-cancel").addEventListener("click", () => { if($("ai-flag-form")) $("ai-flag-form").hidden = true; if($("ai-flag-open")) $("ai-flag-open").hidden = false; });
+if($("ai-flag-form")) $("ai-flag-form").addEventListener("submit", submitFlag);
 if($("ai-feedback-lang")) $("ai-feedback-lang").addEventListener("change", () => { saveFeedbackLang(); renderLanguageExtras(state); });
 if($("t-student-facing-on")) $("t-student-facing-on").addEventListener("change", () => renderLanguageExtras(state));
 try { $("ai-pass").value = sessionStorage.getItem(PASS_KEY) || ""; } catch(e){}

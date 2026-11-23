@@ -118,8 +118,8 @@ ok("nothing deleted after refused delete", db.prepare("SELECT COUNT(*) n FROM sc
 const del = await call("/owner/schools/delete", { method: "POST", headers: owner, body: { schoolId: sid, confirmName: "  zz test school v23 " } });
 ok("delete now succeeds with typed name", del.status === 200 && del.data.deletion.method === "owner_now");
 const c = del.data.deletion.counts;
-ok("deletion record counts", c.scores === 4 && c.teachers === 1 && c.rubrics === 1 && c.answer_keys === 1 && c.usage_events === 1 && c.invites >= 0);
-for (const t of ["scores","usage_events","rubrics","answer_keys","sessions","invites","teachers"]) {
+ok("deletion record counts", c.scores === 4 && c.teachers === 1 && c.rubrics === 1 && c.answer_keys === 1 && c.usage_events === 1 && c.invites >= 0 && (c.credit_flags || 0) === 0);
+for (const t of ["scores","usage_events","credit_flags","rubrics","answer_keys","sessions","invites","teachers"]) {
   ok("no " + t + " left for deleted school", db.prepare(`SELECT COUNT(*) n FROM ${t} WHERE school_id=?`).get(sid).n === 0);
 }
 ok("school row removed", !db.prepare("SELECT 1 FROM schools WHERE id=?").get(sid));

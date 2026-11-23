@@ -46,7 +46,7 @@ function makeD1(db) {
 
   // --- Gate: shared-computer clear ---
   await page.goto(BASE);
-  ok("gate shows v24 label", (await page.locator(".version-label").first().innerText()).includes("Grade Along v24"));
+  ok("gate shows v25 label", (await page.locator(".version-label").first().innerText()).includes("Grade Along v25"));
   ok("gate shows shared-computer button", await page.locator("#gate-clear-all").isVisible());
   await page.evaluate(() => {
     localStorage.setItem("storigen-os-grade-along-teacher-queue::passcode", JSON.stringify({ v: 2, students: [{ student: "Maya", files: [{ dataUrl: "data:image/jpeg;base64,AAAA" }] }] }));
