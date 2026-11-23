@@ -65,7 +65,11 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 .pdf-page[data-on=true]{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset;color:var(--warm)}
 .slot-note{font-size:.85rem;color:var(--muted);margin:8px 0 0}.slot-note[data-kind=error]{color:#ffb4a8}
 .attach-item img,.attach-item iframe{display:block;width:100%;max-height:420px;border:0;border-radius:8px;background:#060913}
-.attach-name{font-size:.8rem;color:var(--muted);margin:0 0 8px}
+.attach-item{position:relative}
+.attach-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin:0 0 8px}
+.attach-name{font-size:.8rem;color:var(--muted);margin:0;flex:1 1 auto}
+.attach-remove{flex:0 0 auto;min-width:42px;min-height:42px;border-radius:9px;border:1px solid var(--line);background:var(--night);color:var(--sub);font:inherit;font-weight:700;line-height:1}
+.attach-tools{margin:8px 0 0;display:flex;flex-wrap:wrap;gap:8px}
 .level-picks{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
 .level-picks button{min-width:42px;min-height:42px;border-radius:9px;border:1px solid var(--line);background:var(--night);color:var(--sub);font:inherit;font-weight:700}
 .level-picks button[aria-pressed=true]{border-color:var(--gold);color:var(--night);background:linear-gradient(140deg,var(--warm),var(--gold))}
@@ -654,6 +658,14 @@ body:not(.ga-test) .test-only{display:none !important}
   "Teacher written": "Escrito por el docente",
   "Scan of {name}": "Escaneo de {name}",
   "Preview is not available for this file type, but it is attached on this device.": "No hay vista previa para este tipo de archivo, pero está adjunto en este dispositivo.",
+  "Remove {name}": "Quitar {name}",
+  "Clear photos": "Borrar fotos",
+  "One photo could not be read, so it was removed. Try a JPEG or PNG, or a screenshot of the page.": "No se pudo leer una foto, así que se quitó. Prueba un JPEG o PNG, o una captura de la página.",
+  "{n} photos could not be read, so they were removed. Try a JPEG or PNG, or a screenshot of the page.": "No se pudieron leer {n} fotos, así que se quitaron. Prueba un JPEG o PNG, o una captura de la página.",
+  "A saved photo could not be read, so it was removed. You can add the photo again.": "No se pudo leer una foto guardada, así que se quitó. Puedes volver a añadir la foto.",
+  "{n} saved photos could not be read, so they were removed. You can add the photos again.": "No se pudieron leer {n} fotos guardadas, así que se quitaron. Puedes volver a añadir las fotos.",
+  "The sample photo could not be loaded. You can add a photo of the test instead.": "No se pudo cargar la foto de muestra. Puedes añadir una foto de la prueba.",
+  "This browser could not read one of the photos, so it was removed. Try a JPEG or PNG, or a screenshot of the page.": "Este navegador no pudo leer una de las fotos, así que se quitó. Prueba un JPEG o PNG, o una captura de la página.",
   "Level {n}": "Nivel {n}",
   "{n} row": "{n} fila",
   "{n} rows": "{n} filas",
@@ -1389,7 +1401,7 @@ GA_i18n.init();
 <p class="gate-note" data-i18n="Lock signs you out and clears that account's grading queue, paper photos and saved scores from this browser.">Lock signs you out and clears that account's grading queue, paper photos and saved scores from this browser.</p>
 <p class="gate-note" data-i18n="The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only, and each signed-in account has its own.">The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only, and each signed-in account has its own.</p>
 <p class="gate-note" data-i18n="A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
-<p class="version-label">Grade Along v25</p>
+<p class="version-label">Grade Along v26</p>
 <p class="gate-powered" data-i18n="Powered by STORIGEN · Arrival House Media">Powered by STORIGEN · Arrival House Media</p>
 </section>
 </main>
@@ -1508,6 +1520,7 @@ GA_i18n.init();
 <div class="attach-field">
 <label for="t-files" id="t-files-label" data-i18n="Photos or a scanned PDF of the paper (up to 3 pages are sent to AI)">Photos or a scanned PDF of the paper (up to 3 pages are sent to AI)</label>
 <input id="t-files" type="file" accept="application/pdf,.pdf,image/*,.heic,.heif" multiple>
+<div class="attach-tools" id="t-attach-tools" hidden><button type="button" class="secondary" id="t-clear-photos" data-i18n="Clear photos">Clear photos</button></div>
 <div class="attach-list" id="t-attach-list"></div>
 <p class="slot-note" id="t-slot-note" aria-live="polite"></p>
 </div>
@@ -1616,7 +1629,7 @@ GA_i18n.init();
 <p class="growth-status" data-i18n="When a school's agreement ends or it asks in writing, use Close school. Export its scores first if it asked for them. Its data is deleted automatically 30 days after closing, or right away with Delete school data now.">When a school's agreement ends or it asks in writing, use Close school. Export its scores first if it asked for them. Its data is deleted automatically 30 days after closing, or right away with Delete school data now.</p>
 <p class="school-legal" data-i18n="A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
 </section>
-<footer class="version-label" id="ga-version">Grade Along v25</footer>
+<footer class="version-label" id="ga-version">Grade Along v26</footer>
 </div>
 
 </main>
@@ -2201,13 +2214,22 @@ async function requestTestReadFromFiles(st, pass, onStatus){
         images.push((url || "").replace(/^data:image\/jpeg;base64,/, ""));
       }
     } else {
-      const url = f.blobUrl || f.dataUrl || f.url;
-      if(!url && f.file){
-        const u = URL.createObjectURL(f.file);
-        try { images.push(await toJpegBase64({blobUrl: u})); }
-        finally { URL.revokeObjectURL(u); }
-      } else if(url){
-        images.push(await toJpegBase64({blobUrl: url, dataUrl: f.dataUrl, url: f.url}));
+      try{
+        const url = f.blobUrl || f.dataUrl || f.url;
+        if(!url && f.file){
+          const u = URL.createObjectURL(f.file);
+          try { images.push(await toJpegBase64({blobUrl: u})); }
+          finally { URL.revokeObjectURL(u); }
+        } else if(url){
+          images.push(await toJpegBase64({blobUrl: url, dataUrl: f.dataUrl, url: f.url}));
+        }
+      } catch(e){
+        const i = st.files.indexOf(f);
+        if(i >= 0){ revokeOne(f); st.files.splice(i, 1); }
+        resetFileInput();
+        if(st === state) renderFiles();
+        saveDraft();
+        throw aiError(uiT("This browser could not read one of the photos, so it was removed. Try a JPEG or PNG, or a screenshot of the page."));
       }
     }
   }
@@ -2418,11 +2440,30 @@ function saveKeyToSchool(k, status, after){
     else setMsg(status, e.message, "error");
   });
 }
+// This page also lives at "/" and "/demo" on gradealong.com, so relative
+// "samples/..." would fetch from the site root and get a 404 HTML page.
+function gradeAlongBase(pathname){
+  const p = pathname == null ? (typeof location !== "undefined" ? location.pathname : "/") : String(pathname);
+  const marker = "/grade-along/";
+  const i = p.indexOf(marker);
+  if(i >= 0) return p.slice(0, i + marker.length);
+  if(p === "/grade-along" || p.endsWith("/grade-along")) return p + "/";
+  return "/grade-along/";
+}
+function sampleSrc(rel){
+  const name = String(rel || "").replace(/^(\.\/)?(?:samples\/)?/, "");
+  return gradeAlongBase() + "samples/" + name;
+}
 async function loadTestSampleImage(url, filename){
-  const res = await fetch(url);
-  const blob = await res.blob();
-  const file = new File([blob], filename, {type: "image/jpeg"});
-  state.files = [];
+  const src = /^https?:/i.test(url) ? url : sampleSrc(url);
+  const res = await fetch(src);
+  if(!res.ok) throw new Error("sample");
+  const buf = await res.arrayBuffer();
+  const ctype = ((res.headers.get("content-type") || "").split(";")[0] || "").trim();
+  const type = ctype.startsWith("image/") ? ctype : "image/jpeg";
+  const file = new File([buf], filename || "sample.jpg", {type});
+  if(!(await imageLooksDecodable(file))) throw new Error("sample");
+  clearStudentFiles(state);
   await addFiles([file]);
 }
 
@@ -2476,6 +2517,7 @@ window.GA_workspace = {
 if(location.hostname === "127.0.0.1"){
   window.__GA_TEST = {firstOnly, initialOnly, scrubName, nameFromFile, blankStudent, applyCover, applyAI, buildReport, csvAll, payload, displayName, renderQueue, renderNameNote,
     preHits, autoMatch, matchFor, growthFor, rosterOf, prePool, preAmbiguous,
+    gradeAlongBase, sampleSrc, loadDemoSample, loadTestSampleImage, removeFileAt, clearPhotos, purgeUndecodablePhotos, addFiles, imageLooksDecodable, saveDraft, loadDraft, renderFiles, demoPapers: () => DEMO_PAPERS,
     students: () => students, state: () => state, rubricId: () => RUB.id};
 }
 function teachersLockedToSchool(){
@@ -2772,13 +2814,24 @@ function csvEscape(v){
 function renderFiles(){
   const list = $("t-attach-list");
   list.replaceChildren();
-  state.files.forEach((f) => {
+  const tools = $("t-attach-tools");
+  if(tools) tools.hidden = !state.files.length;
+  state.files.forEach((f, i) => {
     const item = document.createElement("div");
     item.className = "attach-item";
+    const head = document.createElement("div");
+    head.className = "attach-head";
     const cap = document.createElement("p");
     cap.className = "attach-name";
     cap.textContent = f.name;
-    item.append(cap);
+    const rm = document.createElement("button");
+    rm.type = "button";
+    rm.className = "attach-remove";
+    rm.setAttribute("aria-label", uiT("Remove {name}", {name: f.name}));
+    rm.textContent = "×";
+    rm.addEventListener("click", () => removeFileAt(i));
+    head.append(cap, rm);
+    item.append(head);
     if((f.type || "").startsWith("image/")){
       const img = document.createElement("img");
       img.alt = uiT("Scan of {name}", {name: f.name});
@@ -2796,8 +2849,34 @@ function renderFiles(){
   renderSlotNote();
 }
 
+function revokeOne(f){
+  if(f && f.blobUrl){ try { URL.revokeObjectURL(f.blobUrl); } catch(e){} }
+}
 function revokeFiles(){
-  state.files.forEach((f) => { if(f.blobUrl) URL.revokeObjectURL(f.blobUrl); });
+  state.files.forEach(revokeOne);
+}
+function clearStudentFiles(st){
+  (st.files || []).forEach(revokeOne);
+  st.files = [];
+}
+function resetFileInput(){
+  const inp = $("t-files");
+  if(inp) inp.value = "";
+}
+function removeFileAt(i, st = state){
+  const f = st.files[i];
+  if(!f) return;
+  revokeOne(f);
+  st.files.splice(i, 1);
+  resetFileInput();
+  if(st === state) renderFiles();
+  saveDraft();
+}
+function clearPhotos(st = state){
+  clearStudentFiles(st);
+  resetFileInput();
+  if(st === state) renderFiles();
+  saveDraft();
 }
 
 function readAsDataURL(file){
@@ -2828,14 +2907,27 @@ function queuePrepare(f, owner){
 
 async function addFiles(fileList){
   const owner = state;
+  let droppedBad = 0;
   for(const file of fileList){
+    const kind = await sniffKind(file);
+    if(kind === "image" || isImageFile(file)){
+      if(!(await imageLooksDecodable(file))){ droppedBad++; continue; }
+    }
     owner.files.push(await fileEntry(file));
   }
   owner.error = "";
-  owner.droppedFiles = 0;
+  owner.droppedFiles = (owner.droppedFiles || 0) + droppedBad;
+  if(droppedBad){
+    const msg = droppedBad === 1
+      ? uiT("One photo could not be read, so it was removed. Try a JPEG or PNG, or a screenshot of the page.")
+      : uiT("{n} photos could not be read, so they were removed. Try a JPEG or PNG, or a screenshot of the page.", {n: droppedBad});
+    owner.error = msg;
+    setAiStatus(msg, "error");
+  }
   if(owner === state) renderFiles();
   saveDraft();
   owner.files.filter((f) => isPdfFile(f) && !f.pdf).forEach((f) => { queuePrepare(f, owner); });
+  return droppedBad;
 }
 
 /* ---------- Bulk upload: one file per student ---------- */
@@ -3860,11 +3952,14 @@ function renderRubricUI(){
       s.textContent = rubricSummary() + (RUB.builtin ? uiT(" · STORIGEN default.") : (RUB.school ? uiT(" · School rubric, shared with every teacher at this school.") : uiT(" · Rubrics are saved in this browser on this device only; use Manage rubrics → Export to share one.")));
     }
   }
-  $("t-review").textContent = RUB.builtin ? uiT("Storigen Wonders rubric") : RUB.name;
-  $("t-review-sub").textContent = RUB.builtin ? uiT("Four categories · levels 1–5 · total out of 20") : rubricSummary();
-  $("ai-rubric-note").textContent = RUB.builtin ? uiT("each of the four rows, plus overall feedback, using the Storigen Wonders rubric") : uiT(WONDERS.length === 1 ? "each of the {n} row, plus overall feedback, using “{name}”" : "each of the {n} rows, plus overall feedback, using “{name}”", {n: WONDERS.length, name: locName(RUB.name) || RUB.name});
+  if($("t-review")) $("t-review").textContent = RUB.builtin ? uiT("Storigen Wonders rubric") : RUB.name;
+  if($("t-review-sub")) $("t-review-sub").textContent = RUB.builtin ? uiT("Four categories · levels 1–5 · total out of 20") : rubricSummary();
+  // Test mode replaces #ai-intro text and removes #ai-rubric-note. Rebuild the
+  // paper intro so switching a sample from a test back to a story does not throw.
+  const noteText = RUB.builtin ? uiT("each of the four rows, plus overall feedback, using the Storigen Wonders rubric") : uiT(WONDERS.length === 1 ? "each of the {n} row, plus overall feedback, using “{name}”" : "each of the {n} rows, plus overall feedback, using “{name}”", {n: WONDERS.length, name: locName(RUB.name) || RUB.name});
   const intro = $("ai-intro");
-  if(intro) intro.innerHTML = uiT("Grade Along AI drafts a level and a comment for {note}. It uses the first name, grade, photos (up to 3) and/or the story text above.", {note: '<span id="ai-rubric-note">' + $("ai-rubric-note").textContent + "</span>"});
+  if(intro) intro.innerHTML = uiT("Grade Along AI drafts a level and a comment for {note}. It uses the first name, grade, photos (up to 3) and/or the story text above.", {note: '<span id="ai-rubric-note">' + noteText + "</span>"});
+  else if($("ai-rubric-note")) $("ai-rubric-note").textContent = noteText;
 }
 
 let rubricModal = null;
@@ -4196,10 +4291,53 @@ function setAiStatus(msg, kind){
 function loadImage(src){
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("decode"));
+    const fail = () => reject(new Error("decode"));
+    img.onload = () => {
+      if(typeof img.decode === "function"){
+        img.decode().then(() => resolve(img)).catch(fail);
+      } else if(img.naturalWidth && img.naturalHeight) resolve(img);
+      else fail();
+    };
+    img.onerror = fail;
     img.src = src;
   });
+}
+async function imageLooksDecodable(srcOrFile){
+  let src = "", revoke = "";
+  try{
+    if(typeof srcOrFile === "string") src = srcOrFile;
+    else if(srcOrFile && (srcOrFile.blobUrl || srcOrFile.dataUrl || srcOrFile.url) && !(srcOrFile instanceof Blob)){
+      src = srcOrFile.blobUrl || srcOrFile.dataUrl || srcOrFile.url;
+    } else if(srcOrFile && typeof Blob !== "undefined" && srcOrFile instanceof Blob){
+      revoke = URL.createObjectURL(srcOrFile);
+      src = revoke;
+    } else return false;
+    if(!src) return false;
+    const img = await loadImage(src);
+    return !!(img && img.naturalWidth && img.naturalHeight);
+  } catch(e){ return false; }
+  finally { if(revoke){ try { URL.revokeObjectURL(revoke); } catch(e){} } }
+}
+async function purgeUndecodablePhotos(){
+  let n = 0;
+  for(const st of students){
+    const keep = [];
+    for(const f of st.files || []){
+      if(isPdfFile(f) || !isImageFile(f)){ keep.push(f); continue; }
+      if(await imageLooksDecodable(f)) keep.push(f);
+      else { revokeOne(f); n++; }
+    }
+    if(keep.length !== (st.files || []).length) st.files = keep;
+  }
+  if(n){
+    const msg = n === 1
+      ? uiT("A saved photo could not be read, so it was removed. You can add the photo again.")
+      : uiT("{n} saved photos could not be read, so they were removed. You can add the photos again.", {n});
+    setAiStatus(msg, "error");
+    saveDraft();
+    renderFiles();
+  }
+  return n;
 }
 
 // Resize to max 1568px on the long edge and re-encode as JPEG (HEIC works where the browser can decode it, e.g. Safari).
@@ -4818,7 +4956,15 @@ async function requestDraft(st, pass, onStatus, withCover){
   try{
     for(const f of imgs){ images.push(await toJpegBase64(f)); }
   } catch(e){
-    throw aiError(uiT("This browser could not read one of the photos. On iPhone, try Settings → Camera → Formats → Most Compatible, or take a screenshot of the photo and upload that."));
+    const bad = imgs.filter((f) => isImageFile(f));
+    bad.forEach((f) => {
+      const i = st.files.indexOf(f);
+      if(i >= 0){ revokeOne(f); st.files.splice(i, 1); }
+    });
+    resetFileInput();
+    if(st === state) renderFiles();
+    saveDraft();
+    throw aiError(uiT("This browser could not read one of the photos, so it was removed. Try a JPEG or PNG, or a screenshot of the page."));
   }
   try{
     for(const {f, n} of pdfPages){
@@ -5138,7 +5284,9 @@ renderRubricUI();
 fillForm();
 renderCategories();
 renderFiles();
-students.forEach((st) => st.files.filter((f) => isPdfFile(f) && f.dataUrl).forEach((f) => { queuePrepare(f, st); }));
+purgeUndecodablePhotos().then(() => {
+  students.forEach((st) => st.files.filter((f) => isPdfFile(f) && f.dataUrl).forEach((f) => { queuePrepare(f, st); }));
+});
 renderStatus();
 
 // v24: keep only the first name once the teacher leaves the field; initial is one letter.
@@ -5172,6 +5320,7 @@ $("t-files").addEventListener("change", (e) => {
     addFiles(picked);
   }
 });
+if($("t-clear-photos")) $("t-clear-photos").addEventListener("click", () => clearPhotos());
 $("q-bulk").addEventListener("click", () => $("q-bulk-files").click());
 $("q-bulk-files").addEventListener("change", (e) => {
   const picked = Array.from(e.target.files || []);
@@ -5745,31 +5894,36 @@ function applyPublicDemo(){
     box.className = "demo-samples";
     box.innerHTML = '<label for="demo-sample"></label><select id="demo-sample"></select><p class="demo-hint"></p>';
     hero.after(box);
-    $("demo-sample").addEventListener("change", () => loadDemoSample($("demo-sample").value));
+    $("demo-sample").addEventListener("change", () => { loadDemoSample($("demo-sample").value).catch(() => {}); });
   }
   refreshDemoI18n();
-  if(!(state.story || "").trim() && !hasPaper(state)) loadDemoSample("bus");
+  if(!(state.story || "").trim() && !hasPaper(state)) loadDemoSample("bus").catch(() => {});
 }
 
-function loadDemoSample(id){
+async function loadDemoSample(id){
   const sample = DEMO_PAPERS.find((s) => s.id === id) || DEMO_PAPERS[0];
   syncForm();
+  clearStudentFiles(state);
+  resetFileInput();
+  state.testObs = null;
+  state.testResult = null;
+  state.approved = false;
+  state.usageId = "";
+  state.usageFlagged = false;
   if(sample.kind === "test"){
     setMode("test");
     useKey(DEMO_SCIENCE_KEY.id);
     state.student = sample.student;
     state.grade = sample.grade;
     state.story = "";
-    state.testObs = null;
-    state.testResult = null;
-    state.approved = false;
     state.soft = {date: true};
     state.auto = {};
-    (state.files || []).forEach((f) => { try { if(f.blobUrl) URL.revokeObjectURL(f.blobUrl); } catch(e){} });
-    state.files = [];
     showStudent();
     if(sample.image){
-      loadTestSampleImage(sample.image, sample.file || "sample.jpg").catch(() => setAiStatus(uiT("Add a photo of the test."), "error"));
+      try { await loadTestSampleImage(sample.image, sample.file || "sample.jpg"); }
+      catch(e){ setAiStatus(uiT("The sample photo could not be loaded. You can add a photo of the test instead."), "error"); }
+    } else {
+      saveDraft();
     }
     return;
   }
@@ -5780,6 +5934,7 @@ function loadDemoSample(id){
   state.soft = {date: true};
   state.auto = {};
   showStudent();
+  saveDraft();
   if(!sample.text){
     const story = $("t-story");
     if(story){ story.placeholder = uiT("Paste your own story, or add a photo or PDF of the paper below."); story.focus(); }

@@ -84,4 +84,9 @@ Unauthenticated. Reuses the existing RATE_LIMITER with a `demo:` key prefix and 
 - **School report and on-device growth** pair a student's pre- and post-writes by `roster_id` when both records have one. Different roster keys never merge. Legacy rows with no roster key still fall back to first name + last initial + grade; when that fallback is ambiguous they stay unpaired and are flagged `sameName`.
 - **`POST /school/usage/flag`:** a school teacher flags a charged draft or test read (`usageId` plus `reason`: `wrong_student`, `misread_page`, `garbled_text`, or `other`). The credit is restored once, only for that teacher's own `usage_events` row, up to 5 restores per teacher per calendar month (UTC). Over the cap, the flag is still stored (`restored = 0`) and the response explains why. Additive table `credit_flags` is created on first use and deleted with the school.
 - A successful `/grade` or `/test/read` that used a credit returns `usageId` so the page can offer **Flag bad result**. Free 24-hour retries do not return a new `usageId`.
-- Tests: `node test/grade-along-v25.test.mjs` and `node test/grade-along-v25-e2e.cjs` (static server on 127.0.0.1:4173).
+- Tests: `node test/grade-along-v26.test.mjs` and `node test/grade-along-v26-e2e.cjs` (static server on 127.0.0.1:4173).
+
+## v26: site-only sample photo fix
+
+- The API Worker is unchanged from v25. The Grade Along page and the `grade-along-web` site Worker now resolve sample photos correctly when the public demo is shown at `/` or `/demo`, clear photos when the sample changes, and drop undecodable photos instead of blocking grading.
+- Tests: `node test/grade-along-v26.test.mjs` and `node test/grade-along-v26-e2e.cjs` (static server on 127.0.0.1:4173).

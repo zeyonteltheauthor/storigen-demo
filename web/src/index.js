@@ -5,8 +5,13 @@
 // "/" and "/demo" return the app HTML with 200 (no 302). A service worker
 // registered at /sw.js has scope "/" and will fail Chrome navigations
 // (ERR_FAILED) if it is given a redirected response for those paths.
+//
+// v26: relative assets like samples/*.jpg, test-score.js, and vendor/pdfjs
+// resolve at the site root when the page is shown at / or /demo. Map those
+// paths to /grade-along/... so the science sample (and test scoring) load.
+import { upstreamPath } from "./paths.js";
+
 const UPSTREAM = "https://zeyonteltheauthor.github.io/storigen-demo";
-const APP_PATH = "/grade-along/";
 
 function proxyHeaders(request) {
   return {
@@ -15,11 +20,11 @@ function proxyHeaders(request) {
   };
 }
 
-async function proxy(request, upstreamPath) {
+async function proxy(request, upstreamPathname) {
   if (request.method !== "GET" && request.method !== "HEAD") {
     return new Response("Method not allowed.", { status: 405 });
   }
-  const res = await fetch(UPSTREAM + upstreamPath, {
+  const res = await fetch(UPSTREAM + upstreamPathname, {
     method: request.method,
     redirect: "follow",
     headers: proxyHeaders(request)
@@ -37,14 +42,6 @@ async function proxy(request, upstreamPath) {
 export default {
   async fetch(request) {
     const url = new URL(request.url);
-    if (url.pathname === "/" || url.pathname === "") {
-      // Keep ?team=1, ?demo, and other query flags on the URL the visitor typed.
-      return proxy(request, APP_PATH + url.search);
-    }
-    if (url.pathname === "/demo" || url.pathname === "/demo/") {
-      // Demo mode is detected from the /demo path in the page script.
-      return proxy(request, APP_PATH);
-    }
-    return proxy(request, url.pathname + url.search);
+    return proxy(request, upstreamPath(url.pathname, url.search));
   }
 };
