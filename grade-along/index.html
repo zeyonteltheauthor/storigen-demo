@@ -162,6 +162,16 @@ h1,h2,.cap,.scorebox,.mark,.mode-btn{font-family:var(--display)}
 .gate .primary{min-height:48px;font-size:1.05rem;margin-top:6px;color:#1a1408}
 .gate-msg{min-height:1.4em;font-weight:650;color:var(--warm)!important;margin:10px 0 8px!important;text-align:center}.gate-msg[data-kind=error]{color:#ffc2b8!important}
 .gate-note{font-size:.85rem;color:#c3cbda!important}
+.owner-retention{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;grid-column:1/-1}
+.owner-closed{color:var(--warm);font-weight:650;grid-column:1/-1}
+.owner-danger,.owner-deletions{grid-column:1/-1;margin-top:6px;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
+.owner-danger{border-color:#c0504d}
+.owner-danger summary{color:#ffc2b8;font-weight:700;cursor:pointer}
+.owner-deletions summary{font-weight:650;cursor:pointer}
+.owner-danger input{display:block;margin:6px 0 8px;max-width:28rem;width:100%}
+button.danger{background:#a8322d;color:#fff;border:1px solid #d9534f;border-radius:10px;padding:8px 14px;font:inherit;font-weight:700;cursor:pointer;min-height:42px}
+button.danger:disabled{opacity:.45;cursor:not-allowed}
+.gate-shared{text-align:center;margin:4px 0 10px!important}.gate-shared .link-btn{font-size:.9rem}
 .gate-or{text-align:center;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem;color:#c3cbda!important;margin:14px 0 8px!important}
 .gate form + .gate-or + form{margin-top:0}
 .gate-powered{margin:18px 0 0!important;text-align:center;font-size:.9rem;color:var(--sub)!important;letter-spacing:.02em}
@@ -358,6 +368,38 @@ body:not(.ga-test) .test-only{display:none !important}
   var STORE = "storigen-os-grade-along-ui-lang";
   var ES = {
   "Skip to content": "Saltar al contenido",
+  "Closed {closed}. Its data is deleted automatically on {date}. Export the scores first if the school asked for them.": "Cerrada el {closed}. Sus datos se eliminan automáticamente el {date}. Exporta las puntuaciones primero si la escuela las pidió.",
+  "Export scores (CSV)": "Exportar puntuaciones (CSV)",
+  "Preparing the export…": "Preparando la exportación…",
+  "Exported {n} score record{s} for “{name}”.": "Se exportaron {n} registro{s} de puntuaciones de “{name}”.",
+  "Close school": "Cerrar escuela",
+  "Close “{name}”? Everyone at the school is signed out and can't grade. Its data is deleted automatically in 30 days. You can export its scores until then, or reopen it.": "¿Cerrar “{name}”? Se cierra la sesión de todos en la escuela y no pueden calificar. Sus datos se eliminan automáticamente en 30 días. Hasta entonces puedes exportar sus puntuaciones o reabrirla.",
+  "“{name}” is closed. Its data will be deleted on {date}.": "“{name}” está cerrada. Sus datos se eliminarán el {date}.",
+  "Reopen school": "Reabrir escuela",
+  "“{name}” is reopened and paused. Set it to active when the school is ready.": "“{name}” se reabrió y está en pausa. Actívala cuando la escuela esté lista.",
+  "Delete school data now": "Eliminar ahora los datos de la escuela",
+  "This permanently deletes this school's teachers, sign-ins, invites, rubrics, answer keys, scores and usage history. It can't be undone. Only a deletion record (school name, date and row counts) is kept as written confirmation. Type the school name to confirm.": "Esto elimina para siempre los docentes, las sesiones, las invitaciones, las rúbricas, las claves de respuestas, las puntuaciones y el historial de uso de esta escuela. No se puede deshacer. Solo se guarda un registro de eliminación (nombre de la escuela, fecha y cantidad de filas) como confirmación por escrito. Escribe el nombre de la escuela para confirmar.",
+  "Deleted all data for “{name}”. Confirmation: {summary}": "Se eliminaron todos los datos de “{name}”. Confirmación: {summary}",
+  "{name} (ID {id}) deleted {date} · {scores} scores, {teachers} people, {rubrics} rubrics, {keys} answer keys, {usage} usage records, {sessions} sign-ins, {invites} invites removed.": "{name} (ID {id}) eliminada el {date} · se quitaron {scores} puntuaciones, {teachers} personas, {rubrics} rúbricas, {keys} claves de respuestas, {usage} registros de uso, {sessions} sesiones y {invites} invitaciones.",
+  "Deleted schools ({n}) · written confirmations": "Escuelas eliminadas ({n}) · confirmaciones por escrito",
+  "(automatic, 30 days after closing)": "(automática, 30 días después del cierre)",
+  "(deleted now by Arrival House)": "(eliminada al momento por Arrival House)",
+  "Copy": "Copiar",
+  "Confirmation copied.": "Confirmación copiada.",
+  "When a school's agreement ends or it asks in writing, use Close school. Export its scores first if it asked for them. Its data is deleted automatically 30 days after closing, or right away with Delete school data now.": "Cuando termine el acuerdo de una escuela o lo pida por escrito, usa Cerrar escuela. Exporta sus puntuaciones primero si las pidió. Sus datos se eliminan automáticamente 30 días después del cierre, o de inmediato con Eliminar ahora los datos de la escuela.",
+  "closed": "cerrada",
+  "This school is closed. Reopen it first.": "Esta escuela está cerrada. Reábrela primero.",
+  "Close the school first, then delete its data.": "Cierra la escuela primero y luego elimina sus datos.",
+  "Type the school's name exactly to confirm.": "Escribe el nombre exacto de la escuela para confirmar.",
+  "School not found. Its data may already be deleted.": "No se encontró la escuela. Es posible que sus datos ya se hayan eliminado.",
+  "Shared computer? Clear everything on this device": "¿Computadora compartida? Borrar todo en este dispositivo",
+  "Lock signs you out and clears that account's grading queue, paper photos and saved scores from this browser.": "Bloquear cierra la sesión y borra de este navegador la cola de calificación, las fotos de los trabajos y las puntuaciones guardadas de esa cuenta.",
+  "Lock signs you out and clears this account's grading queue, paper photos and saved scores from this browser. Unfinished papers will be removed. Use Save class scores first if you need them. Lock now?": "Bloquear cierra la sesión y borra de este navegador la cola de calificación, las fotos de los trabajos y las puntuaciones guardadas de esta cuenta. Se quitarán los trabajos sin terminar. Usa Guardar puntuaciones de la clase primero si las necesitas. ¿Bloquear ahora?",
+  "Clear everything Grade Along saved in this browser? This removes grading queues, paper photos, drafts, saved scores, rubrics, answer keys and sign-ins for every account on this device. Files you downloaded are not affected.": "¿Borrar todo lo que Grade Along guardó en este navegador? Se quitan las colas de calificación, las fotos de los trabajos, los borradores, las puntuaciones guardadas, las rúbricas, las claves de respuestas y las sesiones de todas las cuentas en este dispositivo. Los archivos que descargaste no se ven afectados.",
+  "Done. Everything Grade Along saved in this browser was cleared.": "Listo. Se borró todo lo que Grade Along guardó en este navegador.",
+  "Signed out. This account's grading queue, paper photos and saved scores were cleared from this browser.": "Sesión cerrada. Se borraron de este navegador la cola de calificación, las fotos de los trabajos y las puntuaciones guardadas de esta cuenta.",
+  "Signed out. Nothing from this account was left in this browser.": "Sesión cerrada. No quedó nada de esta cuenta en este navegador.",
+  "Delete the approved scores and the paper photos saved in this browser? Papers open now stay on screen until you close the page. Files you downloaded are not affected.": "¿Eliminar las puntuaciones aprobadas y las fotos de los trabajos guardadas en este navegador? Los trabajos abiertos ahora siguen en pantalla hasta que cierres la página. Los archivos que descargaste no se ven afectados.",
   "STORIGEN OS home": "Inicio de STORIGEN OS",
   "Grade Along home": "Inicio de Grade Along",
   "Lock": "Cerrar sesión",
@@ -1313,9 +1355,11 @@ GA_i18n.init();
 <button type="submit" class="primary" id="gate-school-go" data-i18n="Sign in with invite">Sign in with invite</button>
 </form>
 <p class="gate-msg" id="gate-msg" role="status" aria-live="polite"></p>
+<p class="gate-shared"><button type="button" class="link-btn" id="gate-clear-all" data-i18n="Shared computer? Clear everything on this device">Shared computer? Clear everything on this device</button></p>
+<p class="gate-note" data-i18n="Lock signs you out and clears that account's grading queue, paper photos and saved scores from this browser.">Lock signs you out and clears that account's grading queue, paper photos and saved scores from this browser.</p>
 <p class="gate-note" data-i18n="The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only, and each signed-in account has its own.">The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only, and each signed-in account has its own.</p>
 <p class="gate-note" data-i18n="A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
-<p class="version-label">Grade Along v22</p>
+<p class="version-label">Grade Along v23</p>
 <p class="gate-powered" data-i18n="Powered by STORIGEN · Arrival House Media">Powered by STORIGEN · Arrival House Media</p>
 </section>
 </main>
@@ -1520,9 +1564,10 @@ GA_i18n.init();
 <p class="invite-once" id="owner-invite" hidden></p>
 <p class="growth-status" id="owner-status" role="status"></p>
 <div id="owner-schools"></div>
+<p class="growth-status" data-i18n="When a school's agreement ends or it asks in writing, use Close school. Export its scores first if it asked for them. Its data is deleted automatically 30 days after closing, or right away with Delete school data now.">When a school's agreement ends or it asks in writing, use Close school. Export its scores first if it asked for them. Its data is deleted automatically 30 days after closing, or right away with Delete school data now.</p>
 <p class="school-legal" data-i18n="A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
 </section>
-<footer class="version-label" id="ga-version">Grade Along v22</footer>
+<footer class="version-label" id="ga-version">Grade Along v23</footer>
 </div>
 
 </main>
@@ -1803,6 +1848,8 @@ const FIELD_IDS = {student: "t-name", grade: "t-grade", date: "t-date", facilita
 let students = [blankStudent()];
 let state = students[0];          // the student shown in the form
 let storeWarn = false;
+let skipPhotoStore = false;
+let storageWiped = false;          // v23: set on Lock after the wipe, so nothing is written back before the reload        // v23: after "Clear device history", paper photos are not written to this browser again this session
 let batchRunning = false;
 let sessionAssess = "pre";           // session default: "pre" | "post"
 const PRE_FILE_STORE = "storigen-os-grade-along-pre-loaded";
@@ -2352,6 +2399,23 @@ function migratePasscodeWorkspace(){
     localStorage.setItem(WORKSPACE_MIGRATED, "1");
   } catch(e){}
 }
+// v23: sign-out wipe. Clears this workspace's queue (with photos), draft, history and loaded pre scores.
+// Rubrics, answer keys and the feedback language are kept: they hold no student data.
+const STUDENT_DATA_BASES = [STORE, QUEUE_STORE, PRE_FILE_STORE, HISTORY_STORE];
+function workspaceHasStudentData(){
+  try { return STUDENT_DATA_BASES.some((base) => localStorage.getItem(workKey(base)) != null); } catch(e){ return false; }
+}
+function clearWorkspaceStudentData(){
+  let n = 0;
+  try { STUDENT_DATA_BASES.forEach((base) => { if(localStorage.getItem(workKey(base)) != null){ localStorage.removeItem(workKey(base)); n++; } }); } catch(e){}
+  return n;
+}
+window.GA_workspace = {
+  id: workspaceId,
+  hasStudentData: workspaceHasStudentData,
+  unfinished: () => students.some((st) => (st.files.length || st.story || st.student) && !st.approved),
+  clear: () => { storageWiped = true; skipPhotoStore = true; return clearWorkspaceStudentData(); }
+};
 function teachersLockedToSchool(){
   const s = window.GA_SCHOOL;
   return !!(s && s.user && s.user.role !== "admin" && s.school && !s.school.teachersOwnRubrics);
@@ -2826,13 +2890,14 @@ function serializeStudent(st, withFiles){
 }
 
 function saveDraft(){
+  if(storageWiped) return;
   syncForm();
   const current = students.indexOf(state);
   let warn = false;
   try{
     // Skip the big copy entirely when the pictures clearly will not fit.
     const fileBytes = students.reduce((a, st) => a + st.files.reduce((b, f) => b + (f.dataUrl ? f.dataUrl.length : 0), 0), 0);
-    const withFiles = fileBytes <= MAX_STORE_BYTES;
+    const withFiles = !skipPhotoStore && fileBytes <= MAX_STORE_BYTES;
     let raw = JSON.stringify({v: 2, current, assess: sessionAssess, rubric: RUB.builtin ? null : Object.assign({id: RUB.id}, rubricForApi(RUB)), students: students.map((st) => serializeStudent(st, withFiles))});
     if(!withFiles || students.some((st) => st.files.some((f) => !f.dataUrl))) warn = true;
     if(raw.length > MAX_STORE_BYTES){
@@ -2845,7 +2910,7 @@ function saveDraft(){
       localStorage.setItem(workKey(QUEUE_STORE), JSON.stringify({v: 2, current, assess: sessionAssess, rubric: RUB.builtin ? null : Object.assign({id: RUB.id}, rubricForApi(RUB)), students: students.map((st) => serializeStudent(st, false))}));
     }
   } catch(e){ /* private mode: keep working in memory */ }
-  storeWarn = warn && students.some((st) => st.files.length);
+  storeWarn = warn && !skipPhotoStore && students.some((st) => st.files.length);
   renderQueue();
 }
 
@@ -3229,7 +3294,7 @@ function cleanRecord(r, source){
   return rec;
 }
 function readJSON(key, fallback){ try { const v = JSON.parse(localStorage.getItem(workKey(key)) || "null"); return v == null ? fallback : v; } catch(e){ return fallback; } }
-function writeJSON(key, v){ try { localStorage.setItem(workKey(key), JSON.stringify(v)); return true; } catch(e){ return false; } }
+function writeJSON(key, v){ if(storageWiped) return false; try { localStorage.setItem(workKey(key), JSON.stringify(v)); return true; } catch(e){ return false; } }
 function loadedPre(){ return (readJSON(PRE_FILE_STORE, {}).records || []).map((r) => cleanRecord(r, "file")).filter(Boolean); }
 function deviceHistory(){ return (readJSON(HISTORY_STORE, []) || []).map((r) => cleanRecord(r, "device")).filter(Boolean); }
 // Pre records to compare against: the loaded file first, then approved pre scores saved in this browser.
@@ -3349,8 +3414,18 @@ function renderGrowthBar(){
   parts.push(uiT("Saved in this browser on this device only: {n} approved score{s} (other devices can't see them)", {n: nDev, s: nDev === 1 ? "" : "s", es: nDev === 1 ? "" : "s"}));
   st.append(document.createTextNode(parts.join(" · ") + "."));
   if(nFile){ const b = el("button", null, uiT("Remove loaded pre scores")); b.type = "button"; b.addEventListener("click", () => { try { localStorage.removeItem(workKey(PRE_FILE_STORE)); } catch(e){} renderAssess(); renderQueue(); }); st.append(b); }
-  if(nDev){ const b = el("button", null, uiT("Clear device history")); b.type = "button"; b.addEventListener("click", () => { if(confirm(uiT("Delete the approved scores saved in this browser? Files you saved are not affected."))){ try { localStorage.removeItem(workKey(HISTORY_STORE)); } catch(e){} renderAssess(); renderQueue(); } }); st.append(b); }
+  if(nDev || storedQueueHasPhotos()){ const b = el("button", null, uiT("Clear device history")); b.type = "button"; b.addEventListener("click", () => { if(confirm(uiT("Delete the approved scores and the paper photos saved in this browser? Papers open now stay on screen until you close the page. Files you downloaded are not affected."))){ try { localStorage.removeItem(workKey(HISTORY_STORE)); } catch(e){} clearStoredPhotos(); renderAssess(); renderQueue(); } }); st.append(b); }
   $("q-print-growth").hidden = !matched;
+}
+// v23: is there a paper photo stored in this workspace's saved queue?
+function storedQueueHasPhotos(){
+  try { const raw = localStorage.getItem(workKey(QUEUE_STORE)); return !!raw && raw.indexOf('"dataUrl":"data:') !== -1; } catch(e){ return false; }
+}
+// v23: rewrite the saved queue without photos, and stop storing photos for the rest of this page session.
+function clearStoredPhotos(){
+  skipPhotoStore = true;
+  saveDraft();
+  if(storedQueueHasPhotos()){ try { localStorage.removeItem(workKey(QUEUE_STORE)); } catch(e){} }
 }
 // Approved scores are remembered in this browser (first name, grade, facilitator, date, assessment, scores only).
 function rememberScores(list){
@@ -5113,6 +5188,89 @@ async function refreshSchool(msg){
     saySchool("school-admin-status", e.message, "error");
   }
 }
+// v23 retention: close a school, export its scores, delete its data now. Owner (passcode) only.
+function fmtDay(iso){
+  if(!iso) return "—";
+  const d = new Date(iso);
+  if(isNaN(d)) return "—";
+  try { return d.toLocaleDateString(document.documentElement.lang === "es" ? "es" : "en-US", {year: "numeric", month: "short", day: "numeric"}); } catch(e){ return iso.slice(0, 10); }
+}
+function ownerPost(path, body){
+  return schoolFetch(path, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)});
+}
+function ownerRetentionActions(s){
+  const acts = el("div", "owner-retention");
+  acts.append(mkBtn(uiT("Export scores (CSV)"), "secondary", () => {
+    saySchool("owner-status", uiT("Preparing the export…"));
+    schoolFetch("/owner/schools/export?schoolId=" + encodeURIComponent(s.id))
+      .then((data) => {
+        download(data.filename || "grade-along-scores.csv", data.csv || "", "text/csv");
+        saySchool("owner-status", uiT("Exported {n} score record{s} for “{name}”.", {n: data.rows || 0, s: data.rows === 1 ? "" : "s", name: s.name}));
+      })
+      .catch((err) => saySchool("owner-status", err.message, "error"));
+  }));
+  if(s.status !== "closed"){
+    acts.append(mkBtn(uiT("Close school"), "secondary", () => {
+      if(!confirm(uiT("Close “{name}”? Everyone at the school is signed out and can't grade. Its data is deleted automatically in 30 days. You can export its scores until then, or reopen it.", {name: s.name}))) return;
+      ownerPost("/owner/schools/close", {schoolId: s.id})
+        .then((data) => { saySchool("owner-status", uiT("“{name}” is closed. Its data will be deleted on {date}.", {name: s.name, date: fmtDay(data.school && data.school.deleteAfter)})); refreshOwner(); })
+        .catch((err) => saySchool("owner-status", err.message, "error"));
+    }));
+    return acts;
+  }
+  acts.append(mkBtn(uiT("Reopen school"), "secondary", () => {
+    ownerPost("/owner/schools/reopen", {schoolId: s.id})
+      .then(() => { saySchool("owner-status", uiT("“{name}” is reopened and paused. Set it to active when the school is ready.", {name: s.name})); refreshOwner(); })
+      .catch((err) => saySchool("owner-status", err.message, "error"));
+  }));
+  const zone = el("details", "owner-danger");
+  zone.append(el("summary", null, uiT("Delete school data now")));
+  zone.append(el("p", null, uiT("This permanently deletes this school's teachers, sign-ins, invites, rubrics, answer keys, scores and usage history. It can't be undone. Only a deletion record (school name, date and row counts) is kept as written confirmation. Type the school name to confirm.")));
+  const lab = el("label", null, uiT("School name")); lab.setAttribute("for", "owner-del-" + s.id);
+  const inp = el("input"); inp.type = "text"; inp.id = "owner-del-" + s.id; inp.autocomplete = "off"; inp.spellcheck = false;
+  const norm = (v) => String(v || "").trim().replace(/\s+/g, " ").toLowerCase();
+  const go = mkBtn(uiT("Delete school data now"), "danger", () => {
+    if(norm(inp.value) !== norm(s.name)) return;
+    go.disabled = true;
+    ownerPost("/owner/schools/delete", {schoolId: s.id, confirmName: inp.value})
+      .then((data) => {
+        const d = data.deletion || {};
+        saySchool("owner-status", uiT("Deleted all data for “{name}”. Confirmation: {summary}", {name: s.name, summary: deletionSummary(d)}));
+        refreshOwner();
+      })
+      .catch((err) => { go.disabled = false; saySchool("owner-status", err.message, "error"); });
+  });
+  go.disabled = true;
+  inp.addEventListener("input", () => { go.disabled = norm(inp.value) !== norm(s.name); });
+  zone.append(lab, inp, go);
+  acts.append(zone);
+  return acts;
+}
+function deletionSummary(d){
+  const c = d.counts || {};
+  return uiT("{name} (ID {id}) deleted {date} · {scores} scores, {teachers} people, {rubrics} rubrics, {keys} answer keys, {usage} usage records, {sessions} sign-ins, {invites} invites removed.", {
+    name: d.schoolName || "", id: d.schoolId || "", date: fmtDay(d.deletedAt),
+    scores: c.scores || 0, teachers: c.teachers || 0, rubrics: c.rubrics || 0, keys: c.answer_keys || 0,
+    usage: c.usage_events || 0, sessions: c.sessions || 0, invites: c.invites || 0
+  });
+}
+function renderDeletions(box, list){
+  if(!list.length) return;
+  const wrap = el("details", "owner-deletions");
+  wrap.append(el("summary", null, uiT("Deleted schools ({n}) · written confirmations", {n: list.length})));
+  list.forEach((d) => {
+    const line = el("p", null, deletionSummary(d) + " " + (d.method === "scheduled" ? uiT("(automatic, 30 days after closing)") : uiT("(deleted now by Arrival House)")) + " ");
+    line.append(mkBtn(uiT("Copy"), "secondary", () => {
+      const text = deletionSummary(d);
+      (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(
+        () => saySchool("owner-status", uiT("Confirmation copied.")),
+        () => saySchool("owner-status", text)
+      );
+    }));
+    wrap.append(line);
+  });
+  box.append(wrap);
+}
 let lastOwnerData = null;
 async function refreshOwner(){
   const box = $("owner-schools");
@@ -5125,6 +5283,12 @@ async function refreshOwner(){
       const u = s.usage || {};
       const row = el("div", "school-form");
       row.append(el("p", null, s.name + " · " + uiT("{used} of {cap} papers used · {status} · {n} people", {used: u.used || 0, cap: u.cap || 0, status: uiT(s.status || "active"), n: (s.teachers || []).filter((t) => t.active).length})));
+      if(s.status === "closed"){
+        row.append(el("p", "owner-closed", uiT("Closed {closed}. Its data is deleted automatically on {date}. Export the scores first if the school asked for them.", {closed: fmtDay(s.closedAt), date: fmtDay(s.deleteAfter)})));
+        row.append(ownerRetentionActions(s));
+        box.append(row);
+        return;
+      }
       const wrap = el("div");
       const lab = el("label", null, uiT("Yearly paper cap")); lab.setAttribute("for", "owner-cap-" + s.id);
       const inp = el("input"); inp.type = "number"; inp.min = "0"; inp.step = "1"; inp.value = u.cap || 0; inp.id = "owner-cap-" + s.id;
@@ -5149,9 +5313,11 @@ async function refreshOwner(){
         }));
         row.append(line);
       });
+      row.append(ownerRetentionActions(s));
       box.append(row);
     });
     if(!(data.schools || []).length) box.append(el("p", null, uiT("No schools yet.")));
+    renderDeletions(box, data.deletions || []);
   } catch(e){
     saySchool("owner-status", e.message, "error");
   }
@@ -5599,10 +5765,58 @@ window.GA_schoolUi = { renderTeacherTable, renderSchoolReport, openSplit, openEd
     e.preventDefault();
     redeem();
   });
+  var NOTE_KEY = "storigen-grade-along-gate-note";
+  function serverLogout(token){
+    if(!token) return;
+    try { fetch(API_BASE + "/auth/logout", {method: "POST", headers: {"X-Teacher-Session": token}, keepalive: true, cache: "no-store"}).catch(function(){}); } catch(e){}
+  }
+  // v23: Lock signs out and clears this account's student data from this browser.
   document.getElementById("ga-lock").addEventListener("click", function(){
+    var w = window.GA_workspace;
+    if(w && w.unfinished() && !confirm(uiT("Lock signs you out and clears this account's grading queue, paper photos and saved scores from this browser. Unfinished papers will be removed. Use Save class scores first if you need them. Lock now?"))) return;
+    serverLogout(window.GA_SCHOOL && window.GA_SCHOOL.token);
+    var cleared = w ? w.clear() : 0;
     forget();
+    ss(function(){ sessionStorage.setItem(NOTE_KEY, cleared ? "cleared" : "locked"); });
     location.replace(location.pathname + location.search);
   });
+  // v23: shared computers. Removes everything Grade Along saved in this browser, for every account
+  // (queues, photos, drafts, scores, rubrics, answer keys, sign-ins). The language choice is kept.
+  function clearEverything(){
+    var n = 0;
+    ls(function(){
+      serverLogout(localStorage.getItem(SESSION_STORE));
+      var keys = [];
+      for(var i = 0; i < localStorage.length; i++){ var k = localStorage.key(i); if(k) keys.push(k); }
+      keys.forEach(function(k){
+        if(k === "storigen-os-grade-along-ui-lang") return;
+        if(k.indexOf("storigen-os-grade-along") === 0 || k.indexOf("storigen-grade-along") === 0){ localStorage.removeItem(k); n++; }
+      });
+    });
+    ss(function(){
+      var keys = [];
+      for(var i = 0; i < sessionStorage.length; i++){ var k = sessionStorage.key(i); if(k) keys.push(k); }
+      keys.forEach(function(k){ if(k.indexOf("storigen-grade-along") === 0 || k.indexOf("storigen-os-grade-along") === 0) sessionStorage.removeItem(k); });
+    });
+    try {
+      if(window.indexedDB && indexedDB.databases){
+        indexedDB.databases().then(function(list){
+          (list || []).forEach(function(d){ if(d && d.name && /grade-?along|storigen/i.test(d.name)) indexedDB.deleteDatabase(d.name); });
+        }).catch(function(){});
+      }
+    } catch(e){}
+    window.GA_SCHOOL = null;
+    return n;
+  }
+  var clearAll = document.getElementById("gate-clear-all");
+  if(clearAll) clearAll.addEventListener("click", function(){
+    if(!confirm(uiT("Clear everything Grade Along saved in this browser? This removes grading queues, paper photos, drafts, saved scores, rubrics, answer keys and sign-ins for every account on this device. Files you downloaded are not affected."))) return;
+    clearEverything();
+    say(uiT("Done. Everything Grade Along saved in this browser was cleared."));
+  });
+  var gateNote = ss(function(){ var v = sessionStorage.getItem(NOTE_KEY); sessionStorage.removeItem(NOTE_KEY); return v; });
+  if(gateNote === "cleared") say(uiT("Signed out. This account's grading queue, paper photos and saved scores were cleared from this browser."));
+  else if(gateNote === "locked") say(uiT("Signed out. Nothing from this account was left in this browser."));
   var isDemo = /(?:^|[?&])demo(?:&|=|$)/.test(location.search) || /(?:^|\/)demo\/?$/.test(location.pathname);
   if(isDemo){
     window.GA_DEMO = true;

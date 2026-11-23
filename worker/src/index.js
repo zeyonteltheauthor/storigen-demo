@@ -1184,6 +1184,8 @@ function publicSchool(s, usage) {
     status: s.status,
     licenseYear: s.license_year,
     teachersOwnRubrics: !!(Number(s.teachers_own_rubrics) || s.teachersOwnRubrics),
+    closedAt: s.closed_at || null,
+    deleteAfter: s.delete_after || null,
     usage: usage || usageView(s)
   };
 }
@@ -1245,6 +1247,10 @@ async function loadSession(env, token) {
     return null;
   }
   if (!row.active) return null;
+  if (row.school_status === "closed") {
+    await dbRun(env, "DELETE FROM sessions WHERE id = ?", row.session_id);
+    return null;
+  }
   const school = {
     id: row.school_id,
     name: row.school_name,
@@ -1657,6 +1663,7 @@ async function handleOwnerSchools(request, env, origin) {
   if (!auth.ok) return json({ error: auth.error }, auth.status, origin);
   if (auth.kind !== "passcode") return json({ error: "Only Arrival House can create a school. Use the teacher passcode." }, 403, origin);
 
+  await ensureRetentionSchema(env);
   if (request.method === "GET") {
     const rows = await dbAll(env, "SELECT * FROM schools ORDER BY created_at DESC");
     const schools = [];
@@ -1668,7 +1675,8 @@ async function handleOwnerSchools(request, env, origin) {
       );
       schools.push({ ...publicSchool(s), teachers: teachers.map(publicTeacher) });
     }
-    return json({ ok: true, schools }, 200, origin);
+    const deletions = (await dbAll(env, "SELECT * FROM school_deletions ORDER BY deleted_at DESC LIMIT 50")).map(publicDeletion);
+    return json({ ok: true, schools, deletions, retentionDays: RETENTION_DAYS }, 200, origin);
   }
 
   if (request.method !== "POST") return json({ error: "Use POST or GET." }, 405, origin);
@@ -1677,6 +1685,7 @@ async function handleOwnerSchools(request, env, origin) {
   if (body.schoolId && (body.paperAllowance != null || body.status || body.resetUsed)) {
     const school = await dbOne(env, "SELECT * FROM schools WHERE id = ?", cleanStr(body.schoolId, 80));
     if (!school) return json({ error: "School not found." }, 404, origin);
+    if (school.status === "closed") return json({ error: "This school is closed. Reopen it first." }, 409, origin);
     let allowance = school.paper_allowance;
     let used = school.papers_used;
     let status = school.status;
@@ -2308,6 +2317,213 @@ async function handleSchoolReport(request, env, origin) {
   }, 200, origin);
 }
 
+// --- Retention (v23): close a school, export its scores, delete its data -------
+// Closing a school signs everyone out and sets a deletion date RETENTION_DAYS out.
+// The daily cron (scheduled) deletes data for schools past that date, plus expired
+// sessions and expired unused invites. Only a minimal deletion record is kept as written confirmation:
+// school id, school name, closed/deleted times, how it was deleted, and row counts.
+const RETENTION_DAYS = 30;
+const SCHOOL_DATA_TABLES = ["scores", "usage_events", "rubrics", "answer_keys", "sessions", "invites", "teachers"];
+
+async function ensureRetentionSchema(env) {
+  if (!env.DB || env._retentionReady) return;
+  // One statement per prepare(): D1's exec() splits on newlines.
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS answer_keys (id TEXT PRIMARY KEY, school_id TEXT NOT NULL, name TEXT NOT NULL, key_json TEXT NOT NULL, updated_by TEXT, updated_at TEXT NOT NULL, created_at TEXT NOT NULL)").run();
+  const cols = await dbAll(env, "PRAGMA table_info(schools)");
+  const have = new Set(cols.map((c) => c.name));
+  if (!have.has("closed_at")) {
+    try { await env.DB.prepare("ALTER TABLE schools ADD COLUMN closed_at TEXT").run(); } catch { /* added concurrently */ }
+  }
+  if (!have.has("delete_after")) {
+    try { await env.DB.prepare("ALTER TABLE schools ADD COLUMN delete_after TEXT").run(); } catch { /* added concurrently */ }
+  }
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS school_deletions (id TEXT PRIMARY KEY, school_id TEXT NOT NULL, school_name TEXT NOT NULL, closed_at TEXT, deleted_at TEXT NOT NULL, method TEXT NOT NULL, counts_json TEXT NOT NULL)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS school_deletions_school ON school_deletions(school_id)").run();
+  env._retentionReady = true;
+}
+
+function publicDeletion(r) {
+  let counts = {};
+  try { counts = JSON.parse(r.counts_json); } catch { counts = {}; }
+  return {
+    id: r.id,
+    schoolId: r.school_id,
+    schoolName: r.school_name,
+    closedAt: r.closed_at || null,
+    deletedAt: r.deleted_at,
+    method: r.method,
+    counts
+  };
+}
+
+function csvCell(v) {
+  const s = v == null ? "" : String(v);
+  // Neutralise spreadsheet formulas, then quote.
+  const safe = /^[=+\-@\t\r]/.test(s) ? "'" + s : s;
+  return '"' + safe.replace(/"/g, '""') + '"';
+}
+
+async function schoolScoresCsv(env, schoolId) {
+  const rows = await dbAll(
+    env,
+    `SELECT sc.*, t.name AS teacher_name, t.email AS teacher_email
+     FROM scores sc LEFT JOIN teachers t ON t.id = sc.teacher_id
+     WHERE sc.school_id = ?
+     ORDER BY sc.first_name, sc.grade, sc.date, sc.created_at`,
+    schoolId
+  );
+  const head = ["First name", "Grade", "Facilitator", "Teacher", "Teacher email", "Date", "Assessment", "Rubric or key", "Scores", "Total", "Out of", "Saved"];
+  const out = [head.map(csvCell).join(",")];
+  for (const r of rows) {
+    const parsed = parseScoresJson(r.scores_json);
+    let scores = "";
+    if (Array.isArray(parsed)) scores = parsed.join(" | ");
+    else if (parsed && Array.isArray(parsed.items)) {
+      scores = parsed.items.map((it) => "Q" + it.n + ":" + (it.correct ? "correct" : "wrong") + (it.flagged ? "(flagged)" : "")).join(" | ");
+    }
+    out.push([
+      r.first_name, r.grade, r.facilitator, r.teacher_name || "", r.teacher_email || "", r.date,
+      r.assessment, r.rubric_name || r.rubric_id, scores, r.total, r.out_of, r.updated_at || r.created_at
+    ].map(csvCell).join(","));
+  }
+  return { csv: out.join("\r\n") + "\r\n", rows: rows.length };
+}
+
+// Deletes every row tied to the school and the school row itself, in one batch, and
+// writes the deletion record. Returns the record. Never logs any of the deleted data.
+async function deleteSchoolData(env, school, method) {
+  await ensureRetentionSchema(env);
+  const counts = {};
+  for (const t of SCHOOL_DATA_TABLES) {
+    const r = await dbOne(env, `SELECT COUNT(*) AS n FROM ${t} WHERE school_id = ?`, school.id);
+    counts[t] = r ? Number(r.n) || 0 : 0;
+  }
+  const record = {
+    id: crypto.randomUUID(),
+    school_id: school.id,
+    school_name: school.name,
+    closed_at: school.closed_at || null,
+    deleted_at: nowIso(),
+    method,
+    counts_json: JSON.stringify(counts)
+  };
+  const stmts = SCHOOL_DATA_TABLES.map((t) => env.DB.prepare(`DELETE FROM ${t} WHERE school_id = ?`).bind(school.id));
+  stmts.push(env.DB.prepare("DELETE FROM schools WHERE id = ?").bind(school.id));
+  stmts.push(env.DB.prepare(
+    "INSERT INTO school_deletions (id, school_id, school_name, closed_at, deleted_at, method, counts_json) VALUES (?, ?, ?, ?, ?, ?, ?)"
+  ).bind(record.id, record.school_id, record.school_name, record.closed_at, record.deleted_at, record.method, record.counts_json));
+  await env.DB.batch(stmts);
+  return publicDeletion(record);
+}
+
+async function ownerAuth(request, env, origin) {
+  const blocked = await requireSchoolConfigured(env, origin);
+  if (blocked) return { res: blocked };
+  const limited = await rateLimit(request, env, "owner:");
+  if (limited) return { res: limited(origin) };
+  const auth = await authorize(request, env);
+  if (!auth.ok) return { res: json({ error: auth.error }, auth.status, origin) };
+  if (auth.kind !== "passcode") return { res: json({ error: "Only Arrival House can do that. Use the teacher passcode." }, 403, origin) };
+  await ensureRetentionSchema(env);
+  return { auth };
+}
+
+async function ownerSchoolFrom(env, raw) {
+  const id = cleanStr(typeof raw === "string" ? raw : "", 80);
+  if (!id) return null;
+  return dbOne(env, "SELECT * FROM schools WHERE id = ?", id);
+}
+
+async function handleOwnerClose(request, env, origin) {
+  const { res } = await ownerAuth(request, env, origin);
+  if (res) return res;
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
+  const school = await ownerSchoolFrom(env, body.schoolId);
+  if (!school) return json({ error: "School not found." }, 404, origin);
+  if (school.status === "closed") return json({ ok: true, school: publicSchool(school), already: true }, 200, origin);
+  const now = nowIso();
+  const deleteAfter = daysFromNow(RETENTION_DAYS);
+  await env.DB.batch([
+    env.DB.prepare("UPDATE schools SET status = 'closed', closed_at = ?, delete_after = ? WHERE id = ?").bind(now, deleteAfter, school.id),
+    env.DB.prepare("DELETE FROM sessions WHERE school_id = ?").bind(school.id),
+    env.DB.prepare("DELETE FROM invites WHERE school_id = ? AND used_at IS NULL").bind(school.id)
+  ]);
+  const fresh = await dbOne(env, "SELECT * FROM schools WHERE id = ?", school.id);
+  return json({ ok: true, school: publicSchool(fresh) }, 200, origin);
+}
+
+async function handleOwnerReopen(request, env, origin) {
+  const { res } = await ownerAuth(request, env, origin);
+  if (res) return res;
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
+  const school = await ownerSchoolFrom(env, body.schoolId);
+  if (!school) return json({ error: "School not found. Its data may already be deleted." }, 404, origin);
+  if (school.status !== "closed") return json({ ok: true, school: publicSchool(school) }, 200, origin);
+  await dbRun(env, "UPDATE schools SET status = 'paused', closed_at = NULL, delete_after = NULL WHERE id = ?", school.id);
+  const fresh = await dbOne(env, "SELECT * FROM schools WHERE id = ?", school.id);
+  return json({ ok: true, school: publicSchool(fresh) }, 200, origin);
+}
+
+async function handleOwnerExport(request, env, origin, url) {
+  const { res } = await ownerAuth(request, env, origin);
+  if (res) return res;
+  const school = await ownerSchoolFrom(env, url.searchParams.get("schoolId"));
+  if (!school) return json({ error: "School not found." }, 404, origin);
+  const { csv, rows } = await schoolScoresCsv(env, school.id);
+  const slug = String(school.name || "school").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "school";
+  return json({ ok: true, filename: "grade-along-" + slug + "-scores-" + nowIso().slice(0, 10) + ".csv", rows, csv }, 200, origin);
+}
+
+async function handleOwnerDelete(request, env, origin) {
+  const { res } = await ownerAuth(request, env, origin);
+  if (res) return res;
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
+  const school = await ownerSchoolFrom(env, body.schoolId);
+  if (!school) return json({ error: "School not found. Its data may already be deleted." }, 404, origin);
+  const typed = cleanStr(body.confirmName, 200).replace(/\s+/g, " ");
+  const want = String(school.name || "").trim().replace(/\s+/g, " ");
+  if (!typed || typed.toLowerCase() !== want.toLowerCase()) {
+    return json({ error: "Type the school's name exactly to confirm." }, 400, origin);
+  }
+  if (school.status !== "closed") {
+    return json({ error: "Close the school first, then delete its data." }, 409, origin);
+  }
+  const deletion = await deleteSchoolData(env, school, "owner_now");
+  return json({ ok: true, deletion }, 200, origin);
+}
+
+async function handleOwnerDeletions(request, env, origin) {
+  const { res } = await ownerAuth(request, env, origin);
+  if (res) return res;
+  const rows = await dbAll(env, "SELECT * FROM school_deletions ORDER BY deleted_at DESC LIMIT 200");
+  return json({ ok: true, deletions: rows.map(publicDeletion) }, 200, origin);
+}
+
+// Daily cron. Deletes data for closed schools past their deletion date, and expired
+// sessions and invites. Returns counts only (no names), for tests and the cron log.
+async function runRetention(env, now = nowIso()) {
+  if (!env.DB) return { schools: 0, sessions: 0, invites: 0 };
+  await ensureRetentionSchema(env);
+  const due = await dbAll(
+    env,
+    "SELECT * FROM schools WHERE status = 'closed' AND delete_after IS NOT NULL AND delete_after <= ?",
+    now
+  );
+  let schools = 0;
+  for (const s of due) {
+    try { await deleteSchoolData(env, s, "scheduled"); schools++; }
+    catch (e) { console.log("retention school delete failed"); }
+  }
+  const ses = await dbRun(env, "DELETE FROM sessions WHERE expires_at <= ?", now);
+  // Only codes nobody redeemed. Redeemed invites stay until their school's data is deleted.
+  const inv = await dbRun(env, "DELETE FROM invites WHERE used_at IS NULL AND expires_at <= ?", now);
+  const changes = (r) => Number(r && r.meta && r.meta.changes) || 0;
+  return { schools, sessions: changes(ses), invites: changes(inv) };
+}
+
 async function routeSchool(url, request, env, origin) {
   const path = url.pathname;
   if (path === "/auth/redeem") {
@@ -2321,6 +2537,26 @@ async function routeSchool(url, request, env, origin) {
   if (path === "/owner/schools") {
     if (request.method !== "GET" && request.method !== "POST") return json({ error: "Use GET or POST." }, 405, origin);
     return handleOwnerSchools(request, env, origin);
+  }
+  if (path === "/owner/schools/close") {
+    if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
+    return handleOwnerClose(request, env, origin);
+  }
+  if (path === "/owner/schools/reopen") {
+    if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
+    return handleOwnerReopen(request, env, origin);
+  }
+  if (path === "/owner/schools/export") {
+    if (request.method !== "GET") return json({ error: "Use GET." }, 405, origin);
+    return handleOwnerExport(request, env, origin, url);
+  }
+  if (path === "/owner/schools/delete") {
+    if (request.method !== "POST") return json({ error: "Use POST." }, 405, origin);
+    return handleOwnerDelete(request, env, origin);
+  }
+  if (path === "/owner/deletions") {
+    if (request.method !== "GET") return json({ error: "Use GET." }, 405, origin);
+    return handleOwnerDeletions(request, env, origin);
   }
   if (path === "/school") {
     if (request.method !== "GET") return json({ error: "Use GET." }, 405, origin);
@@ -2438,7 +2674,15 @@ export default {
       catch { return json({ error: "Server error." }, 500, origin); }
     }
     return json({ error: "Not found." }, 404, origin);
+  },
+  async scheduled(event, env, ctx) {
+    const work = runRetention(env).then(
+      (r) => console.log("retention ok", JSON.stringify(r)),
+      () => console.log("retention failed")
+    );
+    if (ctx && ctx.waitUntil) ctx.waitUntil(work);
+    else await work;
   }
 };
 
-export { parseSplitOutput, sendInviteEmail, inviteEmailContent, inviteFrom, inviteFromName, inviteReplyTo, inviteSigninUrl, originAllowed, ALLOWED_ORIGINS, demoDayStamp, DEMO_DAILY_LIMIT, DEMO_LIMIT_MSG, readDemoCount, bumpDemoCount, parseFeedbackLanguage, feedbackLanguageName, feedbackLanguageInstructions, applyFeedbackLanguage, defaultSystem };
+export { runRetention, deleteSchoolData, schoolScoresCsv, ensureRetentionSchema, RETENTION_DAYS, parseSplitOutput, sendInviteEmail, inviteEmailContent, inviteFrom, inviteFromName, inviteReplyTo, inviteSigninUrl, originAllowed, ALLOWED_ORIGINS, demoDayStamp, DEMO_DAILY_LIMIT, DEMO_LIMIT_MSG, readDemoCount, bumpDemoCount, parseFeedbackLanguage, feedbackLanguageName, feedbackLanguageInstructions, applyFeedbackLanguage, defaultSystem };

@@ -7,8 +7,13 @@ CREATE TABLE IF NOT EXISTS schools (
   license_year INTEGER NOT NULL,
   status TEXT NOT NULL DEFAULT 'active',
   teachers_own_rubrics INTEGER NOT NULL DEFAULT 0,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  closed_at TEXT,      -- v23: set when Arrival House closes the school
+  delete_after TEXT    -- v23: the daily cron deletes the school's data after this time
 );
+-- Existing databases (v23 migration, no data loss; the Worker also applies these on first use):
+--   ALTER TABLE schools ADD COLUMN closed_at TEXT;
+--   ALTER TABLE schools ADD COLUMN delete_after TEXT;
 
 CREATE TABLE IF NOT EXISTS teachers (
   id TEXT PRIMARY KEY,
@@ -97,3 +102,16 @@ CREATE TABLE IF NOT EXISTS answer_keys (
   created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS answer_keys_school ON answer_keys(school_id);
+
+-- v23: minimal record kept after a school's data is deleted (written confirmation).
+-- Only the school id and name, times, method ('owner_now' or 'scheduled') and row counts.
+CREATE TABLE IF NOT EXISTS school_deletions (
+  id TEXT PRIMARY KEY,
+  school_id TEXT NOT NULL,
+  school_name TEXT NOT NULL,
+  closed_at TEXT,
+  deleted_at TEXT NOT NULL,
+  method TEXT NOT NULL,
+  counts_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS school_deletions_school ON school_deletions(school_id);

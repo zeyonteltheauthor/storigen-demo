@@ -38,6 +38,22 @@ npx wrangler deploy
 ```
 
 
+## Retention (v23)
+
+Owner-only (teacher passcode) endpoints:
+
+- `POST /owner/schools/close` `{schoolId}`: status `closed`, `closed_at` now, `delete_after` now + 30 days; deletes the school's sessions and unused invites (everyone is signed out). Closed schools cannot sign in or grade.
+- `POST /owner/schools/reopen` `{schoolId}`: clears the dates and sets the school to `paused`.
+- `GET /owner/schools/export?schoolId=…`: `{filename, rows, csv}` with the school's saved scores (formula-safe CSV).
+- `POST /owner/schools/delete` `{schoolId, confirmName}`: only for a closed school, and only when `confirmName` matches the school name (case and spacing ignored). Deletes scores, usage_events, rubrics, answer_keys, sessions, invites, teachers and the school row in one batch, and writes a `school_deletions` record (id, school id and name, closed/deleted times, method `owner_now` or `scheduled`, row counts). No student data is kept in the record.
+- `GET /owner/deletions`: the deletion records. `GET /owner/schools` also returns them as `deletions`.
+
+Cron trigger `0 8 * * *` (`scheduled`): deletes data for closed schools whose `delete_after` has passed (method `scheduled`), expired sessions, and expired unused invites. Redeemed invites stay until their school's data is deleted. It logs only counts.
+
+Schema changes are additive: `ALTER TABLE schools ADD COLUMN closed_at TEXT`, `ADD COLUMN delete_after TEXT`, and `CREATE TABLE IF NOT EXISTS school_deletions`. The Worker applies them on first use if missing. D1 Time Travel can still restore deleted rows for up to 30 days (Workers Paid) — that is Cloudflare's backup window, not something the app reads.
+
+Tests: `node test/grade-along-retention.test.mjs` (Worker + fake D1 on `node:sqlite`) and `node test/grade-along-retention-e2e.cjs` (page + Worker through Playwright; serve the repo at http://127.0.0.1:4173 first).
+
 ## Invite emails (v16)
 
 - `POST /owner/schools` and `POST /school/teachers` send an invite email when the `EMAIL` binding is configured, and always return the one-time `inviteCode` plus `email: { sent, error }`.

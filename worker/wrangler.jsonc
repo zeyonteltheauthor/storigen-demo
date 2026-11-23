@@ -5,6 +5,8 @@
   "compatibility_date": "2026-10-01",
   "workers_dev": true,
   "observability": { "enabled": false },
+  // v23: daily retention cleanup at 08:00 UTC (3 AM Eastern standard time).
+  "triggers": { "crons": ["0 8 * * *"] },
   "ratelimits": [
     { "name": "RATE_LIMITER", "namespace_id": "1001", "simple": { "limit": 20, "period": 60 } }
   ],
