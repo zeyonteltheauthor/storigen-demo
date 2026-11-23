@@ -781,12 +781,12 @@ async function handleGrade(request, env, origin) {
 }
 
 // Public demo grading: no session, no school features, no server-side storage.
-// About 3 papers per IP per calendar day (America/New_York), plus the existing
+// About 10 papers per IP per calendar day (America/New_York), plus the existing
 // RATE_LIMITER under a "demo:" prefix for short bursts. Only a count is kept,
 // never the paper or scores.
-const DEMO_DAILY_LIMIT = 3;
+const DEMO_DAILY_LIMIT = 10;
 const memDemoCounts = new Map();
-const DEMO_LIMIT_MSG = "This public demo grades up to 3 papers per day. Schools get full accounts — write to info@arrivalhousemedia.com.";
+const DEMO_LIMIT_MSG = "This public demo grades up to 10 papers per day. Schools get full accounts — write to info@arrivalhousemedia.com.";
 
 function demoDayStamp(now = new Date()) {
   return new Intl.DateTimeFormat("en-CA", {
