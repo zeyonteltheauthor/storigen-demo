@@ -68,9 +68,11 @@ CREATE TABLE IF NOT EXISTS usage_events (
   teacher_id TEXT NOT NULL,
   kind TEXT NOT NULL,
   papers INTEGER NOT NULL DEFAULT 1,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  paper_key TEXT   -- v24: hash of the paper's first page + first name; same key within 24h is not charged again
 );
 CREATE INDEX IF NOT EXISTS usage_school ON usage_events(school_id, created_at);
+CREATE INDEX IF NOT EXISTS usage_paper ON usage_events(school_id, paper_key);
 
 CREATE TABLE IF NOT EXISTS scores (
   id TEXT PRIMARY KEY,
@@ -87,8 +89,17 @@ CREATE TABLE IF NOT EXISTS scores (
   total REAL,
   out_of REAL,
   created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL
+  updated_at TEXT NOT NULL,
+  last_initial TEXT NOT NULL DEFAULT '',  -- v24: optional, typed by the teacher only (never read from the paper)
+  roster_id TEXT NOT NULL DEFAULT '',     -- v24: random per-class key from the browser; keeps same-name students apart
+  approved INTEGER                        -- v24: 1 = teacher approved (the API only accepts approved scores)
 );
+-- Existing databases (v24 migration, additive; the Worker also applies these on first use):
+--   ALTER TABLE scores ADD COLUMN last_initial TEXT NOT NULL DEFAULT '';
+--   ALTER TABLE scores ADD COLUMN roster_id TEXT NOT NULL DEFAULT '';
+--   ALTER TABLE scores ADD COLUMN approved INTEGER;
+--   ALTER TABLE usage_events ADD COLUMN paper_key TEXT;
+--   CREATE INDEX IF NOT EXISTS usage_paper ON usage_events(school_id, paper_key);
 CREATE INDEX IF NOT EXISTS scores_school ON scores(school_id);
 CREATE INDEX IF NOT EXISTS scores_lookup ON scores(school_id, teacher_id, first_name, grade, date, assessment, rubric_id);
 

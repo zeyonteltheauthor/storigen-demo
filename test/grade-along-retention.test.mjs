@@ -1,7 +1,7 @@
 import { DatabaseSync } from "node:sqlite";
 import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
-const W = process.env.WORKER || new URL("../worker/src/index.js", import.meta.url).href;
+const W = process.env.WORKER || new URL("../worker/src/app.js", import.meta.url).href;
 // Workers runtime has crypto.subtle.timingSafeEqual; Node does not.
 if (!crypto.subtle.timingSafeEqual) crypto.subtle.timingSafeEqual = (a, b) => { const x = new Uint8Array(a), y = new Uint8Array(b); if (x.length !== y.length) return false; let d = 0; for (let i = 0; i < x.length; i++) d |= x[i] ^ y[i]; return d === 0; };
 const mod = await import(W);
@@ -70,7 +70,7 @@ ok("migration added closed_at + delete_after", cols.includes("closed_at") && col
 ok("existing rows untouched by migration", db.prepare("SELECT COUNT(*) n FROM scores WHERE school_id='keep'").get().n === 1);
 
 // Fake data for the throwaway school (fictional names only).
-for (let i = 0; i < 3; i++) ins("INSERT INTO scores (id,school_id,teacher_id,first_name,grade,facilitator,date,assessment,rubric_id,rubric_name,scores_json,total,out_of,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", "s"+i, sid, tid, ["Maya","Nico","=Evil"][i], "3", "Ms. T", "2026-11-0"+(i+1), "pre", "", "Wonders", "[4,3,3,2]", 12, 20, now(), now());
+for (let i = 0; i < 3; i++) ins("INSERT INTO scores (id,school_id,teacher_id,first_name,grade,facilitator,date,assessment,rubric_id,rubric_name,scores_json,total,out_of,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", "s"+i, sid, tid, ["Maya","Nico","Ivy Mae Brown"][i], "3", ["Ms. T","Ms. T","=Evil"][i], "2026-11-0"+(i+1), "pre", "", "Wonders", "[4,3,3,2]", 12, 20, now(), now());
 ins("INSERT INTO scores (id,school_id,teacher_id,first_name,grade,facilitator,date,assessment,rubric_id,rubric_name,scores_json,total,out_of,created_at,updated_at) VALUES ('st',?,?,'Maya','3','','2026-11-05','test','k1','Science',?,1,2,?,?)", sid, tid, JSON.stringify({kind:"test",items:[{n:1,correct:true},{n:2,correct:false,flagged:true}]}), now(), now());
 ins("INSERT INTO rubrics (id,school_id,name,min,max,rows_json,updated_at,created_at) VALUES ('r1',?,'R',1,5,'[]',?,?)", sid, now(), now());
 ins("INSERT INTO answer_keys (id,school_id,name,key_json,updated_at,created_at) VALUES ('k1',?,'K','{}',?,?)", sid, now(), now());
@@ -99,6 +99,8 @@ ok("owner list shows closed school with deleteAfter", list.data.schools.some((s)
 const exp = await call("/owner/schools/export?schoolId=" + encodeURIComponent(sid), { headers: owner });
 ok("export returns CSV with header + 4 rows", exp.status === 200 && exp.data.rows === 4 && exp.data.csv.split("\r\n").filter(Boolean).length === 5);
 ok("export neutralises spreadsheet formulas", exp.data.csv.includes(`"'=Evil"`));
+ok("v24: export shows first name only (legacy full-name row)", exp.data.csv.includes("Ivy") && !/Mae|Brown/.test(exp.data.csv));
+ok("v24: export has a Last initial column", exp.data.csv.split("\r\n")[0].includes("Last initial"));
 ok("export includes test item summary", /Q1:correct \| Q2:wrong\(flagged\)/.test(exp.data.csv));
 ok("export filename", /^grade-along-zz-test-school-v23-scores-\d{4}-\d\d-\d\d\.csv$/.test(exp.data.filename));
 const expDenied = await call("/owner/schools/export?schoolId=" + sid);

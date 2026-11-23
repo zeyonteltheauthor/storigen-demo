@@ -46,7 +46,7 @@ function makeD1(db) {
 
   // --- Gate: shared-computer clear ---
   await page.goto(BASE);
-  ok("gate shows v23 label", (await page.locator(".version-label").first().innerText()).includes("Grade Along v23"));
+  ok("gate shows v24 label", (await page.locator(".version-label").first().innerText()).includes("Grade Along v24"));
   ok("gate shows shared-computer button", await page.locator("#gate-clear-all").isVisible());
   await page.evaluate(() => {
     localStorage.setItem("storigen-os-grade-along-teacher-queue::passcode", JSON.stringify({ v: 2, students: [{ student: "Maya", files: [{ dataUrl: "data:image/jpeg;base64,AAAA" }] }] }));
@@ -89,7 +89,7 @@ function makeD1(db) {
   ok("db marked closed with delete_after", (() => { const r = db.prepare("SELECT status, delete_after FROM schools WHERE id='t1'").get(); return r.status === "closed" && !!r.delete_after; })());
   const [dl] = await Promise.all([page.waitForEvent("download"), page.locator("#owner-schools button", { hasText: "Export scores (CSV)" }).click()]);
   const csv = fs.readFileSync(await dl.path(), "utf8");
-  ok("CSV downloaded with the score row", dl.suggestedFilename().startsWith("grade-along-zz-e2e-test-school-scores-") && /"Maya","3","Ms. T"/.test(csv));
+  ok("CSV downloaded with the score row", dl.suggestedFilename().startsWith("grade-along-zz-e2e-test-school-scores-") && /"Maya","","3","Ms. T"/.test(csv));
   await page.locator(".owner-danger summary").click();
   const del = page.locator(".owner-danger button.danger");
   await page.fill(".owner-danger input", "ZZ E2E");

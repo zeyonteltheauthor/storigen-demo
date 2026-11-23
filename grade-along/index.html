@@ -252,6 +252,7 @@ button.link-btn{font-family:inherit}.lock-btn:not([hidden])+.link-btn{margin-lef
 .bulk-tip{border-left:3px solid var(--gold);padding:6px 10px;background:#0a1020a8;border-radius:0 8px 8px 0;color:var(--warm)!important}
 .bulk-check{display:flex;align-items:center;gap:8px;font-size:.88rem;color:var(--sub);margin:4px 0 10px;font-weight:600}
 .from-cover{display:inline-block;margin-left:6px;font-size:.72rem;font-weight:750;padding:1px 7px;border-radius:999px;border:1px solid var(--violet);color:var(--violet);vertical-align:middle}
+.name-note{margin:.3rem 0 0;font-size:.8rem;color:var(--muted,#555)}.name-note.warn{color:#8a4b00;font-weight:600}.initial-field input{max-width:4.5rem}
 .cover-note{font-size:.85rem;color:var(--warm);margin:0 0 8px}
 .pdf-cover-opt{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--sub);margin:8px 0 0;font-weight:600}
 .queue-warn{margin:10px 0 0;font-size:.85rem;color:#ffd59a;border-left:2px solid var(--gold);padding-left:10px}
@@ -393,6 +394,14 @@ body:not(.ga-test) .test-only{display:none !important}
   "Type the school's name exactly to confirm.": "Escribe el nombre exacto de la escuela para confirmar.",
   "School not found. Its data may already be deleted.": "No se encontró la escuela. Es posible que sus datos ya se hayan eliminado.",
   "Shared computer? Clear everything on this device": "¿Computadora compartida? Borrar todo en este dispositivo",
+  "Last initial (optional)": "Inicial del apellido (opcional)",
+  "Only the first name is kept. Middle and last names are removed.": "Solo se guarda el nombre de pila. Se quitan el segundo nombre y los apellidos.",
+  "Another student in this class is also named {name}. Add a last initial to each so their scores don't mix.": "Otro estudiante de esta clase también se llama {name}. Agregue la inicial del apellido a cada uno para que sus puntuaciones no se mezclen.",
+  "Two students share this name. Add a last initial.": "Dos estudiantes tienen este nombre. Agregue la inicial del apellido.",
+  "same name · add a last initial": "mismo nombre · agregue la inicial del apellido",
+  "More than one pre score matches {name}. Add a last initial or pick the pre scores to compare.": "Más de una puntuación previa coincide con {name}. Agregue la inicial del apellido o elija las puntuaciones previas para comparar.",
+  "Saved {n} approved students' scores to a file on this device. Skipped {skip} not approved yet. Keep it safe; load it in the post-writing session.": "Se guardaron las puntuaciones aprobadas de {n} estudiantes en un archivo de este dispositivo. Se omitieron {skip} aún no aprobados. Guárdelo bien; cárguelo en la sesión de escritura final.",
+  "No approved students yet. Approve students' scores first; only approved scores are saved.": "Aún no hay estudiantes aprobados. Apruebe primero las puntuaciones; solo se guardan las puntuaciones aprobadas.",
   "Lock signs you out and clears that account's grading queue, paper photos and saved scores from this browser.": "Bloquear cierra la sesión y borra de este navegador la cola de calificación, las fotos de los trabajos y las puntuaciones guardadas de esa cuenta.",
   "Lock signs you out and clears this account's grading queue, paper photos and saved scores from this browser. Unfinished papers will be removed. Use Save class scores first if you need them. Lock now?": "Bloquear cierra la sesión y borra de este navegador la cola de calificación, las fotos de los trabajos y las puntuaciones guardadas de esta cuenta. Se quitarán los trabajos sin terminar. Usa Guardar puntuaciones de la clase primero si las necesitas. ¿Bloquear ahora?",
   "Clear everything Grade Along saved in this browser? This removes grading queues, paper photos, drafts, saved scores, rubrics, answer keys and sign-ins for every account on this device. Files you downloaded are not affected.": "¿Borrar todo lo que Grade Along guardó en este navegador? Se quitan las colas de calificación, las fotos de los trabajos, los borradores, las puntuaciones guardadas, las rúbricas, las claves de respuestas y las sesiones de todas las cuentas en este dispositivo. Los archivos que descargaste no se ven afectados.",
@@ -1179,6 +1188,8 @@ body:not(.ga-test) .test-only{display:none !important}
   "Test (answer key) | Grade Along | STORIGEN OS": "Prueba (clave de respuestas) | Grade Along | STORIGEN OS",
   "Add a photo of the test.": "Agrega una foto de la prueba.",
   "The AI could not read this test. Try a clearer picture, or enter the answers by hand.": "La IA no pudo leer esta prueba. Prueba con una imagen más nítida, o escribe las respuestas a mano.",
+  "No answers could be read on this test (every answer looked blank or unclear). No paper credit was used. Try a clearer photo, or enter the answers by hand.": "No se pudo leer ninguna respuesta en esta prueba (todas parecían en blanco o poco claras). No se usó ningún crédito de papel. Prueba con una foto más nítida, o escribe las respuestas a mano.",
+  "Only teacher-approved scores can be saved. Approve this student's scores first.": "Solo se pueden guardar las puntuaciones aprobadas por el maestro. Aprueba primero las puntuaciones de este estudiante.",
   "The answer key is not valid.": "La clave de respuestas no es válida.",
   "The answer key needs a name.": "La clave de respuestas necesita un nombre.",
   "An answer key needs at least one question.": "Una clave de respuestas necesita por lo menos una pregunta.",
@@ -1359,7 +1370,7 @@ GA_i18n.init();
 <p class="gate-note" data-i18n="Lock signs you out and clears that account's grading queue, paper photos and saved scores from this browser.">Lock signs you out and clears that account's grading queue, paper photos and saved scores from this browser.</p>
 <p class="gate-note" data-i18n="The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only, and each signed-in account has its own.">The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only, and each signed-in account has its own.</p>
 <p class="gate-note" data-i18n="A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
-<p class="version-label">Grade Along v23</p>
+<p class="version-label">Grade Along v24</p>
 <p class="gate-powered" data-i18n="Powered by STORIGEN · Arrival House Media">Powered by STORIGEN · Arrival House Media</p>
 </section>
 </main>
@@ -1463,7 +1474,8 @@ GA_i18n.init();
 <section class="panel" aria-labelledby="paper-heading">
 <div class="titleline"><div><h2 id="paper-heading" data-i18n="Student paper">Student paper</h2><div class="eyebrow" data-i18n="Private teacher review · not published">Private teacher review · not published</div></div></div>
 <div class="meta-grid">
-<div><label for="t-name"><span data-i18n="Student first name or ID">Student first name or ID</span><span class="from-cover" data-field="student" hidden data-i18n="from cover · check">from cover · check</span></label><input id="t-name" type="text" autocomplete="off" maxlength="80"></div>
+<div><label for="t-name"><span data-i18n="Student first name or ID">Student first name or ID</span><span class="from-cover" data-field="student" hidden data-i18n="from cover · check">from cover · check</span></label><input id="t-name" type="text" autocomplete="off" maxlength="80"><p id="t-name-note" class="name-note" hidden></p></div>
+<div class="initial-field"><label for="t-initial" data-i18n="Last initial (optional)">Last initial (optional)</label><input id="t-initial" type="text" autocomplete="off" maxlength="2" size="2" inputmode="text"></div>
 <div><label for="t-grade"><span data-i18n="Grade">Grade</span><span class="from-cover" data-field="grade" hidden data-i18n="from cover · check">from cover · check</span></label><input id="t-grade" type="text" autocomplete="off" maxlength="24" placeholder="e.g. 3" data-i18n-placeholder="e.g. 3"></div>
 <div><label for="t-date"><span data-i18n="Date">Date</span><span class="from-cover" data-field="date" hidden data-i18n="from cover · check">from cover · check</span></label><input id="t-date" type="date"></div>
 <div><label for="t-facilitator"><span data-i18n="Facilitator">Facilitator</span><span class="from-cover" data-field="facilitator" hidden data-i18n="from cover · check">from cover · check</span></label><input id="t-facilitator" type="text" autocomplete="name" maxlength="80"></div>
@@ -1567,7 +1579,7 @@ GA_i18n.init();
 <p class="growth-status" data-i18n="When a school's agreement ends or it asks in writing, use Close school. Export its scores first if it asked for them. Its data is deleted automatically 30 days after closing, or right away with Delete school data now.">When a school's agreement ends or it asks in writing, use Close school. Export its scores first if it asked for them. Its data is deleted automatically 30 days after closing, or right away with Delete school data now.</p>
 <p class="school-legal" data-i18n="A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
 </section>
-<footer class="version-label" id="ga-version">Grade Along v23</footer>
+<footer class="version-label" id="ga-version">Grade Along v24</footer>
 </div>
 
 </main>
@@ -1817,7 +1829,7 @@ let nextId = 1;
 function blankStudent(){
   return {
     id: nextId++,
-    student: "", grade: "", date: today(), facilitator: "", story: "",
+    student: "", initial: "", rid: newRosterId(), grade: "", date: today(), facilitator: "", story: "",
     scores: WONDERS.map(() => null),
     feedback: WONDERS.map(() => ""),
     starters: WONDERS.map(() => ""),
@@ -1961,7 +1973,10 @@ function rememberTestScore(st){
     headers: authHeaders(""),
     body: JSON.stringify({
       kind: "test",
-      firstName: (st.student || "").trim().split(/\s+/)[0] || "",
+      firstName: firstOnly(st.student),
+      lastInitial: st.initial || "",
+      rosterId: st.rid || "",
+      approved: true,
       grade: st.grade || "",
       facilitator: st.facilitator || "",
       date: st.date || today(),
@@ -2160,7 +2175,7 @@ async function requestTestReadFromFiles(st, pass, onStatus){
   if(!images.length) throw Object.assign(new Error(uiT("Add a photo of the test.")), {status: 400});
   if(typeof onStatus === "function") onStatus(uiT("Grade Along AI is reading the answers… this can take up to a minute."));
   const body = {
-    firstName: (st.student || "").trim().split(/\s+/)[0] || "",
+    firstName: firstOnly(st.student),
     grade: st.grade || "",
     images,
     key: GA_testScore.keyShape(KEY)
@@ -2416,6 +2431,11 @@ window.GA_workspace = {
   unfinished: () => students.some((st) => (st.files.length || st.story || st.student) && !st.approved),
   clear: () => { storageWiped = true; skipPhotoStore = true; return clearWorkspaceStudentData(); }
 };
+// Local test hook only (never exposed on gradealong.com): lets the v24 browser test reach these helpers.
+if(location.hostname === "127.0.0.1"){
+  window.__GA_TEST = {firstOnly, initialOnly, scrubName, nameFromFile, blankStudent, applyCover, applyAI, buildReport, csvAll, payload, displayName, renderQueue, renderNameNote,
+    students: () => students, state: () => state};
+}
 function teachersLockedToSchool(){
   const s = window.GA_SCHOOL;
   return !!(s && s.user && s.user.role !== "admin" && s.school && !s.school.teachersOwnRubrics);
@@ -2458,8 +2478,23 @@ function scoreOutOf(st = state){
   return maxTotal();
 }
 
+let nameTrimmed = false;
+function renderNameNote(){
+  const note = $("t-name-note");
+  if(!note) return;
+  const dup = firstOnly(state.student) && !(state.soft && state.soft.student) ? sameNameCount(state) : 0;
+  const msgs = [];
+  if(nameTrimmed) msgs.push(uiT("Only the first name is kept. Middle and last names are removed."));
+  if(dup) msgs.push(uiT("Another student in this class is also named {name}. Add a last initial to each so their scores don't mix.", {name: firstOnly(state.student)}));
+  else if(preAmbiguous(state)) msgs.push(uiT("More than one pre score matches {name}. Add a last initial or pick the pre scores to compare.", {name: firstOnly(state.student)}));
+  note.textContent = msgs.join(" ");
+  note.hidden = !msgs.length;
+  note.classList.toggle("warn", !!dup);
+}
+
 function syncForm(){
   state.student = $("t-name").value;
+  state.initial = initialOnly($("t-initial").value);
   state.grade = $("t-grade").value;
   state.date = $("t-date").value;
   state.facilitator = $("t-facilitator").value;
@@ -2468,7 +2503,9 @@ function syncForm(){
 
 function fillForm(){
   $("t-name").value = state.student || "";
+  $("t-initial").value = state.initial || "";
   $("t-grade").value = state.grade || "";
+  renderNameNote();
   $("t-date").value = state.date || today();
   $("t-facilitator").value = state.facilitator || "";
   $("t-story").value = state.story || "";
@@ -2485,7 +2522,7 @@ function applyCover(st, cover){
   st.coverRead = true;
   if(!cover) return 0;
   if(st === state) syncForm();
-  const map = {student: cover.firstName, grade: cover.grade, facilitator: cover.facilitator, date: cover.date};
+  const map = {student: firstOnly(cover.firstName), grade: cover.grade, facilitator: cover.facilitator, date: cover.date};
   let n = 0;
   Object.keys(map).forEach((k) => {
     const v = String(map[k] || "").trim();
@@ -2617,7 +2654,7 @@ function renderStatus(){
   const approval = $("t-approval");
   if(state.approved){
     approval.hidden = false;
-    const who = $("t-name").value.trim() || uiT("this paper");
+    const who = studentLabel(state) || uiT("this paper");
     approval.textContent = uiT("Review approved for {who}. Print or download to keep a copy. This still stays on this device unless you save the file.", {who: who});
     $("t-status").textContent = uiT("Approved. A draft may also be kept in this browser until you clear it.");
   } else {
@@ -2649,7 +2686,7 @@ function payloadFor(st){
     rubric: locName(RUB.name) || RUB.name,
     rubricId: RUB.id,
     scale: {min: RUB.min, max: RUB.max},
-    student: (st.student || "").trim(),
+    student: studentLabel(st),
     grade: (st.grade || "").trim(),
     date: st.date || "",
     facilitator: (st.facilitator || "").trim(),
@@ -2760,7 +2797,7 @@ async function addFiles(fileList){
 
 /* ---------- Bulk upload: one file per student ---------- */
 function nameFromFile(name){
-  return String(name || "").replace(/\.[^.]+$/, "").replace(/[_\-]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
+  return firstOnly(String(name || "").replace(/\.[^.]+$/, "").replace(/[_\-]+/g, " ").replace(/\s+/g, " ").trim());
 }
 
 function isEmptyStudent(st){
@@ -2875,7 +2912,7 @@ function showBulkPanel(nAdded, nPdf){
 
 function serializeStudent(st, withFiles){
   return {
-    student: st.student, grade: st.grade, date: st.date, facilitator: st.facilitator, story: st.story,
+    student: st.student, initial: st.initial || "", rid: st.rid || "", grade: st.grade, date: st.date, facilitator: st.facilitator, story: st.story,
     auto: st.auto, soft: st.soft, coverRead: st.coverRead, assess: st.assess || "", preMatch: st.preMatch || "",
     scores: st.scores, feedback: st.feedback, starters: st.starters, approved: st.approved,
     rowStatus: st.rowStatus, aiDraft: st.aiDraft, overall: st.overall, overallStatus: st.overallStatus,
@@ -2916,7 +2953,8 @@ function saveDraft(){
 
 function restoreStudent(d){
   const st = blankStudent();
-  st.student = d.student || ""; st.grade = d.grade || ""; st.date = d.date || today();
+  st.student = d.student || ""; st.initial = initialOnly(d.initial); if(d.rid) st.rid = String(d.rid).replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40) || st.rid;
+  st.grade = d.grade || ""; st.date = d.date || today();
   st.facilitator = d.facilitator || ""; st.story = d.story || "";
   if(Array.isArray(d.scores)) st.scores = WONDERS.map((_,i) => d.scores[i] ?? null);
   if(Array.isArray(d.feedback)) st.feedback = WONDERS.map((_,i) => d.feedback[i] || "");
@@ -2997,8 +3035,8 @@ function clearAll(){
 
 /* ---------- Student queue ---------- */
 function displayName(st){
-  const n = (st.student || "").trim();
-  return n || uiT("Student {n}", {n: students.indexOf(st) + 1});
+  const n = st.soft && st.soft.student ? (st.student || "").trim() : studentLabel(st);
+  return (n ? n + (!(st.soft && st.soft.student) && sameNameCount(st) ? " ⚠" : "") : "") || uiT("Student {n}", {n: students.indexOf(st) + 1});
 }
 
 function hasPaper(st){
@@ -3166,7 +3204,7 @@ function buildReport(st){
 
   const top = el("div", "r-top");
   const meta = el("dl", "r-meta");
-  [[uiT("Student"), (st.student || "").trim().split(/\s+/)[0] || "—"], [uiT("Grade"), st.grade || "—"], [uiT("Date"), niceDate(st.date)], [uiT("Facilitator"), st.facilitator || "—"]].forEach(([k, v]) => {
+  [[uiT("Student"), studentLabel(st) || "—"], [uiT("Grade"), st.grade || "—"], [uiT("Date"), niceDate(st.date)], [uiT("Facilitator"), st.facilitator || "—"]].forEach(([k, v]) => {
     const d = el("div"); d.append(el("dt", null, k), el("dd", null, v)); meta.append(d);
   });
   const tot = el("div", "r-total");
@@ -3258,17 +3296,47 @@ window.addEventListener("afterprint", () => {
 
 /* ---------- Pre / post growth (kept on this device only) ---------- */
 function effAssess(st){ return st.assess || sessionAssess; }
-function normName(v){ return String(v || "").trim().split(/\s+/)[0].normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9'-]/gi, "").toLowerCase(); }
+// v24: only a student's first name is ever kept or shown. "Testy Mae Brown" and
+// "Brown, Testy Mae" both become "Testy". Hyphenated first names stay whole.
+function firstOnly(v){
+  let s = String(v == null ? "" : v).replace(/\s+/g, " ").trim();
+  if(s.includes(",")){ const parts = s.split(","); const after = parts.slice(1).join(" ").trim(); s = after || parts[0].trim(); }
+  s = s.replace(/^[^\p{L}\p{N}]+/u, "");
+  return (s.split(" ")[0] || "").replace(/[^\p{L}\p{N}'’\-]/gu, "").replace(/^[-'’]+|[-'’]+$/g, "").slice(0, 30);
+}
+// v24: optional last initial, typed by the teacher only (never read from the paper).
+function initialOnly(v){ const m = /^\s*(\p{L})\.?\s*$/u.exec(String(v == null ? "" : v)); return m ? m[1].toUpperCase() : ""; }
+function studentLabel(st){ const f = firstOnly(st && st.student); return f ? f + (st.initial ? " " + st.initial + "." : "") : ""; }
+function newRosterId(){ try { return crypto.getRandomValues(new Uint32Array(2)).reduce((a, x) => a + x.toString(36), ""); } catch(e){ return Math.random().toString(36).slice(2, 12); } }
+const NAME_STOP = new Set(["I","A","An","And","As","At","But","By","For","He","Her","His","If","In","It","Its","My","No","Not","Now","Of","On","Or","She","So","That","The","Their","Then","There","They","This","To","We","When","With","You","Your","Great","Good","Nice","Next","Keep","Try","Also","Yes"]);
+// Backstop for AI text: "Testy Mae Brown wrote" -> "Testy wrote".
+function scrubName(text, first){
+  if(typeof text !== "string" || !text || !first) return text;
+  const esc = first.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp("(^|[^\\p{L}])(" + esc + ")((?:\\s+\\p{Lu}[\\p{L}'’\\-]*\\.?){1,2})(?=$|[^\\p{L}])", "gu");
+  return text.replace(re, (all, pre, name, tail) => {
+    const words = tail.trim().split(/\s+/);
+    for(let i = 0; i < words.length; i++){ if(NAME_STOP.has(words[i].replace(/\.$/, ""))) return pre + name + " " + words.slice(i).join(" "); }
+    return pre + name;
+  });
+}
+// Students in the current class with the same first name and the same (or no) last initial.
+function sameNameCount(st){
+  const n = normName(st.student);
+  if(!n) return 0;
+  return students.filter((x) => x !== st && normName(x.student) === n && (x.initial || "") === (st.initial || "") && !(x.soft && x.soft.student)).length;
+}
+function normName(v){ return firstOnly(v).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9'-]/gi, "").toLowerCase(); }
 function normGrade(v){
   let g = String(v || "").toLowerCase().replace(/grade|gr\.?/g, "").replace(/(\d+)(st|nd|rd|th)/, "$1").replace(/[^a-z0-9-]/g, "");
   if(g === "kindergarten" || g === "kg") g = "k";
   return g;
 }
 function scoreRecord(st, source){
-  const first = (st.student || "").trim().split(/\s+/)[0] || "";
+  const first = firstOnly(st.student);
   const sc = st.scores.map((x) => (scoreOk(x) ? x : null));
   return {
-    id: "", firstName: first, grade: (st.grade || "").trim(), facilitator: (st.facilitator || "").trim(),
+    id: "", firstName: first, lastInitial: st.initial || "", rosterId: st.rid || "", grade: (st.grade || "").trim(), facilitator: (st.facilitator || "").trim(),
     date: st.date || "", assessment: effAssess(st), scores: sc,
     total: sc.every((x) => x != null) ? sc.reduce((a, b) => a + b, 0) : null, approved: !!st.approved,
     rubricId: RUB.id, rubricName: RUB.name, outOf: maxTotal(), source
@@ -3281,16 +3349,16 @@ function cleanRecord(r, source){
   // Files from v11 and earlier have no rubric fields: they are Storigen Wonders scores.
   const rName = String(r.rubricName || "").slice(0, RL.name);
   const rId = typeof r.rubricId === "string" && r.rubricId ? r.rubricId.slice(0, 60) : (!rName || /^storigen wonders/i.test(rName) ? DEFAULT_RUBRIC.id : "");
-  const first = String(r.firstName || r.student || "").trim().split(/\s+/)[0].slice(0, 40);
+  const first = firstOnly(r.firstName || r.student);
   if(!first) return null;
   const a = String(r.assessment || "pre").toLowerCase().startsWith("post") ? "post" : "pre";
   const rec = {
-    firstName: first, grade: String(r.grade || "").slice(0, 24), facilitator: String(r.facilitator || "").slice(0, 80),
+    firstName: first, lastInitial: initialOnly(r.lastInitial), rosterId: String(r.rosterId || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40), grade: String(r.grade || "").slice(0, 24), facilitator: String(r.facilitator || "").slice(0, 80),
     date: /^\d{4}-\d{2}-\d{2}$/.test(r.date || "") ? r.date : "", assessment: a, scores,
     total: scores.every((x) => x != null) ? scores.reduce((x, y) => x + y, 0) : null, approved: r.approved !== false,
     rubricId: rId, rubricName: rName || (rId === DEFAULT_RUBRIC.id ? DEFAULT_RUBRIC.name : ""), outOf: Number(r.outOf) > 0 ? Number(r.outOf) : (rId === DEFAULT_RUBRIC.id ? 20 : null), source
   };
-  rec.id = source[0] + ":" + normName(rec.firstName) + "|" + normGrade(rec.grade) + "|" + rec.date + "|" + rec.scores.join("-") + "|" + rec.rubricId;
+  rec.id = source[0] + ":" + normName(rec.firstName) + "|" + rec.lastInitial + "|" + normGrade(rec.grade) + "|" + rec.date + "|" + rec.scores.join("-") + "|" + rec.rubricId;
   return rec;
 }
 function readJSON(key, fallback){ try { const v = JSON.parse(localStorage.getItem(workKey(key)) || "null"); return v == null ? fallback : v; } catch(e){ return fallback; } }
@@ -3302,7 +3370,7 @@ function prePool(){
   const out = [], seen = new Set();
   loadedPre().concat(deviceHistory()).forEach((r) => {
     if(r.assessment !== "pre" || r.total == null) return;
-    const k = normName(r.firstName) + "|" + normGrade(r.grade) + "|" + r.date + "|" + r.scores.join("-") + "|" + r.rubricId + "|" + r.rubricName;
+    const k = normName(r.firstName) + "|" + r.lastInitial + "|" + normGrade(r.grade) + "|" + r.date + "|" + r.scores.join("-") + "|" + r.rubricId + "|" + r.rubricName;
     if(seen.has(k)) return;
     seen.add(k); out.push(r);
   });
@@ -3311,10 +3379,22 @@ function prePool(){
 function autoMatch(st, pool){
   const n = normName(st.student), g = normGrade(st.grade);
   if(!n) return null;
-  const hits = pool.filter((r) => normName(r.firstName) === n && normGrade(r.grade) === g);
+  const hits = preHits(st, pool);
   if(!hits.length) return null;
   hits.sort((a, b) => (sameRubric(b) - sameRubric(a)) || (a.source === b.source ? 0 : a.source === "file" ? -1 : 1) || String(b.date).localeCompare(String(a.date)));
+  // v24: two different students' pre scores for this name on the same day: do not guess.
+  if(hits.length > 1 && sameRubric(hits[0]) === sameRubric(hits[1]) && hits[0].date === hits[1].date) return null;
   return hits[0];
+}
+function preHits(st, pool){
+  const n = normName(st.student), g = normGrade(st.grade), ini = st.initial || "";
+  if(!n) return [];
+  return pool.filter((r) => normName(r.firstName) === n && normGrade(r.grade) === g && (r.lastInitial || "") === ini);
+}
+function preAmbiguous(st, pool = prePool()){
+  if(effAssess(st) !== "post" || st.preMatch) return false;
+  const hits = preHits(st, pool);
+  return hits.length > 1 && !autoMatch(st, pool);
 }
 function matchFor(st, pool = prePool()){
   if(effAssess(st) !== "post" || st.preMatch === "none") return null;
@@ -3365,7 +3445,7 @@ function growthTable(g){
 }
 function recordLabel(r){
   return uiT("{name} · gr {grade} · {date} · {total}/{outOf} · {source}{extra}", {
-    name: r.firstName, grade: r.grade || "?", date: r.date ? niceDate(r.date) : uiT("no date"),
+    name: r.firstName + (r.lastInitial ? " " + r.lastInitial + "." : ""), grade: r.grade || "?", date: r.date ? niceDate(r.date) : uiT("no date"),
     total: r.total, outOf: r.outOf || "?", source: r.source === "file" ? uiT("loaded file") : uiT("this device"),
     extra: sameRubric(r) ? "" : uiT(" · different rubric")
   });
@@ -3432,12 +3512,12 @@ function rememberScores(list){
   const hist = readJSON(HISTORY_STORE, []) || [];
   list.forEach((st) => {
     if(st.testResult){ if(st.approved) rememberTestScore(st); return; }
-    if(!allScored(st)) return;
+    if(!allScored(st) || !st.approved) return;   // v24: approved scores only
     const r = scoreRecord(st, "device");
     if(!r.firstName) return;
-    const key = (x) => normName(x.firstName) + "|" + normGrade(x.grade) + "|" + x.assessment + "|" + x.date + "|" + (x.rubricId || DEFAULT_RUBRIC.id);
+    const key = (x) => normName(x.firstName) + "|" + (x.lastInitial || "") + "|" + (x.rosterId || "") + "|" + normGrade(x.grade) + "|" + x.assessment + "|" + x.date + "|" + (x.rubricId || DEFAULT_RUBRIC.id);
     const i = hist.findIndex((x) => key(x) === key(r));
-    const keep = {firstName: r.firstName, grade: r.grade, facilitator: r.facilitator, date: r.date, assessment: r.assessment, scores: r.scores, total: r.total, approved: r.approved, rubricId: r.rubricId, rubricName: r.rubricName, outOf: r.outOf};
+    const keep = {firstName: r.firstName, lastInitial: r.lastInitial, rosterId: r.rosterId, grade: r.grade, facilitator: r.facilitator, date: r.date, assessment: r.assessment, scores: r.scores, total: r.total, approved: r.approved, rubricId: r.rubricId, rubricName: r.rubricName, outOf: r.outOf};
     if(i >= 0) hist[i] = keep; else hist.push(keep);
   });
   while(hist.length > 500) hist.shift();
@@ -3445,13 +3525,15 @@ function rememberScores(list){
   renderGrowthBar();
   if(window.GA_SCHOOL && window.GA_SCHOOL.token){
     list.forEach((st) => {
+      if(st.testResult || !st.approved || !allScored(st)) return;   // v24: approved scores only
       const r = scoreRecord(st, "device");
       if(!r || !r.firstName) return;
       fetch(API_BASE + "/school/scores", {
         method: "POST",
         headers: authHeaders(""),
         body: JSON.stringify({
-          firstName: r.firstName, grade: r.grade, facilitator: r.facilitator, date: r.date,
+          firstName: r.firstName, lastInitial: r.lastInitial, rosterId: r.rosterId, approved: true,
+          grade: r.grade, facilitator: r.facilitator, date: r.date,
           assessment: r.assessment, rubricId: r.rubricId, rubricName: r.rubricName,
           scores: r.scores, total: r.total, outOf: r.outOf
         }),
@@ -3462,17 +3544,21 @@ function rememberScores(list){
 }
 function saveClassScores(){
   syncForm();
-  const done = students.filter((st) => allScored(st) && (st.student || "").trim());
-  if(!done.length){ alert(uiT("No scored students yet. Grade and approve students first.")); return; }
-  const notApproved = done.filter((st) => !st.approved).length;
-  if(notApproved && !confirm(uiT("{n} of {total} students are not approved yet. Save their current scores anyway?", {n: notApproved, total: done.length}))) return;
+  const scored = students.filter((st) => allScored(st) && firstOnly(st.student));
+  if(!scored.length){ alert(uiT("No scored students yet. Grade and approve students first.")); return; }
+  // v24: only teacher-approved scores are saved (file, this device, and the school account).
+  const done = scored.filter((st) => st.approved);
+  const skipped = scored.length - done.length;
+  if(!done.length){ alert(uiT("No approved students yet. Approve students' scores first; only approved scores are saved.")); return; }
   const recs = done.map((st) => { const r = scoreRecord(st, "file"); delete r.id; delete r.source; return r; });
   const a = sessionAssess;
   const out = {tool: "STORIGEN OS Grade Along", kind: "class-scores", version: 2, rubric: RUB.name, rubricId: RUB.id, scale: {min: RUB.min, max: RUB.max}, outOf: maxTotal(),
     rows: WONDERS.map((c) => c.name), exported: new Date().toISOString(), note: "First names and scores only. No story text or images.", students: recs};
   download("grade-along-class-scores-" + a + "-" + today() + ".json", JSON.stringify(out, null, 2), "application/json");
   rememberScores(done);
-  batchProg(uiT("Saved {n} students' scores to a file on this device. Keep it safe; load it in the post-writing session.", {n: recs.length}));
+  batchProg(skipped
+    ? uiT("Saved {n} approved students' scores to a file on this device. Skipped {skip} not approved yet. Keep it safe; load it in the post-writing session.", {n: recs.length, skip: skipped})
+    : uiT("Saved {n} students' scores to a file on this device. Keep it safe; load it in the post-writing session.", {n: recs.length}));
 }
 function parseCSV(text){
   const rows = []; let row = [], cur = "", q = false;
@@ -3554,7 +3640,7 @@ function buildGrowthSummary(){
   const tb = el("tbody");
   rows.forEach(({st, g}) => {
     const tr = el("tr");
-    tr.append(el("td", null, (st.student || "").trim().split(/\s+/)[0] + (st.approved ? "" : " *")), el("td", null, st.grade || "—"), el("td", "num", String(g.preTotal)), el("td", "num", String(g.postTotal)), changeCell(g.change));
+    tr.append(el("td", null, studentLabel(st) + (st.approved ? "" : " *")), el("td", null, st.grade || "—"), el("td", "num", String(g.preTotal)), el("td", "num", String(g.postTotal)), changeCell(g.change));
     tb.append(tr);
   });
   const tr = el("tr");
@@ -4496,7 +4582,7 @@ function createSplitStudents(f, owner, groups){
       st.soft = {grade: !!owner.soft.grade || !owner.grade, date: true, facilitator: !!owner.soft.facilitator || !owner.facilitator};
       students.splice(idx + made.length + (reuse ? 0 : 1), 0, st);
     }
-    st.student = base + uiT(" · paper {n}", {n: k + 1});
+    st.student = firstOnly(base) + uiT(" · paper {n}", {n: k + 1});
     st.soft.student = true;
     st.auto = {};
     st.coverRead = false;
@@ -4602,7 +4688,7 @@ function aiError(msg, status){
 
 // Prepare one student's pictures/text and ask the Worker for a draft. Throws an Error with a teacher-friendly message.
 async function requestDraft(st, pass, onStatus, withCover){
-  const firstName = ((st.student || "").trim().split(/\s+/)[0] || "");
+  const firstName = firstOnly(st.student);
   const grade = (st.grade || "").trim();
   const text = (st.story || "").trim();
   const imgs = st.files.filter(isImageFile);
@@ -4851,6 +4937,9 @@ async function readCoversAll(){
 }
 
 function applyAI(data, st = state){
+  const fn = firstOnly(st.student);   // v24: never show a middle or last name the AI copied from the paper
+  if(fn && data){ data = Object.assign({}, data, {rows: (data.rows || []).map((r) => r ? Object.assign({}, r, {comment: scrubName(String(r.comment || ""), fn)}) : r)});
+    ["overallFeedback", "transcriptionNote", "storySummary", "studentFacingFeedback"].forEach((k) => { if(typeof data[k] === "string") data[k] = scrubName(data[k], fn); }); }
   WONDERS.forEach((cat, i) => {
     const r = (data.rows || [])[i];
     const score = r && Number(r.score);
@@ -4883,7 +4972,7 @@ function applyAI(data, st = state){
 }
 
 function safeName(){
-  const n = ($("t-name").value.trim() || "paper").replace(/[^\w.-]+/g, "_").slice(0,40);
+  const n = (studentLabel(state) || "paper").replace(/[^\w.-]+/g, "_").slice(0,40);
   const d = $("t-date").value || today();
   return "grade-along-" + n + "-" + d;
 }
@@ -4940,6 +5029,18 @@ renderFiles();
 students.forEach((st) => st.files.filter((f) => isPdfFile(f) && f.dataUrl).forEach((f) => { queuePrepare(f, st); }));
 renderStatus();
 
+// v24: keep only the first name once the teacher leaves the field; initial is one letter.
+$("t-name").addEventListener("change", () => {
+  const raw = $("t-name").value, f = firstOnly(raw);
+  if(raw.trim() && f !== raw.trim()){ $("t-name").value = f; state.student = f; nameTrimmed = true; }
+  else nameTrimmed = false;
+  saveDraft(); renderNameNote(); renderQueue();
+});
+$("t-initial").addEventListener("input", () => {
+  state.initial = initialOnly($("t-initial").value);
+  saveDraft(); renderNameNote(); renderQueue(); setTimeout(renderAssess, 0);
+});
+$("t-initial").addEventListener("change", () => { $("t-initial").value = state.initial || ""; });
 ["t-name","t-grade","t-date","t-facilitator","t-story"].forEach((id) => {
   $(id).addEventListener("input", () => {
     const fld = Object.keys(FIELD_IDS).find((k) => FIELD_IDS[k] === id);
@@ -5134,7 +5235,7 @@ function renderSchoolReport(data){
       (g.students || []).forEach((s) => {
         const tr = el("tr");
         const change = s.differentRubric ? uiT("different rubric") : (s.change == null ? "—" : ((s.change > 0 ? "+" : "") + s.change));
-        tr.append(el("td", null, s.firstName), el("td", null, s.grade || "—"), el("td", null, s.facilitator || "—"),
+        tr.append(el("td", null, firstOnly(s.firstName) + (s.lastInitial ? " " + s.lastInitial + "." : "") + (s.sameName ? " (" + uiT("same name · add a last initial") + ")" : "")), el("td", null, s.grade || "—"), el("td", null, s.facilitator || "—"),
           el("td", null, s.pre == null ? "—" : String(s.pre)), el("td", null, s.post == null ? "—" : String(s.post)), el("td", null, change));
         tb.append(tr);
       });

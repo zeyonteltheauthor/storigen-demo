@@ -54,6 +54,15 @@ Schema changes are additive: `ALTER TABLE schools ADD COLUMN closed_at TEXT`, `A
 
 Tests: `node test/grade-along-retention.test.mjs` (Worker + fake D1 on `node:sqlite`) and `node test/grade-along-retention-e2e.cjs` (page + Worker through Playwright; serve the repo at http://127.0.0.1:4173 first).
 
+## v24: names, approved scores, paper credits
+
+- `src/index.js` is the entry and exports only the default handler (newer workerd rejects extra named exports such as `DEMO_DAILY_LIMIT`). All code and the helpers used by tests live in `src/app.js`.
+- **First name only.** `cleanFirstName()` keeps the first given name (`"Testy Mae Brown"` and `"Brown, Testy Mae"` give `Testy`) for `/grade`, `/demo/grade`, cover reads, `/test/read`, `/school/scores`, the school report and CSV export (legacy rows included). Writing prompts add a rule to use the first name only, and `scrubDraftNames()` removes a middle/last name the model copied from the paper.
+- **`/school/scores`** requires `approved: true` (400 `notApproved` otherwise). Optional `lastInitial` (one letter, teacher-typed) and `rosterId` (browser roster key) are part of the upsert key, so same-name students never overwrite each other. The report pairs pre/post by first name + last initial + grade and flags `sameName` instead of pairing when two records share that key. (Fixes a v23 bug where every student in a grade shared one pairing key.)
+- **Credits.** `/test/read` and `/demo/test/read` return 422 `noAnswers` without charging when nothing is clearly marked. `usage_events.paper_key` (SHA-256 of kind + first name + first page) makes a retry/regrade of the same paper within 24 hours free; the daily cron clears paper keys older than 24 hours.
+- Schema changes are additive (`scores.last_initial`, `scores.roster_id`, `scores.approved`, `usage_events.paper_key`, index `usage_paper`) and are applied on first use.
+- Tests: `node test/grade-along-v24.test.mjs` and `node test/grade-along-v24-e2e.cjs` (static server on 127.0.0.1:4173).
+
 ## Invite emails (v16)
 
 - `POST /owner/schools` and `POST /school/teachers` send an invite email when the `EMAIL` binding is configured, and always return the one-time `inviteCode` plus `email: { sent, error }`.
