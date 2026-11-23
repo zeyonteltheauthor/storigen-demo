@@ -46,7 +46,7 @@ function makeD1(db) {
 
   // --- Gate: shared-computer clear ---
   await page.goto(BASE);
-  ok("gate shows v28 label", (await page.locator(".version-label").first().innerText()).includes("Grade Along v28"));
+  ok("gate shows v29 label", (await page.locator(".version-label").first().innerText()).includes("Grade Along v29"));
   ok("gate shows shared-computer button", await page.locator("#gate-clear-all").isVisible());
   await page.evaluate(() => {
     localStorage.setItem("storigen-os-grade-along-teacher-queue::passcode", JSON.stringify({ v: 2, students: [{ student: "Maya", files: [{ dataUrl: "data:image/jpeg;base64,AAAA" }] }] }));
@@ -135,10 +135,29 @@ function makeD1(db) {
   if (visible) {
     dialogs.length = 0;
     await btn.first().click();
-    const after = await page.evaluate(() => ({ h: localStorage.getItem("storigen-os-grade-along-history::passcode"), q: localStorage.getItem("storigen-os-grade-along-teacher-queue::passcode") || "" }));
+    const after = await page.evaluate(() => {
+      const q = localStorage.getItem("storigen-os-grade-along-teacher-queue::passcode") || "";
+      const h = localStorage.getItem("storigen-os-grade-along-history::passcode");
+      const thumbs = document.querySelectorAll("#t-attach-list img, .attach-item img").length;
+      const files = (window.__GA_TEST && window.__GA_TEST.state && window.__GA_TEST.state().files) ? window.__GA_TEST.state().files : [];
+      return { h, q, thumbs, memoryFiles: files.length };
+    });
     ok("Clear device history removed history", after.h === null);
-    ok("Clear device history removed stored photos", !after.q.includes('"dataUrl":"data:'));
+    ok("Clear device history removed stored photos", !after.q.includes('"dataUrl":"data:') && !after.q.includes("data:image"));
+    ok("Clear device history dropped file name and size stubs", !after.q.includes("p.jpg") && !/"size"\s*:\s*4/.test(after.q));
+    ok("Clear device history hid the thumbnail", after.thumbs === 0 && after.memoryFiles === 0);
     ok("its confirm mentions photos", dialogs.some((m) => /paper photos/.test(m)));
+    await page.reload();
+    await page.waitForSelector("#ga-lock:not([hidden])");
+    const afterReload = await page.evaluate(() => {
+      const q = localStorage.getItem("storigen-os-grade-along-teacher-queue::passcode") || "";
+      const h = localStorage.getItem("storigen-os-grade-along-history::passcode");
+      const thumbs = document.querySelectorAll("#t-attach-list img, .attach-item img").length;
+      return { h, q, thumbs };
+    });
+    ok("after reload, history stays cleared", afterReload.h === null);
+    ok("after reload, no data:image, file name, or size stub remains", !afterReload.q.includes("data:image") && !afterReload.q.includes("p.jpg") && !/"size"\s*:\s*4/.test(afterReload.q));
+    ok("after reload, no thumbnail is shown", afterReload.thumbs === 0);
   } else {
     console.log("NOTE Clear device history button not rendered in this view (photoBefore=" + photoBefore + ")");
   }

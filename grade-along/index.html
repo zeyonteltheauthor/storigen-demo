@@ -417,7 +417,7 @@ body:not(.ga-test) .test-only{display:none !important}
   "Done. Everything Grade Along saved in this browser was cleared.": "Listo. Se borró todo lo que Grade Along guardó en este navegador.",
   "Signed out. This account's grading queue, paper photos and saved scores were cleared from this browser.": "Sesión cerrada. Se borraron de este navegador la cola de calificación, las fotos de los trabajos y las puntuaciones guardadas de esta cuenta.",
   "Signed out. Nothing from this account was left in this browser.": "Sesión cerrada. No quedó nada de esta cuenta en este navegador.",
-  "Delete the approved scores and the paper photos saved in this browser? Papers open now stay on screen until you close the page. Files you downloaded are not affected.": "¿Eliminar las puntuaciones aprobadas y las fotos de los trabajos guardadas en este navegador? Los trabajos abiertos ahora siguen en pantalla hasta que cierres la página. Los archivos que descargaste no se ven afectados.",
+  "Delete the approved scores and the paper photos saved in this browser? Photos on this page will be removed too. Files you downloaded are not affected.": "¿Eliminar las puntuaciones aprobadas y las fotos de los trabajos guardadas en este navegador? Las fotos en esta página también se quitarán. Los archivos que descargaste no se ven afectados.",
   "STORIGEN OS home": "Inicio de STORIGEN OS",
   "Grade Along home": "Inicio de Grade Along",
   "Lock": "Cerrar sesión",
@@ -1401,7 +1401,7 @@ GA_i18n.init();
 <p class="gate-note" data-i18n="Lock signs you out and clears that account's grading queue, paper photos and saved scores from this browser.">Lock signs you out and clears that account's grading queue, paper photos and saved scores from this browser.</p>
 <p class="gate-note" data-i18n="The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only, and each signed-in account has its own.">The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only, and each signed-in account has its own.</p>
 <p class="gate-note" data-i18n="A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
-<p class="version-label">Grade Along v28</p>
+<p class="version-label">Grade Along v29</p>
 <p class="gate-powered" data-i18n="Powered by STORIGEN · Arrival House Media">Powered by STORIGEN · Arrival House Media</p>
 </section>
 </main>
@@ -1629,7 +1629,7 @@ GA_i18n.init();
 <p class="growth-status" data-i18n="When a school's agreement ends or it asks in writing, use Close school. Export its scores first if it asked for them. Its data is deleted automatically 30 days after closing, or right away with Delete school data now.">When a school's agreement ends or it asks in writing, use Close school. Export its scores first if it asked for them. Its data is deleted automatically 30 days after closing, or right away with Delete school data now.</p>
 <p class="school-legal" data-i18n="A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
 </section>
-<footer class="version-label" id="ga-version">Grade Along v28</footer>
+<footer class="version-label" id="ga-version">Grade Along v29</footer>
 </div>
 
 </main>
@@ -1913,7 +1913,7 @@ let students = [blankStudent()];
 let state = students[0];          // the student shown in the form
 let storeWarn = false;
 let skipPhotoStore = false;
-let storageWiped = false;          // v23: set on Lock after the wipe, so nothing is written back before the reload        // v23: after "Clear device history", paper photos are not written to this browser again this session
+let storageWiped = false;          // v23: set on Lock after the wipe, so nothing is written back before the reload        // v23/v29: after "Clear device history", paper photos are removed from the open page and are not written to this browser again this session
 let batchRunning = false;
 let sessionAssess = "pre";           // session default: "pre" | "post"
 const PRE_FILE_STORE = "storigen-os-grade-along-pre-loaded";
@@ -2517,7 +2517,7 @@ window.GA_workspace = {
 if(location.hostname === "127.0.0.1"){
   window.__GA_TEST = {firstOnly, initialOnly, scrubName, nameFromFile, blankStudent, applyCover, applyAI, buildReport, csvAll, payload, displayName, renderQueue, renderNameNote,
     preHits, autoMatch, matchFor, growthFor, rosterOf, prePool, preAmbiguous,
-    gradeAlongBase, sampleSrc, loadDemoSample, loadTestSampleImage, removeFileAt, clearPhotos, purgeUndecodablePhotos, addFiles, imageLooksDecodable, saveDraft, loadDraft, renderFiles, isSamplePhoto, dropSamplePhotos, serializeStudent, demoPapers: () => DEMO_PAPERS,
+    gradeAlongBase, sampleSrc, loadDemoSample, loadTestSampleImage, removeFileAt, clearPhotos, clearStoredPhotos, purgeUndecodablePhotos, addFiles, imageLooksDecodable, saveDraft, loadDraft, renderFiles, isSamplePhoto, dropSamplePhotos, serializeStudent, demoPapers: () => DEMO_PAPERS,
     students: () => students, state: () => state, rubricId: () => RUB.id};
 }
 function teachersLockedToSchool(){
@@ -3684,16 +3684,20 @@ function renderGrowthBar(){
   parts.push(uiT("Saved in this browser on this device only: {n} approved score{s} (other devices can't see them)", {n: nDev, s: nDev === 1 ? "" : "s", es: nDev === 1 ? "" : "s"}));
   st.append(document.createTextNode(parts.join(" · ") + "."));
   if(nFile){ const b = el("button", null, uiT("Remove loaded pre scores")); b.type = "button"; b.addEventListener("click", () => { try { localStorage.removeItem(workKey(PRE_FILE_STORE)); } catch(e){} renderAssess(); renderQueue(); }); st.append(b); }
-  if(nDev || storedQueueHasPhotos()){ const b = el("button", null, uiT("Clear device history")); b.type = "button"; b.addEventListener("click", () => { if(confirm(uiT("Delete the approved scores and the paper photos saved in this browser? Papers open now stay on screen until you close the page. Files you downloaded are not affected."))){ try { localStorage.removeItem(workKey(HISTORY_STORE)); } catch(e){} clearStoredPhotos(); renderAssess(); renderQueue(); } }); st.append(b); }
+  if(nDev || storedQueueHasPhotos()){ const b = el("button", null, uiT("Clear device history")); b.type = "button"; b.addEventListener("click", () => { if(confirm(uiT("Delete the approved scores and the paper photos saved in this browser? Photos on this page will be removed too. Files you downloaded are not affected."))){ try { localStorage.removeItem(workKey(HISTORY_STORE)); } catch(e){} clearStoredPhotos(); renderAssess(); renderQueue(); } }); st.append(b); }
   $("q-print-growth").hidden = !matched;
 }
 // v23: is there a paper photo stored in this workspace's saved queue?
 function storedQueueHasPhotos(){
   try { const raw = localStorage.getItem(workKey(QUEUE_STORE)); return !!raw && raw.indexOf('"dataUrl":"data:') !== -1; } catch(e){ return false; }
 }
-// v23: rewrite the saved queue without photos, and stop storing photos for the rest of this page session.
+// v29: drop stored photos and file records (no name, type, or size stubs), clear the
+// open-page thumbnails, and stop storing photos for the rest of this page session.
 function clearStoredPhotos(){
   skipPhotoStore = true;
+  students.forEach((st) => clearStudentFiles(st));
+  resetFileInput();
+  if(typeof renderFiles === "function") renderFiles();
   saveDraft();
   if(storedQueueHasPhotos()){ try { localStorage.removeItem(workKey(QUEUE_STORE)); } catch(e){} }
 }
