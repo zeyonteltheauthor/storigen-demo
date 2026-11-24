@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src data:; connect-src https://grade-along-api.storigen.workers.dev; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta name="robots" content="noindex">
+<title>Grade Along · Teacher plans</title>
+<style>
+:root{--ink:#1d2433;--sub:#5a6475;--line:#d6dce6;--brand:#2b4c9b;--soft:#eef3ff;--warn:#7a1b1b;--good:#1b5e20}
+*{box-sizing:border-box}body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);max-width:760px;margin:0 auto;padding:24px 16px 48px;line-height:1.45}
+h1{font-size:1.6rem;margin:.2em 0}h2{font-size:1.15rem;margin:1.2em 0 .4em}.sub{color:var(--sub)}
+.plans{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin:12px 0}
+.plan{border:1px solid var(--line);border-radius:10px;padding:12px;cursor:pointer;display:block}
+.plan input{margin-right:6px}.plan b{font-size:1.05rem}.price{font-size:1.35rem;font-weight:700;margin:4px 0}
+.plan:has(input:checked){border-color:var(--brand);box-shadow:0 0 0 2px rgba(43,76,155,.2)}
+label.f{display:block;margin:10px 0 4px;font-weight:600}input[type=email],input[type=text]{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;font:inherit}
+button{font:inherit;padding:10px 16px;border-radius:8px;border:1px solid var(--brand);background:var(--brand);color:#fff;cursor:pointer;margin:6px 8px 6px 0}
+button.secondary{background:#fff;color:var(--brand)}button:disabled{opacity:.6;cursor:default}
+.disclosure{background:var(--soft);border-radius:8px;padding:10px 12px;font-size:.93rem;margin:10px 0}
+.card{border:1px solid var(--line);border-radius:10px;padding:14px;margin:14px 0}
+.code{font-family:ui-monospace,Menlo,monospace;font-size:1.2rem;background:var(--soft);padding:8px 10px;border-radius:6px;display:inline-block;letter-spacing:.04em}
+#msg{min-height:1.4em;margin:8px 0;color:var(--warn)}#msg.ok{color:var(--good)}.small{font-size:.88rem;color:var(--sub)}
+</style>
+</head>
+<body>
+<p class="small"><a href="../">← Grade Along</a></p>
+<h1>Grade Along for individual teachers</h1>
+<p class="sub">AI-drafted rubric scores and feedback that you review and approve. One paper is used only when the AI returns a usable draft.</p>
+<div id="msg" role="status" aria-live="polite"></div>
+
+<div id="soon" hidden class="card"><b>Teacher plans are coming soon.</b> <span class="sub">If your school gave you an invite code, sign in on the <a href="../">Grade Along page</a>.</span></div>
+
+<div id="signedout">
+  <section id="buybox" hidden>
+    <h2>Choose a plan</h2>
+    <div class="plans" id="plans">
+      <label class="plan"><input type="radio" name="plan" value="monthly" checked><b>Monthly</b><div class="price">$15<span class="small"> / month</span></div><div class="small">30 papers each month</div></label>
+      <label class="plan"><input type="radio" name="plan" value="yearly"><b>Yearly</b><div class="price">$144<span class="small"> / year</span></div><div class="small">360 papers each year</div></label>
+      <label class="plan"><input type="radio" name="plan" value="yearly_plus"><b>Yearly Plus</b><div class="price">$199<span class="small"> / year</span></div><div class="small">480 papers each year</div></label>
+    </div>
+    <label class="f" for="email">Email</label>
+    <input type="email" id="email" autocomplete="email" maxlength="200" placeholder="you@example.com">
+    <p class="disclosure" id="renewal"><b>Auto-renewal:</b> your plan renews automatically at the price shown, every month or year depending on the plan, until you cancel. You can cancel anytime in <b>Manage billing</b>, and your papers stay available until the end of the period you paid for. We email you a reminder before each renewal, and at least 30 days' notice before any price change. Sales tax may be added at checkout depending on where you live. Payment is handled by Stripe; we never see your full card number.</p>
+    <label><input type="checkbox" id="agree"> I agree to the <a id="terms-link" href="../terms/" target="_blank" rel="noopener">Terms</a> and understand the plan renews automatically until I cancel.</label>
+    <div><button id="buy">Buy — continue to secure checkout</button></div>
+  </section>
+  <section class="card">
+    <h2 style="margin-top:0">Already have a plan? Sign in</h2>
+    <label class="f" for="semail">Email</label><input type="email" id="semail" autocomplete="username" maxlength="200">
+    <label class="f" for="scode">Sign-in code</label><input type="text" id="scode" autocomplete="one-time-code" maxlength="40" placeholder="XXXX-XXXX-XXXX-XXXX" spellcheck="false">
+    <div><button class="secondary" id="signin">Sign in</button></div>
+  </section>
+</div>
+
+<div id="signedin" hidden>
+  <section class="card">
+    <h2 style="margin-top:0">Your plan</h2>
+    <div id="me"></div>
+    <div id="codebox" hidden class="disclosure"><b>Save your sign-in code now.</b> You need it, with your email, to sign in on another device. It is shown only once.<br><span class="code" id="code"></span></div>
+    <div><button id="open">Open Grade Along</button><button class="secondary" id="portal">Manage billing</button></div>
+    <p class="small">Manage billing opens Stripe, where you can change plans, update your card, see receipts or cancel.</p>
+    <div><button class="secondary" id="rotate">New sign-in code</button><button class="secondary" id="logout">Sign out</button></div>
+  </section>
+</div>
+<p class="small">Arrival House Media LLC · Questions: info@arrivalhousemedia.com</p>
+
+<script>
+(function(){
+  var API = "https://grade-along-api.storigen.workers.dev";
+  var STORE = "storigen-grade-along-session";            // same key the Grade Along app uses
+  var TERMS_URL = "../terms/";                            // teacher Terms, published 2026-11-23
+  var $ = function(id){ return document.getElementById(id); };
+  var tok = function(){ try { return localStorage.getItem(STORE) || ""; } catch(e){ return ""; } };
+  var setTok = function(t){ try { if(t) localStorage.setItem(STORE, t); else localStorage.removeItem(STORE); } catch(e){} };
+  var msg = function(t, ok){ $("msg").textContent = t || ""; $("msg").className = ok ? "ok" : ""; };
+  function api(path, body){
+    var h = {"Content-Type": "application/json"}; var t = tok(); if(t && t.indexOf("ind_") === 0) h["X-Teacher-Session"] = t;
+    return fetch(API + path, {method: body ? "POST" : "GET", headers: h, body: body ? JSON.stringify(body) : undefined, cache: "no-store"})
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){ return {status: r.status, d: d}; }); })
+      .catch(function(){ return {status: 0, d: {error: "Could not reach Grade Along. Check your connection."}}; });
+  }
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+  var LABEL = {monthly: "Monthly", yearly: "Yearly", yearly_plus: "Yearly Plus"};
+  function showMe(){
+    return api("/individual/me").then(function(res){
+      if(res.status !== 200){ if(tok().indexOf("ind_") === 0) setTok(""); $("signedin").hidden = true; $("signedout").hidden = false; return; }
+      $("signedout").hidden = true; $("signedin").hidden = false;
+      var a = res.d.account || {}, u = a.usage || {}, s = a.subscription;
+      var status = s ? (s.cancelAtPeriodEnd ? "cancels at the end of this period" : s.status) : a.status;
+      $("me").innerHTML = "<p><b>" + esc(a.email) + "</b></p><p>Plan: " + esc(s ? (LABEL[s.plan] || s.plan) : "none") + " · " + esc(status) + "</p><p>Papers left: <b>" + esc(u.papersLeft) + "</b> of " + esc(u.papersAllowed) + (u.periodEnd ? " · until " + esc(new Date(u.periodEnd).toLocaleDateString()) : "") + "</p>";
+    });
+  }
+  $("buy").onclick = function(){
+    var plan = (document.querySelector("input[name=plan]:checked") || {}).value;
+    var email = $("email").value.trim();
+    if(!email){ msg("Enter your email."); return; }
+    if(!$("agree").checked){ msg("Please read and accept the Terms and the auto-renewal notice."); return; }
+    $("buy").disabled = true; msg("Opening secure checkout…", true);
+    api("/individual/checkout", {email: email, plan: plan, agree: true, termsVersion: TERMS_URL ? "teacher-terms-2026-11-23" : "unpublished-draft"}).then(function(res){
+      $("buy").disabled = false;
+      if(res.status === 200 && res.d.url) location.href = res.d.url; else msg(res.d.error || "Could not start checkout.");
+    });
+  };
+  $("signin").onclick = function(){
+    api("/individual/signin", {email: $("semail").value.trim(), code: $("scode").value.trim()}).then(function(res){
+      if(res.status === 200 && res.d.token){ setTok(res.d.token); $("scode").value = ""; msg("Signed in.", true); showMe(); } else msg(res.d.error || "Sign-in failed.");
+    });
+  };
+  $("open").onclick = function(){ location.href = "../"; };
+  $("portal").onclick = function(){ api("/individual/portal", {}).then(function(res){ if(res.status === 200 && res.d.url) location.href = res.d.url; else msg(res.d.error || "Could not open billing."); }); };
+  $("rotate").onclick = function(){ api("/individual/recovery/rotate", {}).then(function(res){ if(res.status === 200){ $("codebox").hidden = false; $("code").textContent = res.d.signinCode; msg("New code made. The old one no longer works.", true); } else msg(res.d.error || "Could not make a new code."); }); };
+  $("logout").onclick = function(){ api("/individual/logout", {}).then(function(){ setTok(""); location.replace(location.pathname); }); };
+  if(TERMS_URL) $("terms-link").href = TERMS_URL; else $("terms-link").removeAttribute("href");
+  api("/individual/plans").then(function(res){
+    var on = res.status === 200 && res.d && res.d.available;
+    $("buybox").hidden = !on; $("soon").hidden = on;
+    var q = new URLSearchParams(location.search);
+    if(q.get("canceled")){ msg("Checkout was cancelled. Nothing was charged."); history.replaceState(null, "", location.pathname); }
+    var sid = q.get("session_id");
+    if(sid && on){
+      msg("Finishing setup…", true);
+      return api("/individual/confirm", {sessionId: sid}).then(function(c){
+        history.replaceState(null, "", location.pathname);
+        if(c.status === 200 && c.d.token){ setTok(c.d.token); $("codebox").hidden = false; $("code").textContent = c.d.signinCode; msg("You're all set. Save your sign-in code below.", true); }
+        else if(c.status === 200) msg("Your plan is already set up. Sign in with your email and sign-in code.", true);
+        else msg(c.d.error || "Could not finish setup. If you were charged, email info@arrivalhousemedia.com.");
+        return showMe();
+      });
+    }
+    if(tok().indexOf("ind_") === 0) return showMe();
+  });
+})();
+</script>
+</body>
+</html>

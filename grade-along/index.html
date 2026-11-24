@@ -1397,11 +1397,12 @@ GA_i18n.init();
 <button type="submit" class="primary" id="gate-school-go" data-i18n="Sign in with invite">Sign in with invite</button>
 </form>
 <p class="gate-msg" id="gate-msg" role="status" aria-live="polite"></p>
+<p class="gate-note" id="gate-plans" hidden><a href="teacher/" data-i18n="Teaching on your own? See teacher plans or sign in">Teaching on your own? See teacher plans or sign in</a></p>
 <p class="gate-shared"><button type="button" class="link-btn" id="gate-clear-all" data-i18n="Shared computer? Clear everything on this device">Shared computer? Clear everything on this device</button></p>
 <p class="gate-note" data-i18n="Lock signs you out and clears that account's grading queue, paper photos and saved scores from this browser.">Lock signs you out and clears that account's grading queue, paper photos and saved scores from this browser.</p>
 <p class="gate-note" data-i18n="The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only, and each signed-in account has its own.">The passcode is kept in this tab only. A school sign-in is kept on this device until you press Lock, or until the session ends (30 days). In team (passcode) mode, papers, names and scores are never stored on the site. When you sign in with a school account, first names and approved scores are stored for your school's live reports. Photos, PDFs and story text stay on this device and are not stored on the site. Drafts stay in this browser on this device only, and each signed-in account has its own.</p>
 <p class="gate-note" data-i18n="A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
-<p class="version-label">Grade Along v29</p>
+<p class="version-label">Grade Along v30</p>
 <p class="gate-powered" data-i18n="Powered by STORIGEN · Arrival House Media">Powered by STORIGEN · Arrival House Media</p>
 </section>
 </main>
@@ -1629,7 +1630,7 @@ GA_i18n.init();
 <p class="growth-status" data-i18n="When a school's agreement ends or it asks in writing, use Close school. Export its scores first if it asked for them. Its data is deleted automatically 30 days after closing, or right away with Delete school data now.">When a school's agreement ends or it asks in writing, use Close school. Export its scores first if it asked for them. Its data is deleted automatically 30 days after closing, or right away with Delete school data now.</p>
 <p class="school-legal" data-i18n="A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.">A privacy policy, terms of service, and a school data agreement are needed before schools outside Arrival House use Grade Along.</p>
 </section>
-<footer class="version-label" id="ga-version">Grade Along v29</footer>
+<footer class="version-label" id="ga-version">Grade Along v30</footer>
 </div>
 
 </main>
@@ -2018,7 +2019,7 @@ function applyTestResult(st, result){
 }
 function rememberTestScore(st){
   if(!st || !st.testResult || !st.approved) return;
-  if(!(window.GA_SCHOOL && window.GA_SCHOOL.token)) return;
+  if(!(window.GA_SCHOOL && window.GA_SCHOOL.token) || window.GA_SCHOOL.individual) return;   // v30: teacher plans keep history on the device
   const r = st.testResult;
   fetch(API_BASE + "/school/scores", {
     method: "POST",
@@ -3717,7 +3718,7 @@ function rememberScores(list){
   while(hist.length > 500) hist.shift();
   writeJSON(HISTORY_STORE, hist);
   renderGrowthBar();
-  if(window.GA_SCHOOL && window.GA_SCHOOL.token){
+  if(window.GA_SCHOOL && window.GA_SCHOOL.token && !window.GA_SCHOOL.individual){
     list.forEach((st) => {
       if(st.testResult || !st.approved || !allScored(st)) return;   // v24: approved scores only
       const r = scoreRecord(st, "device");
@@ -4016,7 +4017,7 @@ function openRubrics(msg, kind){
   const locked = teachersLockedToSchool();
   card.append(el("p", null, locked
     ? uiT("Your school requires you to grade with an approved school rubric, so scores stay comparable. Ask your admin to add a rubric, or to allow teachers to use their own.")
-    : (window.GA_SCHOOL
+    : (window.GA_SCHOOL && !window.GA_SCHOOL.individual
     ? uiT("Pick the rubric each session grades with. School rubrics are shared with every teacher at this school. You can still keep private rubrics in this browser, or import a file.")
     : uiT("Pick the rubric each session grades with. Build your school's or district's rubric, read one from a PDF or photo, or import a rubric file another teacher shared. Rubrics are saved in this browser on this device only — use Export to share a file with your team."))));
   const acts = el("div", "split-controls");
@@ -4897,7 +4898,7 @@ async function submitFlag(ev){
   const go = $("ai-flag-go");
   if(go) go.disabled = true;
   try{
-    const data = await schoolFetch("/school/usage/flag", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({usageId: state.usageId, reason})});
+    const data = await schoolFetch(window.GA_SCHOOL.individual ? "/individual/usage/flag" : "/school/usage/flag", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({usageId: state.usageId, reason})});
     state.usageFlagged = true;
     saveDraft();
     renderFlagPanel();
@@ -5440,7 +5441,9 @@ function renderSchoolBar(){
     const name = (school.school && school.school.name) || uiT("Your school");
     const who = (school.user && (school.user.name || school.user.email)) || "";
     const role = school.user && school.user.role === "admin" ? uiT("admin") : uiT("teacher");
-    let msg = name + (who ? " · " + who : "") + " · " + role + " · " + uiT("{used} of {cap} papers used this year", {used: u.used || 0, cap: u.cap || 0});
+    let msg = school.individual
+      ? name + (who ? " · " + who : "") + " · " + uiT("{used} of {cap} papers used this period", {used: u.used || 0, cap: u.cap || 0})
+      : name + (who ? " · " + who : "") + " · " + role + " · " + uiT("{used} of {cap} papers used this year", {used: u.used || 0, cap: u.cap || 0});
     if(u.stopped) msg += uiT(" · no papers left");
     else if(u.warn) msg += uiT(" · 80% or more used");
     else if(u.remaining != null) msg += uiT(" · {n} remaining", {n: u.remaining});
@@ -5561,7 +5564,7 @@ function renderSchoolReport(data){
 async function refreshSchool(msg){
   if(!window.GA_SCHOOL) return;
   try{
-    const data = await schoolFetch("/school");
+    const data = window.GA_SCHOOL.individual ? await schoolFetch("/verify", {method: "POST"}) : await schoolFetch("/school");
     window.GA_SCHOOL.user = data.user;
     window.GA_SCHOOL.school = data.school;
     window.GA_SCHOOL.usage = data.usage;
@@ -6097,7 +6100,7 @@ window.GA_schoolUi = { renderTeacherTable, renderSchoolReport, openSplit, openEd
     return name ? (name + " · " + role) : uiT("School account");
   }
   function acceptSchool(data, token){
-    window.GA_SCHOOL = { token: token, user: data.user, school: data.school, usage: data.usage, rubrics: data.rubrics || [], teachers: data.teachers || [] };
+    window.GA_SCHOOL = { token: token, user: data.user, school: data.school, usage: data.usage, rubrics: data.rubrics || [], teachers: data.teachers || [], individual: data.mode === "individual" };
     ls(function(){ localStorage.setItem(SESSION_STORE, token); });
     ss(function(){ sessionStorage.removeItem(PASS_KEY); sessionStorage.removeItem(OK_KEY); });
     mount(schoolBadge(data));
@@ -6131,7 +6134,7 @@ window.GA_schoolUi = { renderTeacherTable, renderSchoolReport, openSplit, openEd
     return fetch(VERIFY_URL, {method: "POST", headers: {"X-Teacher-Session": token}, cache: "no-store"}).then(function(r){
       if(schoolGo) schoolGo.disabled = false;
       return r.json().then(function(data){
-        if(r.status === 200 && data && data.ok && data.mode === "school"){ say(""); acceptSchool(data, token); return; }
+        if(r.status === 200 && data && data.ok && (data.mode === "school" || data.mode === "individual")){ say(""); acceptSchool(data, token); return; }
         ls(function(){ localStorage.removeItem(SESSION_STORE); });
         if(!quiet) say(GA_i18n.localizeError((data && data.error) || "That school sign-in has expired. Enter a new invite code."), "error");
       }).catch(function(){ if(schoolGo) schoolGo.disabled = false; if(!quiet) say(uiT("Could not check the school sign-in right now."), "error"); });
@@ -6175,7 +6178,8 @@ window.GA_schoolUi = { renderTeacherTable, renderSchoolReport, openSplit, openEd
   var NOTE_KEY = "storigen-grade-along-gate-note";
   function serverLogout(token){
     if(!token) return;
-    try { fetch(API_BASE + "/auth/logout", {method: "POST", headers: {"X-Teacher-Session": token}, keepalive: true, cache: "no-store"}).catch(function(){}); } catch(e){}
+    var path = String(token).indexOf("ind_") === 0 ? "/individual/logout" : "/auth/logout";   // v30: teacher plans
+    try { fetch(API_BASE + path, {method: "POST", headers: {"X-Teacher-Session": token}, keepalive: true, cache: "no-store"}).catch(function(){}); } catch(e){}
   }
   // v23: Lock signs out and clears this account's student data from this browser.
   document.getElementById("ga-lock").addEventListener("click", function(){
@@ -6231,6 +6235,8 @@ window.GA_schoolUi = { renderTeacherTable, renderSchoolReport, openSplit, openEd
     mount(uiT("Public demo"));
     return;
   }
+  // v30: show the teacher-plans link only when the server says plans are available.
+  try { fetch(API_BASE + "/individual/plans", {cache: "no-store"}).then(function(r){ return r.json(); }).then(function(d){ var n = document.getElementById("gate-plans"); if(n && d && d.available) n.hidden = false; }).catch(function(){}); } catch(e){}
   var savedSession = ls(function(){ return localStorage.getItem(SESSION_STORE); });
   var savedPass = ss(function(){ return sessionStorage.getItem(PASS_KEY); });
   if(savedSession) trySession(savedSession, true);

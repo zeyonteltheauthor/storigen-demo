@@ -45,7 +45,7 @@ function makeD1(db) {
   page.on("download", () => {});
 
   await page.goto(BASE);
-  ok("v29 label", (await page.locator(".version-label").first().innerText()).includes("Grade Along v29"));
+  ok("v30 label", (await page.locator(".version-label").first().innerText()).includes("Grade Along v30"));
   await page.fill("#gate-email", "a@example.invalid");
   await page.fill("#gate-code", made.inviteCode);
   await page.click("#gate-school-go");

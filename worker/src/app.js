@@ -8,6 +8,8 @@
 // Passcode mode stores nothing. School accounts store first names and approved scores only —
 // never story text, photos or PDFs. Student paper content is never logged.
 
+import { routeIndividual, loadIndividualSession, reservePaper, chargePaper, releasePaper, freeAiCall, individualUsage, individualPaperKey, recordAiCost, runIndividualRetention, schoolShapeUsage } from "./individual.js";
+// v30: v29 + individual teacher plans (individual.js). Billing is inert until the live Stripe vars/secrets and BILLING_ENABLED=on are set.
 const ALLOWED_ORIGINS = [
   "https://zeyonteltheauthor.github.io",
   "https://gradealong.com",
@@ -541,6 +543,10 @@ async function handleRubric(request, env, origin) {
   if (len > MAX_BODY) return json({ error: "Too much data in one request." }, 413, origin);
   let body;
   try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
+  if (auth.kind === "individual") {
+    const cap = await freeAiCall(env, auth, "rubric");
+    if (!cap.ok) return json({ error: cap.error }, cap.status, origin);
+  }
   const images = Array.isArray(body.images) ? body.images : [];
   const text = cleanStr(body.text, MAX_TEXT);
   if (images.length > MAX_RUBRIC_IMAGES) return json({ error: "Up to 4 pages of a rubric at a time." }, 400, origin);
@@ -632,6 +638,10 @@ async function handleSplit(request, env, origin) {
   if (len > MAX_BODY) return json({ error: "Too much data in one request." }, 413, origin);
   let body;
   try { body = await request.json(); } catch { return json({ error: "Invalid JSON body." }, 400, origin); }
+  if (auth.kind === "individual") {
+    const cap = await freeAiCall(env, auth, "split");
+    if (!cap.ok) return json({ error: cap.error }, cap.status, origin);
+  }
   const pages = Array.isArray(body.pages) ? body.pages : [];
   if (!pages.length || pages.length > SPLIT_MAX_PAGES) return json({ error: "Send 1 to " + SPLIT_MAX_PAGES + " pages at a time." }, 400, origin);
   const content = [];
@@ -674,6 +684,11 @@ async function handleVerify(request, env, origin) {
       rubrics,
       ...extraUsage(usage)
     }, 200, origin);
+  }
+  if (auth.kind === "individual") {
+    const iu = await individualUsage(env, auth.account);
+    return json({ ok: true, mode: "individual", user: { email: auth.account.email, name: "", role: "teacher" }, school: { name: "Teacher plan", teachersOwnRubrics: true },
+      usage: schoolShapeUsage(iu), individualUsage: iu, rubrics: [], teachers: [] }, 200, origin);
   }
   return json({ ok: true, mode: "passcode" }, 200, origin);
 }
@@ -727,6 +742,10 @@ async function handleGrade(request, env, origin) {
   }
   if (!content.length && !text) {
     if (!coverB64) return json({ error: "Add a photo of the paper or paste the story text." }, 400, origin);
+    if (auth.kind === "individual") {
+      const cap = await freeAiCall(env, auth, "cover");
+      if (!cap.ok) return json({ error: cap.error }, cap.status, origin);
+    }
     // Cover-only request: returns just the four fields.
     try {
       const cover = await readCover(env, coverB64);
@@ -739,9 +758,18 @@ async function handleGrade(request, env, origin) {
   const rubricBlock = await rejectIfRubricNotAllowed(env, auth, rub, body.rubric && body.rubric.id);
   if (rubricBlock) return json({ error: rubricBlock.error }, rubricBlock.status, origin);
   let paperKey = "";
+  let indSlot = null;
+  // Whole-paper fingerprint: every page + typed text + rubric (closes the page-1-only re-grade gap).
+  const wholePaper = () => individualPaperKey("grade", firstName, [...content.map((c) => c.source.data), "text:" + (text || ""), "rubric:" + (rub ? JSON.stringify(rub) : "default")]);
+  if (auth.kind === "individual") {
+    paperKey = await wholePaper();
+    indSlot = await reservePaper(env, auth, "grade", paperKey); // reserve BEFORE the AI call
+    if (!indSlot.ok) return json({ error: indSlot.error, individualUsage: indSlot.usage || null, ...(indSlot.usage ? { usage: schoolShapeUsage(indSlot.usage) } : {}) }, indSlot.status, origin);
+  }
   if (auth.kind === "school") {
     const firstPage = content.length ? content[0].source.data : (text ? "text:" + text : "");
-    paperKey = await paperKeyFor("grade", firstName, firstPage);
+    // STAGING PROTOTYPE (awaiting Don's decision #8): whole-paper key for schools too.
+    paperKey = env.SCHOOL_FIX_PROTOTYPE === "on" ? await wholePaper() : await paperKeyFor("grade", firstName, firstPage);
     const preview = await checkPaper(env, auth, paperKey);
     if (!preview.ok) return json({ error: preview.error, ...extraUsage(preview.usage) }, preview.status, origin);
   }
@@ -765,9 +793,18 @@ async function handleGrade(request, env, origin) {
       let usageExtra = {};
       if (auth.kind === "school") {
         const slot = await consumePaper(env, auth, paperKey);
+        // STAGING PROTOTYPE (decision #8): when the last paper was taken by a parallel request, don't hand out an unpaid draft.
+        if (!slot.ok && env.SCHOOL_FIX_PROTOTYPE === "on") return json({ error: slot.error || "No papers left.", ...extraUsage(slot.usage || usageView(auth.school)) }, slot.status || 403, origin);
         usageExtra = extraUsage(slot.ok ? slot.usage : (slot.usage || usageView(auth.school)));
         if (slot.usageId) usageExtra.usageId = slot.usageId;
         if (slot.free) usageExtra.free = true;
+      }
+      if (indSlot) {
+        if (indSlot.usageId) { await chargePaper(env, indSlot.usageId, out.usage); usageExtra.usageId = indSlot.usageId; }
+        if (indSlot.free) usageExtra.free = true;
+        await recordAiCost(env, "individual", out.usage);
+        usageExtra.individualUsage = await individualUsage(env, auth.account);
+        usageExtra.usage = schoolShapeUsage(usageExtra.individualUsage);
       }
       return json({ ok: true, model: out.model || MODEL, ...draft, ...extra, note: "AI draft. The teacher decides.", ...usageExtra }, 200, origin);
     } catch (e) {
@@ -775,6 +812,7 @@ async function handleGrade(request, env, origin) {
       if (e.status && e.status < 500 && e.status !== 429) break;
     }
   }
+  if (indSlot && indSlot.usageId) await releasePaper(env, indSlot.usageId); // AI failed: give the paper back
   const status = lastErr && lastErr.status;
   console.log("grade failed", status || (lastErr && lastErr.message)); // no student content
   return json({ error: status === 429 ? "The AI service is busy. Try again in a minute." : "The AI could not draft this paper. Try again, or grade it by hand." }, 502, origin);
@@ -1072,9 +1110,21 @@ async function handleTestRead(request, env, origin) {
   try { packed = await collectTestImages(body); }
   catch (e) { return json({ error: e.message }, e.status || 400, origin); }
   let paperKey = "";
+  let indSlot = null;
+  if (auth.kind === "individual" && packed.content.length) {
+    paperKey = await individualPaperKey("test", cleanFirstName(body.firstName), [...packed.content.filter((c) => c.source).map((c) => c.source.data), "key:" + JSON.stringify(shape)]);
+    indSlot = await reservePaper(env, auth, "test", paperKey);
+    if (!indSlot.ok) return json({ error: indSlot.error, individualUsage: indSlot.usage || null, ...(indSlot.usage ? { usage: schoolShapeUsage(indSlot.usage) } : {}) }, indSlot.status, origin);
+  }
+  if (auth.kind === "individual" && !packed.content.length && packed.coverB64) {
+    const cap = await freeAiCall(env, auth, "cover");
+    if (!cap.ok) return json({ error: cap.error }, cap.status, origin);
+  }
   if (auth.kind === "school") {
     const firstPage = packed.content.length ? packed.content[0].source.data : "";
-    paperKey = await paperKeyFor("test", cleanFirstName(body.firstName), firstPage);
+    paperKey = env.SCHOOL_FIX_PROTOTYPE === "on"
+      ? await individualPaperKey("test", cleanFirstName(body.firstName), [...packed.content.filter((c) => c.source).map((c) => c.source.data), "key:" + JSON.stringify(shape)])
+      : await paperKeyFor("test", cleanFirstName(body.firstName), firstPage);
     const preview = await checkPaper(env, auth, paperKey);
     if (!preview.ok) return json({ error: preview.error, ...extraUsage(preview.usage) }, preview.status, origin);
   }
@@ -1091,14 +1141,23 @@ async function handleTestRead(request, env, origin) {
       const extra = cover === undefined ? {} : { cover };
       if (!testReadUsable(read)) {
         // v24: nothing clearly marked (all blank or unclear). No paper credit is used.
+        if (indSlot && indSlot.usageId) await releasePaper(env, indSlot.usageId);
         return json({ error: NO_ANSWERS_MSG, noAnswers: true, answers: read.answers, transcriptionNote: read.transcriptionNote, ...extra, ...extraUsage(auth.kind === "school" ? usageView(auth.school) : null) }, 422, origin);
       }
       let usageExtra = {};
       if (auth.kind === "school") {
         const slot = await consumePaper(env, auth, paperKey);
+        if (!slot.ok && env.SCHOOL_FIX_PROTOTYPE === "on") return json({ error: slot.error || "No papers left.", ...extraUsage(slot.usage || usageView(auth.school)) }, slot.status || 403, origin);
         usageExtra = extraUsage(slot.ok ? slot.usage : (slot.usage || usageView(auth.school)));
         if (slot.usageId) usageExtra.usageId = slot.usageId;
         if (slot.free) usageExtra.free = true;
+      }
+      if (indSlot) {
+        if (indSlot.usageId) { await chargePaper(env, indSlot.usageId, read.usage); usageExtra.usageId = indSlot.usageId; }
+        if (indSlot.free) usageExtra.free = true;
+        await recordAiCost(env, "individual", read.usage);
+        usageExtra.individualUsage = await individualUsage(env, auth.account);
+        usageExtra.usage = schoolShapeUsage(usageExtra.individualUsage);
       }
       return json({ ok: true, model: read.model, answers: read.answers, transcriptionNote: read.transcriptionNote, note: "Answers read. The key scores them on this device.", usage: read.usage || null, ...extra, ...usageExtra }, 200, origin);
     } catch (e) {
@@ -1106,6 +1165,7 @@ async function handleTestRead(request, env, origin) {
       if (e.status && e.status < 500 && e.status !== 429) break;
     }
   }
+  if (indSlot && indSlot.usageId) await releasePaper(env, indSlot.usageId);
   const status = lastErr && lastErr.status;
   console.log("test read failed", status || (lastErr && lastErr.message));
   return json({ error: status === 429 ? "The AI service is busy. Try again in a minute." : "The AI could not read this test. Try a clearer picture, or enter the answers by hand." }, 502, origin);
@@ -1371,6 +1431,11 @@ async function authorize(request, env) {
   const sessionTok = (request.headers.get("X-Teacher-Session") || "").trim();
   const passHeader = request.headers.get("X-Teacher-Passcode");
   const pass = passHeader || "";
+  if (sessionTok && sessionTok.startsWith("ind_")) {
+    const ind = await loadIndividualSession(env, sessionTok);
+    if (ind) return { ok: true, ...ind };
+    return { ok: false, error: "Session expired. Sign in again.", status: 401 };
+  }
   if (sessionTok) {
     const sess = await loadSession(env, sessionTok);
     if (sess) return { ok: true, ...sess };
@@ -1613,6 +1678,7 @@ async function recentCharge(env, schoolId, paperKey) {
 }
 
 async function checkPaper(env, auth, paperKey = "") {
+  if (auth.kind === "individual") return { ok: false, error: "Not available for this account.", status: 403, usage: null };
   if (auth.kind !== "school") return { ok: true, usage: null };
   const fresh = await dbOne(env, "SELECT * FROM schools WHERE id = ?", auth.school.id);
   if (fresh) auth.school = fresh;
@@ -1628,6 +1694,7 @@ async function checkPaper(env, auth, paperKey = "") {
 }
 
 async function consumePaper(env, auth, paperKey = "") {
+  if (auth.kind === "individual") return { ok: false, error: "Not available for this account.", status: 403, usage: null };
   if (auth.kind !== "school") return { ok: true, usage: null };
   const school = auth.school;
   if (school.status !== "active") {
@@ -2865,10 +2932,19 @@ export default {
     if (request.method === "OPTIONS") {
       return new Response(null, { status: originAllowed(origin) ? 204 : 403, headers: cors(origin) });
     }
+    if (url.pathname === "/teacher" || url.pathname === "/stripe/webhook") {
+      return routeIndividual(url, request, env, origin, { json, rateLimit, authorize, originAllowed });
+    }
     if (url.pathname === "/" && request.method === "GET") {
       return json({ service: "grade-along-api", ok: true, passcodeConfigured: !!env.TEACHER_PASSCODE, schoolAccounts: !!(env.DB && env.SESSION_SECRET) }, 200, origin);
     }
     if (origin && !originAllowed(origin) && url.pathname !== "/") return json({ error: "Origin not allowed." }, 403, origin);
+    try {
+      const indRes = await routeIndividual(url, request, env, origin, { json, rateLimit, authorize, originAllowed });
+      if (indRes) return indRes;
+    } catch {
+      return json({ error: "Server error." }, 500, origin);
+    }
     try {
       const schoolRes = await routeSchool(url, request, env, origin);
       if (schoolRes) return schoolRes;
@@ -2920,7 +2996,7 @@ export default {
     return json({ error: "Not found." }, 404, origin);
   },
   async scheduled(event, env, ctx) {
-    const work = runRetention(env).then(
+    const work = Promise.all([runRetention(env), runIndividualRetention(env).catch(() => ({ individual: "failed" }))]).then(
       (r) => console.log("retention ok", JSON.stringify(r)),
       () => console.log("retention failed")
     );
